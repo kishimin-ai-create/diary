@@ -1,0 +1,25 @@
+# Principles
+
+- Code as design.
+- Code will be changed.
+- KISS(Keep It Simple, Stupid.)
+- DRY(Don't Repeat Yourself.)
+- YAGNI(You Are'nt Going to Need it.)
+- PIE(Program Intently and Expressively)
+- SLAP(Single Level of Abstraction Principle.)
+- OCP(Open-Closed Principle)
+- Naming is important
+- Changeability
+- Interoperability
+- Efficiency
+- Reliability
+- Testability
+- Reusability
+- Simplicity Principle
+- Isomorphism Principle
+- Symmetry Principle
+- Hierarchy Principle
+- Linearity Principle
+- Clarity Principle
+- Safety Principle
+- No ARIA is better than bad ARIA.

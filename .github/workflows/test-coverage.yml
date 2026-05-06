@@ -1,0 +1,131 @@
+name: Test Coverage
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ""
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: TDDTodoAppDB
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            frontend/package-lock.json
+            backend/package-lock.json
+
+      - name: Install dependencies (frontend)
+        run: npm ci
+        working-directory: frontend
+
+      - name: Install dependencies (backend)
+        run: npm ci
+        working-directory: backend
+
+      - name: Run frontend coverage
+        id: frontend_coverage
+        continue-on-error: true
+        run: npm run coverage
+        working-directory: frontend
+
+      - name: Run backend unit coverage
+        id: backend_unit_coverage
+        continue-on-error: true
+        run: npm run coverage:unit
+        working-directory: backend
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: TDDTodoAppDB
+          DB_USERNAME: root
+          DB_PASSWORD: ""
+
+      - name: Build backend
+        run: npm run build
+        working-directory: backend
+
+      - name: Run database migrations
+        run: node dist/infrastructure/migrate.mjs
+        working-directory: backend
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: TDDTodoAppDB
+          DB_USERNAME: root
+          DB_PASSWORD: ""
+
+      - name: Run backend integration coverage
+        id: backend_integration_coverage
+        continue-on-error: true
+        run: npm run coverage:integration
+        working-directory: backend
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: TDDTodoAppDB
+          DB_USERNAME: root
+          DB_PASSWORD: ""
+
+      - name: Generate combined coverage dashboard
+        if: always()
+        run: npm run coverage:report
+
+      - name: Upload frontend coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage-report
+          path: frontend/coverage/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload backend coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage-report
+          path: backend/coverage/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload combined coverage dashboard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-coverage-dashboard
+          path: docs/coverage/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Fail when coverage failed
+        if: steps.frontend_coverage.outcome == 'failure' || steps.backend_unit_coverage.outcome == 'failure' || steps.backend_integration_coverage.outcome == 'failure'
+        run: exit 1
