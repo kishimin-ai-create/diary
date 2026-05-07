@@ -3,65 +3,74 @@
 I'm using `Hono` and `Typescript`. Within this directory, you should make
 decisions as a Typescript expert.
 
-### Directory Structure for Clean Architecture
+## Directory Structure (DDD + Clean Architecture with Controller/Service Style)
 
 ```text
 src/
-├── domain/                # Domain Layer
-│   ├── entities/          # Business Entities
-│   └── repositories/      # Repository Interfaces
-├── usecase/               # Usecase Layer
-│   ├── interactors/       # Business Logic Implementation
-│   ├── input_ports/       # Input Boundaries
-│   └── output_ports/      # Output Boundaries
-├── interface/             # Interface Adapters Layer
-│   ├── controllers/       # Controllers
-│   ├── presenters/        # Presenters
-│   └── gateways/          # Repository Implementations
-└── infrastructure/        # Infrastructure Layer
-    ├── database/          # Database Configurations
-    ├── external_api/      # External API Clients
-    └── framework/         # Framework Specific Settings
+├── models/                # Domain Model (Entities / Value Objects)
+├── services/              # Application Service (Usecase / Business Logic)
+├── repositories/           # Repository Interfaces (Domain) & Implementations
+├── controllers/           # Entry Point (HTTP Layer)
+└── infrastructures/       # External Systems (DB, APIs, Framework)
 ```
 
-#### Layer Descriptions
+## Layer Descriptions
 
-| Layer              | Description                                                                                                                                                                             |
-| :----------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Domain**         | The innermost circle. Defines business rules and entities. It is the core of the application and has no dependencies on other layers.                                                   |
-| **Usecase**        | Contains application-specific business logic. It orchestrates the flow of data to and from the entities and directs those entities to use their critical business rules.                |
-| **Interface**      | A set of adapters that convert data from the format most convenient for the use cases and entities to the format most convenient for external agencies such as the Database or the Web. |
-| **Infrastructure** | The outermost layer. It is where all the details go: the framework, the database, the UI, etc. It communicates with the Interface layer to receive and send data.                       |
+| Layer              | Description                                                                                     |
+| ------------------ | ----------------------------------------------------------------------------------------------- |
+| **Model**          | Domain layer. Defines entities and business rules. No dependencies on other layers.             |
+| **Service**        | Application layer. Executes business logic and orchestrates use cases.                          |
+| **Repository**     | Handles data persistence. Interfaces belong to Model, implementations belong to Infrastructure. |
+| **Controller**     | Entry point. Handles HTTP requests/responses and calls Services.                                |
+| **Infrastructure** | External concerns such as DB, frameworks, and APIs.                                             |
 
-### Strict Rules to Follow
+## Strict Rules to Follow
 
-- **Domain Layer:** Never import frameworks or infrastructure-specific SDKs
-  (e.g., SQLx, Axum). It must contain only business entities, rules, and Ports
-  (interfaces/traits).
-- **Usecase Layer:** Dedicated to orchestration and transaction boundary
-  management. Implementation of SQL or HTTP calls is strictly prohibited; it
-  must interact with the outside world only through Ports.
-- **Handler Layer:** Keep it "thin." Its responsibility is limited to
-  parsing/validating input, calling the Usecase, and mapping internal errors to
-  HTTP responses or DTOs.
-- **Error Handling:** Never leak raw infrastructure errors (like DB errors)
-  outside the infrastructure layer. They must be mapped into domain-specific
-  error types (e.g., `AppError` or `RepoError`).
+### Model Layer
 
-### Implementation Steps (Thinking Process)
+- Must not depend on any other layer
+- No frameworks, no database access, no HTTP
 
-To avoid getting lost during development, the following implementation order is
-recommended:
+### Service Layer
 
-1.  **Domain:** Implement the core models and business logic first.
-2.  **Port:** Define the interfaces (Traits) required for I/O.
-3.  **Usecase:** Define the flow of the process (orchestration) using the Ports.
-4.  **Adapter:** Implement the infrastructure details (e.g., DB queries,
-    external API clients).
-5.  **Registry:** Wire everything together using Dependency Injection.
-6.  **Handler:** Create the entry point, such as an HTTP endpoint.
-7.  **Test:** Conduct tests from the inside out (Domain → Usecase →
-    Infrastructure → Interface).
+- Contains business logic and usecase orchestration
+- Must not include infrastructure details (DB, HTTP, etc.)
+
+### Repository Layer
+
+- Interfaces belong to the Model layer
+- Implementations belong to the Infrastructure layer
+- Must not leak infrastructure-specific errors
+
+### Controller Layer
+
+- Must be thin
+- Only handles request/response mapping
+- Calls Service layer only
+
+### Infrastructure Layer
+
+- Handles all external systems (DB, APIs, frameworks)
+- Must not contain business logic
+
+## Dependency Rule
+
+- Dependencies must always point inward (toward Model)
+
+```text
+Controller → Service → Model
+           ↓
+      Repository (interface)
+           ↓
+    Infrastructure (implementation)
+```
+
+- Outer layers must not be referenced from inner layers
+
+## Error Handling
+
+- Do not expose raw infrastructure errors outside Infrastructure layer
+- Map errors to domain-specific types (e.g., AppError, RepoError)
 
 ### Article Summary: Testing Web APIs (from Money Forward Developers Blog)
 
