@@ -23,6 +23,22 @@ The goal of TDD is to achieve "clean code that works"
 
 ---
 
+## Applies to All Code Changes
+
+TDD is **mandatory for every code change** — not only new features.
+
+| Change type | TDD cycle |
+|---|---|
+| New feature | Red → Green → Refactor |
+| Bug fix | Write a failing test that reproduces the bug → Green → Refactor |
+| Refactoring | Verify all tests pass first, then refactor (tests must stay Green throughout) |
+| Performance / security | Write a test that exposes the gap, then fix |
+
+> Never touch production code without first having a failing test that
+> justifies the change. A fix without a failing test is not TDD.
+
+---
+
 ## Principles
 
 - Break problems into small pieces

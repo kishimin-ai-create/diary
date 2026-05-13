@@ -136,3 +136,5 @@ Before acting, read the following rule files and apply them throughout all work:
 | [`.github/rules/backend.rules.md`](../rules/backend.rules.md) | Backend architecture — primary reference for documenting routes |
 | [`.github/rules/typescript.rules.md`](../rules/typescript.rules.md) | TypeScript coding standards — for reading implementation accurately |
 | [`.github/rules/git.rules.md`](../rules/git.rules.md) | Git workflow rules — reading implementation changes |
+| [`.github/rules/no-local-paths.rules.md`](../rules/no-local-paths.rules.md) | No absolute local filesystem paths in committed files |
+| [` .github/rules/security.rules.md` `](../rules/security.rules.md) | Security — password hashing, token handling, input validation |

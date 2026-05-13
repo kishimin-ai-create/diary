@@ -1,6 +1,6 @@
 ---
 description:
-  "Use when: turning completed development work into an English technical article,
+  "Use when: turning completed development work into a Japanese technical article,
   devlog, or release note. The ArticleWriteAgent reads diffs, changed files,
   specs, PR context, and notes, then produces a factual write-up that explains
   what changed, why it mattered, how it was implemented, and saves the article
@@ -144,7 +144,7 @@ ArticleWriteAgent **MUST** deliver:
    title chosen by the agent**
 4. The file name should preserve the article title as much as possible while
    removing characters invalid for file systems
-5. Add the current date as a prefix only if needed to avoid collisions
+5. Do NOT add date prefixes to file names
 6. The first line of the file should be the article title as a Markdown heading
 
 ## 📝 File Writing Rules
@@ -316,3 +316,5 @@ Before acting, read the following rule files and apply them throughout all work:
 | [`.github/rules/principles.rules.md`](../rules/principles.rules.md) | Core engineering principles |
 | [`.github/rules/protected-paths.rules.md`](../rules/protected-paths.rules.md) | Files that must not be modified without explicit user instruction |
 | [`.github/rules/git.rules.md`](../rules/git.rules.md) | Git workflow rules — reading history and diffs for evidence gathering |
+| [`.github/rules/no-local-paths.rules.md`](../rules/no-local-paths.rules.md) | No absolute local filesystem paths in committed files |
+| [` .github/rules/security.rules.md` `](../rules/security.rules.md) | Security — password hashing, token handling, input validation |

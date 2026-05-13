@@ -498,6 +498,8 @@ Before acting, read the following rule files and apply them throughout all work:
 | [`.github/rules/typescript.rules.md`](../rules/typescript.rules.md) | TypeScript coding standards |
 | [`.github/rules/human-interface-guideline.rules.md`](../rules/human-interface-guideline.rules.md) | UI/UX design principles — accessibility and layout |
 | [`.github/rules/git.rules.md`](../rules/git.rules.md) | Git workflow rules |
+| [`.github/rules/no-local-paths.rules.md`](../rules/no-local-paths.rules.md) | No absolute local filesystem paths in committed files |
+| [` .github/rules/security.rules.md` `](../rules/security.rules.md) | Security — password hashing, token handling, input validation |
 
 ---
 

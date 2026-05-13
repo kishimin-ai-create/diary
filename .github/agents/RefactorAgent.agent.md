@@ -749,6 +749,18 @@ Before acting, read the following rule files and apply them throughout all work:
 | [`.github/rules/test-driven-development.rules.md`](../rules/test-driven-development.rules.md) | TDD cycle — Red / Green / Refactor |
 | [`.github/rules/git.rules.md`](../rules/git.rules.md) | Git workflow rules |
 | [`.github/rules/commit-message.rules.md`](../rules/commit-message.rules.md) | Commit message format |
+| [`.github/rules/no-local-paths.rules.md`](../rules/no-local-paths.rules.md) | No absolute local filesystem paths in committed files |
+| [` .github/rules/security.rules.md` `](../rules/security.rules.md) | Security — password hashing, token handling, input validation |
+
+## 🔚 Post-Completion Required Steps
+
+When all work is complete, you MUST call the following agents in order:
+
+1. `@ArticleWriterAgent` — Save the changes as a technical article under `blog/`
+2. `@WorkSummaryAgent` — Save the work as a diary entry to `diary/YYYYMMDD.md`
+
+These calls are mandatory and are included as part of the Definition of Done.
+Do not recursively invoke them if the current task is already `@ArticleWriterAgent` or `@WorkSummaryAgent`.
 
 ---
 
