@@ -56,10 +56,16 @@ description: "Conventional Commits format rules, types, body guidelines, languag
 - If the reason (Why) is not clear, the commit is invalid
 - If multiple purposes exist, split the commit
 
-## Examples
+## Good
 
 ```
 chore: remove obsolete security skill file
 
 Since I no longer need the skill I wrote myself, I’m asking my copilot to write a security skill.
+```
+
+## Bad
+
+```
+chore: remove obsolete security skill file
 ```
