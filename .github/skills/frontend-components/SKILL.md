@@ -61,6 +61,36 @@ When discriminated unions become complex, express UI state through JSX structure
 
 Use component boundaries to encode UI states, not just props.
 
+## Suspense Boundary
+
+`<Suspense>` is a React mechanism that lets a component tree "wait" for an async operation (data fetch, lazy import) before rendering, showing a `fallback` in the meantime.
+
+### When to use Suspense
+
+- Lazy-loaded components (`React.lazy(() => import(...))`)
+- Data fetching with a Suspense-compatible library (React Query with `suspense: true`, Relay, Next.js Server Components)
+- Code splitting at route or feature boundaries
+
+### Placement rules
+
+- Place `<Suspense>` as **close to the async work as possible** — wrapping only the component that suspends, not an entire page, keeps fallback granularity high
+- Place a **root-level** `<Suspense>` as a last-resort boundary for unexpected suspensions
+- Combine with `<ErrorBoundary>` directly above `<Suspense>` to handle both loading and error states
+
+```tsx
+<ErrorBoundary fallback={<ErrorMessage />}>
+  <Suspense fallback={<Spinner />}>
+    <UserProfile userId={id} />
+  </Suspense>
+</ErrorBoundary>
+```
+
+### Anti-patterns
+
+- Wrapping an entire page in a single `<Suspense>` — shows a blank/spinner for the whole page when only one section is loading
+- Using `<Suspense>` with non-Suspense-compatible data fetching (e.g., `useEffect` + `useState`) — it will not work
+- Omitting `<ErrorBoundary>` alongside `<Suspense>` — errors thrown during suspension are uncaught without it
+
 ## Useful Patterns
 
 Use established patterns when they simplify reuse and extension:
