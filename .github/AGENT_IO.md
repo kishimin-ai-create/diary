@@ -1,377 +1,377 @@
 # Agent I/O Reference
 
-アプリごとに変わる入力・出力・パス設定の一覧。  
-別プロジェクトに移植するときはこのファイルを起点に各 `.agent.md` を更新する。
+Input/output/path settings that vary per application.
+When porting to another project, start from this file to update each `.agent.md`.
 
 ---
 
-## 早見表
+## Quick Reference
 
-| エージェント | 入力（何を渡すか） | 出力ファイル・場所 |
+| Agent | Input (what to provide) | Output file / location |
 |---|---|---|
-| [OrchestratorAgent](#orchestratoragent) | 仕様書 `.md` のパス | `review/`, `blog/`, `diary/` |
-| [RedAgent](#redagent) | 仕様書 + ターゲット + スコープ | テストファイル（`*.test.ts`） |
-| [GreenAgent](#greenagent) | 失敗テストファイル + 仕様書 + ターゲット | 実装ファイル |
-| [RefactorAgent](#refactoragent) | 実装ファイル + テストファイル + ターゲット | リファクタ済み実装ファイル |
-| [FixAgent](#fixagent) | バグ報告 + 対象ファイル + 仕様書 | テスト + 修正済み実装ファイル |
-| [CodeReviewAgent](#codereviewagent) | ブランチ / ファイル / PR 番号 | `review/{topic}-YYYYMMDD.md` |
-| [ReviewResponseAgent](#reviewresponseagent) | `review/` 下のファイルパス（省略可） | `review/` ファイルへ追記 + コード修正 |
-| [RegressionTestAgent](#regressiontestagent) | 変更ファイル / バグ説明 / 仕様書 | テストファイル |
-| [ArticleWriterAgent](#articlewriteragent) | diff / 仕様書 / PR文脈 | `blog/{title}.md` |
-| [WorkSummaryAgent](#worksummaryagent) | スコープヒント / 変更ファイル | `diary/YYYYMMDD.md` |
-| [PullRequestWriterAgent](#pullrequestwriteragent) | diff / 仕様書 / タスク文脈 | `pull-request/{title}.md` |
-| [OpenApiWriterAgent](#openapiwriteragent) | バックエンド実装ファイル + スコープ | `docs/spec/backend/openapi.yaml` |
-| [UIDesignAgent](#uidesignagent) | コンポーネントパス / デザイン参照 / スコープ | フロントエンド `.tsx` + `.stories.tsx` |
+| [OrchestratorAgent](#orchestratoragent) | Spec `.md` path | `review/`, `blog/`, `diary/` |
+| [RedAgent](#redagent) | Spec + target + scope | Test files (`*.test.ts`) |
+| [GreenAgent](#greenagent) | Failing test file + spec + target | Implementation file |
+| [RefactorAgent](#refactoragent) | Implementation file + test file + target | Refactored implementation file |
+| [FixAgent](#fixagent) | Bug report + target file + spec | Test + fixed implementation file |
+| [CodeReviewAgent](#codereviewagent) | Branch / file / PR number | `review/{topic}-YYYYMMDD.md` |
+| [ReviewResponseAgent](#reviewresponseagent) | File path under `review/` (optional) | Appended to `review/` file + code edits |
+| [RegressionTestAgent](#regressiontestagent) | Changed files / bug description / spec | Test files |
+| [ArticleWriterAgent](#articlewriteragent) | diff / spec / PR context | `blog/{title}.md` |
+| [WorkSummaryAgent](#worksummaryagent) | Scope hint / changed files | `diary/YYYYMMDD.md` |
+| [PullRequestWriterAgent](#pullrequestwriteragent) | diff / spec / task context | `pull-request/{title}.md` |
+| [OpenApiWriterAgent](#openapiwriteragent) | Backend implementation files + scope | `docs/spec/backend/openapi.yaml` |
+| [UIDesignAgent](#uidesignagent) | Component path / design reference / scope | Frontend `.tsx` + `.stories.tsx` |
 
 ---
 
 ## OrchestratorAgent
 
-**役割**: Red → Green → Refactor → Review の TDD フルサイクルを指揮する。
+**Role**: Orchestrates the full TDD cycle — Red → Green → Refactor → Review.
 
-### 入力
-| 項目 | 内容 |
+### Input
+| Item | Description |
 |---|---|
-| 仕様書（必須） | `docs/spec/features/{feature}.md` などの Markdown パス |
-| スコープ（任意） | 対象レイヤー（Domain / Usecase / Interface / Component） |
-| 設定（任意） | フレームワーク指定など |
+| Spec (required) | Markdown path such as `docs/spec/features/{feature}.md` |
+| Scope (optional) | Target layer (Domain / Usecase / Interface / Component) |
+| Config (optional) | Framework preferences etc. |
 
-### 出力
-| 成果物 | パス |
+### Output
+| Artifact | Path |
 |---|---|
-| レビューファイル | `review/{feature-slug}-YYYYMMDD.md` |
-| ブログ記事 | `blog/{title}.md` |
-| 作業日誌 | `diary/YYYYMMDD.md` |
+| Review file | `review/{feature-slug}-YYYYMMDD.md` |
+| Blog article | `blog/{title}.md` |
+| Work diary | `diary/YYYYMMDD.md` |
 
-### アプリごとに変わる設定
-- `docs/spec/features/` の仕様書パス構造
-- `{feature-slug}` の命名規則
+### Per-app configuration
+- Spec path structure under `docs/spec/features/`
+- Naming convention for `{feature-slug}`
 
 ---
 
 ## RedAgent
 
-**役割**: 仕様から失敗するテストを生成する。
+**Role**: Generates failing tests from specifications.
 
-### 入力
-| 項目 | 内容 |
+### Input
+| Item | Description |
 |---|---|
-| 仕様書（必須） | `docs/spec/` 以下の Markdown |
-| ターゲット（必須） | テスト対象モジュールのパス（例: `createApp usecase`） |
-| スコープ（必須） | どのレイヤーにテストを書くか（Domain / Usecase / Interface / Component） |
+| Spec (required) | Markdown under `docs/spec/` |
+| Target (required) | Path of the module under test (e.g. `createApp usecase`) |
+| Scope (required) | Which layer to write tests for (Domain / Usecase / Interface / Component) |
 
-### 出力
-| 成果物 | パス |
+### Output
+| Artifact | Path |
 |---|---|
-| テストファイル | `backend/src/**/*.test.ts` または `frontend/src/**/*.test.tsx` |
+| Test file | `backend/src/**/*.test.ts` or `frontend/src/**/*.test.tsx` |
 
-### アプリごとに変わる設定
-- テストフレームワーク（本プロジェクト: Vitest / React Testing Library）
-- テスト配置ディレクトリの慣習
-- テスト実行コマンド（本プロジェクト: `npm run test`）
+### Per-app configuration
+- Test framework (this project: Vitest / React Testing Library)
+- Test file placement conventions
+- Test run command (this project: `npm run test`)
 
 ---
 
 ## GreenAgent
 
-**役割**: 失敗しているテストを通す最小限の実装を書く。
+**Role**: Writes the minimal implementation to make failing tests pass.
 
-### 入力
-| 項目 | 内容 |
+### Input
+| Item | Description |
 |---|---|
-| 失敗テストファイル（必須） | `*.test.ts` / `*.test.tsx` のフルパス |
-| 仕様書（必須） | 期待動作の Markdown |
-| ターゲット（必須） | 実装を置くモジュールパス |
-| ドメイン・技術（任意） | Backend (TypeScript + Hono) / Frontend (React + TypeScript) など |
+| Failing test file (required) | Full path of `*.test.ts` / `*.test.tsx` |
+| Spec (required) | Markdown describing expected behavior |
+| Target (required) | Module path where the implementation should be placed |
+| Domain / Tech (optional) | Backend (TypeScript + Hono) / Frontend (React + TypeScript) etc. |
 
-### 出力
-| 成果物 | パス |
+### Output
+| Artifact | Path |
 |---|---|
-| 実装ファイル | ターゲットで指定したパス |
+| Implementation file | Path specified by Target |
 
-### アプリごとに変わる設定
-- フレームワーク（本プロジェクト: Hono / React）
-- DB / ORM（本プロジェクト: MySQL + mysql2）
-- テスト実行コマンド（本プロジェクト: `npm run test`）
+### Per-app configuration
+- Framework (this project: Hono / React)
+- DB / ORM (this project: MySQL + mysql2)
+- Test run command (this project: `npm run test`)
 
 ---
 
 ## RefactorAgent
 
-**役割**: 外部動作を変えずにコードの内部品質を改善する。
+**Role**: Improves internal code quality without changing external behavior.
 
-### 入力
-| 項目 | 内容 |
+### Input
+| Item | Description |
 |---|---|
-| 実装ファイル（必須） | リファクタ対象のフルパス |
-| テストファイル（参照用） | 外部契約を定義するテストのパス |
-| 仕様書（任意・コンテキスト用） | `docs/spec/` 以下 |
-| ターゲット（必須） | 対象ファイルまたはモジュール |
-| フォーカスエリア（任意） | 優先的に改善する観点（例: 重複削除、命名改善） |
+| Implementation file (required) | Full path of the file to refactor |
+| Test file (reference) | Path of tests that define the external contract |
+| Spec (optional, for context) | Under `docs/spec/` |
+| Target (required) | Target file or module |
+| Focus area (optional) | Aspects to prioritize (e.g. deduplication, naming improvement) |
 
-### 出力
-| 成果物 | パス |
+### Output
+| Artifact | Path |
 |---|---|
-| リファクタ済み実装 | 入力と同じパス（上書き） |
+| Refactored implementation | Same path as input (overwritten) |
 
-### アプリごとに変わる設定
-- 検証コマンド（本プロジェクト: `npm run typecheck` → `npm run lint` → `npm run test`）
-- バックエンド検証は `backend/` から実行
-- フロントエンド検証は `frontend/` から実行
+### Per-app configuration
+- Verification commands (this project: `npm run typecheck` → `npm run lint` → `npm run test`)
+- Backend verification runs from `backend/`
+- Frontend verification runs from `frontend/`
 
 ---
 
 ## FixAgent
 
-**役割**: バグ・ルール違反・壊れた動作を TDD サイクルで最小限に修正する。
+**Role**: Fixes bugs, rule violations, and broken behavior with minimal changes in the TDD cycle.
 
-### 入力
-| 項目 | 内容 |
+### Input
+| Item | Description |
 |---|---|
-| バグ報告 / 症状（必須） | 何が壊れているか・どう現れるか |
-| 対象ファイル（必須） | 欠陥を含む実装ファイルのパス |
-| テストコード（参照用） | 既存テストスイートのパス |
-| 仕様書（任意） | 正しい動作の定義 |
-| ルール違反（任意） | 違反しているルールと場所 |
+| Bug report / symptom (required) | What is broken and how it manifests |
+| Target file (required) | Path of the implementation file containing the defect |
+| Test code (reference) | Path of the existing test suite |
+| Spec (optional) | Definition of correct behavior |
+| Rule violation (optional) | The violated rule and its location |
 
-### 出力
-| 成果物 | パス |
+### Output
+| Artifact | Path |
 |---|---|
-| 再現テスト + 修正済み実装 | 対象ファイルと同じテストファイルへ追加 |
-| コミット（1 fix = 1 commit） | git history |
+| Reproduction test + fixed implementation | Added to the test file for the target file |
+| Commit (1 fix = 1 commit) | git history |
 
-### アプリごとに変わる設定
-- 検証コマンド（本プロジェクト: `npm run typecheck` → `npm run lint` → `npm run test`）
-- テスト配置ルール（本プロジェクト: 壊れたレイヤーのテストファイルに追加）
+### Per-app configuration
+- Verification commands (this project: `npm run typecheck` → `npm run lint` → `npm run test`)
+- Test placement rule (this project: append to the test file of the broken layer)
 
 ---
 
 ## CodeReviewAgent
 
-**役割**: コード変更を分析し、`review/` に構造化レビューファイルを書く。
+**Role**: Analyzes code changes and writes a structured review file to `review/`.
 
-### 入力
-| 項目 | 内容 |
+### Input
+| Item | Description |
 |---|---|
-| ブランチ名 / コミット SHA / PR 番号 | レビュー範囲の指定 |
-| ファイルまたはディレクトリ（任意） | フォーカスするパス |
-| 仕様書（任意） | `docs/spec/` 以下のコンテキスト用ファイル |
+| Branch name / commit SHA / PR number | Defines the review scope |
+| File or directory (optional) | Path to focus on |
+| Spec (optional) | Context file under `docs/spec/` |
 
-### 出力
-| 成果物 | パス |
+### Output
+| Artifact | Path |
 |---|---|
-| レビューファイル | `review/{work-description}-YYYYMMDD.md` |
+| Review file | `review/{work-description}-YYYYMMDD.md` |
 
-**レビューファイルフォーマット**: 優先度バッジ（🔴 P1 / 🟡 P2 / 🟢 P3）付き指摘 + サマリー
+**Review file format**: Findings with priority badges (🔴 P1 / 🟡 P2 / 🟢 P3) + summary
 
-### アプリごとに変わる設定
-- `review/` ディレクトリのパス
-- 日付取得コマンド（Windows: `Get-Date -Format "yyyyMMdd"` / Unix: `date "+%Y%m%d"`）
+### Per-app configuration
+- Path of `review/` directory
+- Date command (Windows: `Get-Date -Format "yyyyMMdd"` / Unix: `date "+%Y%m%d"`)
 
 ---
 
 ## ReviewResponseAgent
 
-**役割**: `review/` のレビューコメントにコード修正または文書返答で応答する。
+**Role**: Responds to review comments in `review/` with code fixes or written replies.
 
-### 入力
-| 項目 | 内容 |
+### Input
+| Item | Description |
 |---|---|
-| レビューファイルパス（任意） | `review/` 以下のパス。省略時は最新追加ファイルを自動検出 |
-| スコープヒント（任意） | ファイル名・コメントタイトル・影響エリア |
+| Review file path (optional) | Path under `review/`. Auto-detects most recently added file if omitted. |
+| Scope hint (optional) | File name / comment title / affected area |
 
-**ファイル自動検出コマンド**:
+**Auto-detection command**:
 ```bash
 git --no-pager log --diff-filter=A --name-only --pretty=format: -- review/ | head -1
 ```
 
-### 出力
-| 成果物 | 場所 |
+### Output
+| Artifact | Location |
 |---|---|
-| コード修正 | 対象の実装ファイル（直接編集） |
-| 返答テキスト | `review/` ファイルの各指摘直下に追記 |
-| Disposition ブロック | 各指摘に `fixed` / `reply only` / `needs clarification` を追記 |
+| Code fix | Target implementation file (direct edit) |
+| Reply text | Appended below each finding in the `review/` file |
+| Disposition block | `fixed` / `reply only` / `needs clarification` appended to each finding |
 
-### アプリごとに変わる設定
-- `review/` ディレクトリのパス
-- レビューファイルの形式（Disposition: ブロックの有無でスキップ判定）
+### Per-app configuration
+- Path of `review/` directory
+- Review file format (skip judgment based on presence of Disposition: block)
 
 ---
 
 ## RegressionTestAgent
 
-**役割**: TDD サイクル外で、既実装コードの安全網テストを追加・実行する。
+**Role**: Adds and runs safety-net tests for already-implemented code outside the TDD cycle.
 
-### 入力
-| 項目 | 内容 |
+### Input
+| Item | Description |
 |---|---|
-| 変更ファイル / ディレクトリ / ブランチ / diff（任意） | 分析対象 |
-| バグ説明（任意） | リグレッションカバレッジにしたい問題 |
-| 仕様書 / 設計ドキュメント（任意） | 期待動作の参照 |
-| スコープヒント（任意） | `backend API` / `usecase layer` / `critical flow` など |
+| Changed files / directory / branch / diff (optional) | Target for analysis |
+| Bug description (optional) | Problem to be covered by regression tests |
+| Spec / design document (optional) | Reference for expected behavior |
+| Scope hint (optional) | `backend API` / `usecase layer` / `critical flow` etc. |
 
-### 出力
-| 成果物 | パス |
+### Output
+| Artifact | Path |
 |---|---|
-| テストファイル | 既存テストスタックの慣習に従ったパス |
-| テスト実行結果サマリー | エージェント出力 |
+| Test files | Path following existing test stack conventions |
+| Test run result summary | Agent output |
 
-### アプリごとに変わる設定
-- テストフレームワーク（本プロジェクト: Vitest）
-- 実行コマンド（本プロジェクト: `npm run test:unit` / `npm run test:integration`）
-- テスト配置の慣習
+### Per-app configuration
+- Test framework (this project: Vitest)
+- Run commands (this project: `npm run test:unit` / `npm run test:integration`)
+- Test placement conventions
 
 ---
 
 ## ArticleWriterAgent
 
-**役割**: 完成した開発作業を日本語技術記事に変換し `blog/` に保存する。
+**Role**: Converts completed development work into a Japanese technical article and saves it to `blog/`.
 
-### 入力
-| 項目 | 内容 |
+### Input
+| Item | Description |
 |---|---|
-| 変更ファイル / diff（主要） | 何が実装されたか |
-| 仕様書 / 要件（任意） | なぜ変更が必要だったか |
-| PR サマリー / コミット文脈（任意） | 意思決定の背景 |
-| 対象読者（任意） | チームメンバー / 初心者 / フロントエンドエンジニア など |
-| フォーマット（任意） | ブログ投稿 / devlog / リリースノート / Zenn 記事 など |
-| トーン（任意） | フォーマル / カジュアル / 簡潔 / 教育的 |
-| 長さ（任意） | 短め / 標準 / 深掘り |
-| テーマ種別（任意） | トレンド技術 / 更新機能 / 技術課題 / エラー解決 |
+| Changed files / diff (primary) | What was implemented |
+| Spec / requirements (optional) | Why the change was needed |
+| PR summary / commit context (optional) | Background of decisions |
+| Target readers (optional) | Team members / beginners / frontend engineers etc. |
+| Format (optional) | Blog post / devlog / release note / Zenn article etc. |
+| Tone (optional) | Formal / casual / concise / educational |
+| Length (optional) | Short / standard / in-depth |
+| Topic type (optional) | Trending tech / updated feature / technical issue / error resolution |
 
-### 出力
-| 成果物 | パス |
+### Output
+| Artifact | Path |
 |---|---|
-| 技術記事（日本語 Markdown） | `blog/{title}.md` |
+| Technical article (Japanese Markdown) | `blog/{title}.md` |
 
-**1 トピック = 1 ファイル**。複数トピックは複数ファイルに分割。
+**1 topic = 1 file**. Multiple topics → multiple files.
 
-### アプリごとに変わる設定
-- `blog/` ディレクトリのパス
-- デフォルト言語（本プロジェクト: 日本語）
+### Per-app configuration
+- Path of `blog/` directory
+- Default language (this project: Japanese)
 
 ---
 
 ## WorkSummaryAgent
 
-**役割**: リポジトリの変更から作業日誌エントリを生成し `diary/YYYYMMDD.md` に追記する。
+**Role**: Generates a work diary entry from repository changes and appends it to `diary/YYYYMMDD.md`.
 
-### 入力
-| 項目 | 内容 |
+### Input
+| Item | Description |
 |---|---|
-| スコープヒント（任意） | `this session` / `backend only` / `recent changes` など |
-| 変更ファイル（任意） | 対象ファイルリスト |
-| タスク文脈（任意） | 直近の作業に関するリポジトリコンテキスト |
+| Scope hint (optional) | `this session` / `backend only` / `recent changes` etc. |
+| Changed files (optional) | List of target files |
+| Task context (optional) | Repository context about recent work |
 
-### 出力
-| 成果物 | パス |
+### Output
+| Artifact | Path |
 |---|---|
-| 作業日誌エントリ（日本語） | `diary/YYYYMMDD.md`（既存なら追記） |
+| Work diary entry (English) | `diary/YYYYMMDD.md` (appended if file exists) |
 
-**禁止**: `git commit` / `git push` 不可（ファイル書き込みのみ）
+**Prohibited**: No `git commit` / `git push` (file write only)
 
-### アプリごとに変わる設定
-- `diary/` ディレクトリのパス（本プロジェクトでは `.gitignore` 対象のため `-f` が必要）
-- セクション区切りの形式（本プロジェクト: `## セッション N` + `---`）
+### Per-app configuration
+- Path of `diary/` directory (this project: requires `-f` because it is in `.gitignore`)
+- Section separator format (this project: `## Session N` + `---`)
 
 ---
 
 ## PullRequestWriterAgent
 
-**役割**: リポジトリ変更から PR 説明 Markdown を生成し `pull-request/` に保存する。
+**Role**: Generates a PR description Markdown from repository changes and saves it to `pull-request/`.
 
-### 入力
-| 項目 | 内容 |
+### Input
+| Item | Description |
 |---|---|
-| 変更ファイル / diff（主要） | 何が変わったか |
-| 仕様書 / タスク文脈（任意） | 変更の意図 |
-| 関連 Issue / チケット番号（任意） | リンク用 |
-| スコープヒント（任意） | `this session` / `latest changes` / フィーチャー名 |
-| 出力ファイル名（任意） | 指定がなければタイトルから自動生成 |
+| Changed files / diff (primary) | What changed |
+| Spec / task context (optional) | Intent behind the change |
+| Related issue / ticket number (optional) | For linking |
+| Scope hint (optional) | `this session` / `latest changes` / feature name |
+| Output file name (optional) | Auto-generated from title if not specified |
 
-### 出力
-| 成果物 | パス |
+### Output
+| Artifact | Path |
 |---|---|
-| PR 説明 Markdown | `pull-request/{title}.md` |
+| PR description Markdown | `pull-request/{title}.md` |
 
-**PR 構成セクション**（順序固定）:
+**PR section order** (fixed):
 `## Title` → `## Summary` → `## Related Tasks` → `## What was done` → `## What is not included` → `## Impact` → `## Testing` → `## Notes`
 
-**テンプレートファイル**: `.github/pull_request_template.md`
+**Template file**: `.github/pull_request_template.md`
 
-### アプリごとに変わる設定
-- PR テンプレートのパス（本プロジェクト: `.github/pull_request_template.md`）
-- `pull-request/` ディレクトリのパス
+### Per-app configuration
+- PR template path (this project: `.github/pull_request_template.md`)
+- Path of `pull-request/` directory
 
 ---
 
 ## OpenApiWriterAgent
 
-**役割**: 実装済みバックエンド API を OpenAPI 仕様書として `docs/spec/backend/openapi.yaml` に出力する。
+**Role**: Outputs the implemented backend API as an OpenAPI spec to `docs/spec/backend/openapi.yaml`.
 
-### 入力
-| 項目 | 内容 |
+### Input
+| Item | Description |
 |---|---|
-| バックエンド変更ファイル（主要） | ルート定義・バリデーション・コントローラー |
-| 既存仕様書（任意） | `docs/spec/` 以下の現行 OpenAPI |
-| スコープヒント（任意） | エンドポイントパス / フィーチャー名 / コミット範囲 |
+| Backend changed files (primary) | Route definitions, validators, controllers |
+| Existing spec (optional) | Current OpenAPI under `docs/spec/` |
+| Scope hint (optional) | Endpoint path / feature name / commit range |
 
-### 出力
-| 成果物 | パス |
+### Output
+| Artifact | Path |
 |---|---|
-| OpenAPI 仕様書（YAML） | `docs/spec/backend/openapi.yaml` |
+| OpenAPI spec (YAML) | `docs/spec/backend/openapi.yaml` |
 
-既存ファイルがある場合は**上書き更新**（新規並行作成しない）。
+Overwrites existing file if present (does not create a parallel file).
 
-### アプリごとに変わる設定
-- 出力パス（デフォルト: `docs/spec/backend/openapi.yaml`）
-- API バージョン・ベースパス
+### Per-app configuration
+- Output path (default: `docs/spec/backend/openapi.yaml`)
+- API version and base path
 
 ---
 
 ## UIDesignAgent
 
-**役割**: フロントエンドの見た目・スタイル・アクセシビリティを Tailwind CSS で改善する。
+**Role**: Improves frontend appearance, styling, and accessibility with Tailwind CSS.
 
-### 入力
-| 項目 | 内容 |
+### Input
+| Item | Description |
 |---|---|
-| コンポーネントパス（任意） | 例: `frontend/src/features/todo/TodoItem.tsx` |
-| デザイン参照（任意） | 説明文 / スクリーンショット参照 / `docs/design/` 下のドキュメント |
-| スコープキーワード（任意） | `"adjust global spacing"` / `"make mobile-friendly"` など |
+| Component path (optional) | e.g. `frontend/src/features/todo/TodoItem.tsx` |
+| Design reference (optional) | Description / screenshot reference / document under `docs/design/` |
+| Scope keyword (optional) | `"adjust global spacing"` / `"make mobile-friendly"` etc. |
 
-スコープ未指定時は `frontend/src` 全体を監査して改善。
+When no scope is specified, audits and improves all of `frontend/src`.
 
-### 出力
-| 成果物 | パス |
+### Output
+| Artifact | Path |
 |---|---|
-| 更新済みコンポーネント | `frontend/src/**/*.tsx`（Tailwind クラス適用） |
-| Storybook ストーリー | `frontend/src/**/*.stories.tsx`（新規作成または更新） |
+| Updated components | `frontend/src/**/*.tsx` (Tailwind classes applied) |
+| Storybook stories | `frontend/src/**/*.stories.tsx` (created or updated) |
 
-**禁止**: コンポーネントのロジック変更・`style={{}}` インライン・新 npm パッケージ追加
+**Prohibited**: Changing component logic / `style={{}}` inline styles / adding new npm packages
 
-### アプリごとに変わる設定
-- CSS フレームワーク（本プロジェクト: Tailwind CSS v4）
-- コンポーネント配置パス（本プロジェクト: `frontend/src/features/`）
-- ビルド・lint コマンド（本プロジェクト: `cd frontend && npm run build` / `npm run lint`）
-- デザインドキュメントパス（本プロジェクト: `docs/design/`）
+### Per-app configuration
+- CSS framework (this project: Tailwind CSS v4)
+- Component placement path (this project: `frontend/src/features/`)
+- Build / lint commands (this project: `cd frontend && npm run build` / `npm run lint`)
+- Design document path (this project: `docs/design/`)
 
 ---
 
-## プロジェクト共通設定（全エージェントに影響）
+## Global Configuration (Affects All Agents)
 
-| 設定項目 | 本プロジェクトの値 | 変更時の影響エージェント |
+| Setting | Value in This Project | Affected Agents |
 |---|---|---|
-| バックエンドテストコマンド | `cd backend && npm run test` | FixAgent / RefactorAgent / GreenAgent / RegressionTestAgent |
-| 型チェックコマンド | `cd backend && npm run typecheck` | FixAgent / RefactorAgent |
-| Lint コマンド（BE） | `cd backend && npm run lint` | FixAgent / RefactorAgent |
-| フロントエンドビルド | `cd frontend && npm run build` | UIDesignAgent |
-| Lint コマンド（FE） | `cd frontend && npm run lint` | UIDesignAgent |
-| 設計ドキュメント | `docs/design/` | 全エージェント |
-| API 仕様書 | `docs/spec/` | RedAgent / GreenAgent / OrchestratorAgent |
-| レビューファイル置き場 | `review/` | CodeReviewAgent / ReviewResponseAgent |
-| ブログ記事置き場 | `blog/` | ArticleWriterAgent |
-| 作業日誌置き場 | `diary/` | WorkSummaryAgent |
-| PR 下書き置き場 | `pull-request/` | PullRequestWriterAgent |
-| OpenAPI 仕様書 | `docs/spec/backend/openapi.yaml` | OpenApiWriterAgent |
-| PR テンプレート | `.github/pull_request_template.md` | PullRequestWriterAgent |
+| Backend test command | `cd backend && npm run test` | FixAgent / RefactorAgent / GreenAgent / RegressionTestAgent |
+| Type check command | `cd backend && npm run typecheck` | FixAgent / RefactorAgent |
+| Lint command (BE) | `cd backend && npm run lint` | FixAgent / RefactorAgent |
+| Frontend build | `cd frontend && npm run build` | UIDesignAgent |
+| Lint command (FE) | `cd frontend && npm run lint` | UIDesignAgent |
+| Design documents | `docs/design/` | All agents |
+| API spec | `docs/spec/` | RedAgent / GreenAgent / OrchestratorAgent |
+| Review file location | `review/` | CodeReviewAgent / ReviewResponseAgent |
+| Blog article location | `blog/` | ArticleWriterAgent |
+| Work diary location | `diary/` | WorkSummaryAgent |
+| PR draft location | `pull-request/` | PullRequestWriterAgent |
+| OpenAPI spec | `docs/spec/backend/openapi.yaml` | OpenApiWriterAgent |
+| PR template | `.github/pull_request_template.md` | PullRequestWriterAgent |
