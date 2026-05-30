@@ -94,46 +94,16 @@ npm run test
 ```
 
 
-## Implementation Steps (Thinking Process)
+## Test Placement Rules
 
-1. Model: Define domain models and business rules
-2. Repository: Define interfaces (ports)
-3. Service: Implement usecases using repositories
-4. Infrastructure: Implement repository details (DB, API)
-5. Controller: Handle HTTP and call services
-6. Test: Test from inside out (Model → Service → Infrastructure → Controller)
+- Unit tests must be placed **next to the source file** they test.
+- Unit test files must use the `.test.ts` suffix.
+- Integration tests must be placed under `tests/integrations/`.
+  - HTTP-level integration tests (through the Hono app) go in
+    `tests/integrations/infrastructure/`.
+  - Each resource must have its own file (e.g. `app.test.ts`, `todo.test.ts`).
+  - Shared helpers (HTTP helper, factories, constants) go in
+    `tests/integrations/helpers.ts`.
 
-
-## Testing Strategy (Summary)
-
-### Principles
-
-* Understand the system before testing
-* Define quality based on user value
-* Prioritize based on risk (impact × probability)
-
-### Testing Approach
-
-* Combine automated testing with exploratory testing
-* Use "Arrange → Act → Assert" cycle
-
-### Test Structure
-
-- Place unit tests next to the source code
-- Use `.test.ts` suffix
-
-- Integration tests should be placed under `tests/integrations/`
-  - HTTP-level integration tests (tests that go through the Hono app) belong in `tests/integrations/infrastructure/`
-  - Each resource should have its own file (e.g., `app.test.ts`, `todo.test.ts`, `index.test.ts`)
-  - Shared test utilities (HTTP helper, factory functions, constants) should be in `tests/integrations/helpers.ts`
-
-### Test Types
-
-- Unit tests (Small): no external dependencies
-- Integration tests (Medium): may use database or filesystem
-- E2E tests (Large): minimal usage only
-
-### Strategy
-
-* Improve testability continuously
-* Keep test plans simple and maintainable
+See [`skills/backend-patterns/SKILL.md`](../skills/backend-patterns/SKILL.md)
+for the implementation workflow and testing strategy details.

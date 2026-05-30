@@ -4,15 +4,27 @@ applyTo: "**/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx"
 
 # Test Rules
 
-- Classical
+## Test Size Classification
 
-We call them “Small”, “Medium” and “Large” tests. They differ like so: | Feature
-| Small | Medium | Large | | -------------------- | ----- | -------------- |
------ | | Network access | No | localhost only | Yes | | Database | No | Yes |
-Yes | | File system access | No | Yes | Yes | | Use external systems | No |
-Discouraged | Yes | | Multiple threads | No | Yes | Yes | | Sleep statements |
-No | Yes | Yes | | System properties | No | Yes | Yes | | Time limit (seconds) |
-60 | 300 | 900+ |
+| Feature              | Small | Medium         | Large |
+| -------------------- | ----- | -------------- | ----- |
+| Network access       | No    | localhost only | Yes   |
+| Database             | No    | Yes            | Yes   |
+| File system access   | No    | Yes            | Yes   |
+| Use external systems | No    | Discouraged    | Yes   |
+| Multiple threads     | No    | Yes            | Yes   |
+| Sleep statements     | No    | Yes            | Yes   |
+| System properties    | No    | Yes            | Yes   |
+| Time limit (seconds) | 60    | 300            | 900+  |
 
-- You should have more Medium tests than Large tests, and more Small tests than
-  Medium tests.
+## Rules
+
+- Write more Small tests than Medium tests, and more Medium tests than Large
+  tests.
+- Small tests must have no network access, no database, and no external
+  dependencies.
+- Medium tests may use localhost and a local database, but must not call
+  external services in production.
+- Large (E2E) tests should be used minimally — only for critical end-to-end
+  flows.
+
