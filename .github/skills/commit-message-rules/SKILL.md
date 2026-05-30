@@ -56,6 +56,67 @@ description: "Conventional Commits format rules, types, body guidelines, languag
 - If the reason (Why) is not clear, the commit is invalid
 - If multiple purposes exist, split the commit
 
+# Commit Granularity
+
+Create commits with a small and meaningful scope.
+
+## Rules
+
+- One commit should represent one logical change.
+- Do not mix refactoring, feature implementation, and bug fixes in the same commit.
+- Separate formatting-only changes from functional changes.
+- Separate file moves/renames from code modifications when possible.
+- Keep commits easy to review and easy to revert.
+- A reviewer should be able to understand the intent of the commit from the commit message and diff alone.
+
+## Good Examples
+
+### Feature implementation
+
+feat: add LINE notification service
+
+- add notification module
+- add push message implementation
+- add configuration handling
+
+### Refactoring
+
+refactor: extract user validation logic
+
+- move validation into dedicated module
+- remove duplicated validation code
+
+### Bug fix
+
+fix: handle empty API response
+
+- add null check
+- prevent runtime error
+
+## Bad Examples
+
+### Mixed concerns
+
+feat: add LINE notification and refactor API layer
+
+### Large unrelated changes
+
+feat: implement notification system
+
+- add LINE notification
+- update ESLint config
+- migrate to Zod
+- rename components
+- update dependencies
+
+## Goal
+
+Each commit should have a single clear purpose.
+
+A reviewer should be able to answer:
+"What changed and why?"
+without reading unrelated modifications.
+
 ## Good
 
 ```
