@@ -1,5 +1,5 @@
 ---
-name: "Frontend Architecture"
+name: frontend-architecture
 description: "Hosting, rendering, and platform-level architecture choices for modern web frontends."
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: "Frontend Display"
+name: frontend-display
 description: "Browser support, responsive layout, localization, images, dark mode, and delivery-performance guidance."
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: "Frontend State"
+name: frontend-state
 description: "State classification, storage choices, server-cache patterns, and offline-capable data handling."
 ---
 

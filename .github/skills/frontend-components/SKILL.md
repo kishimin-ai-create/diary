@@ -1,5 +1,5 @@
 ---
-name: "Frontend Components"
+name: frontend-components
 description: "Component design, naming, library strategy, and maintainable UI composition patterns."
 ---
 

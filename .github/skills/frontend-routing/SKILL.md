@@ -1,5 +1,5 @@
 ---
-name: "Frontend Routing"
+name: frontend-routing
 description: "Resource-oriented URL design, routing rules, parameter handling, and validation behavior for forms."
 ---
 

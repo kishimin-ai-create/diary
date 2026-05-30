@@ -1,5 +1,5 @@
 ---
-name: "Frontend Security"
+name: frontend-security
 description: "Authentication, authorization, token handling, and safe local-development network patterns for web frontends."
 ---
 

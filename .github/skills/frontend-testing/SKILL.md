@@ -1,5 +1,5 @@
 ---
-name: "Frontend Testing"
+name: frontend-testing
 description: "Static analysis and layered frontend testing guidance based on a testing-trophy strategy."
 ---
 
