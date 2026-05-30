@@ -9,7 +9,7 @@ description: Core engineering and design principles to apply when writing, revie
 
 - Code as design.
 - Code will be changed.
-- KISS (Keep It Simple, Stupid.)
+- KISS (Keep It Simple, Stupid.) — prefer **Simple** (low complexity) over **Easy** (convenient but entangled); a powerful tool that is hard to understand is a liability
 - DRY (Don't Repeat Yourself.)
 - YAGNI (You Aren't Going to Need It.)
 - PIE (Program Intently and Expressively.)

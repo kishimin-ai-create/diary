@@ -34,6 +34,33 @@ Use this skill when designing shared UI, domain-specific UI, component naming, o
 2. Move to a **hybrid approach** if styling or behavior needs exceed the library.
 3. Use **full scratch** only when requirements clearly justify it.
 
+## UI State Modeling
+
+### Discriminated Union
+
+Use discriminated union types to represent UI states explicitly.
+
+```typescript
+type State =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "success"; data: Data }
+  | { status: "error"; message: string };
+```
+
+- Makes valid states explicit to both users and implementers of the component
+- Eliminates impossible state combinations
+- Reduces unnecessary conditional branches
+
+### JSX Structure as UI State
+
+When discriminated unions become complex, express UI state through JSX structure:
+
+- Loading state → `<Suspense fallback={...}>`
+- Error state → `<ErrorBoundary fallback={...}>`
+
+Use component boundaries to encode UI states, not just props.
+
 ## Useful Patterns
 
 Use established patterns when they simplify reuse and extension:

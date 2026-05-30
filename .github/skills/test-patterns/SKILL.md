@@ -5,6 +5,13 @@ description: Test design pattern library. Aggregates detailed Vitest/RTL pattern
 
 # Test Patterns
 
+## When to Write Tests
+
+- Write tests when you are **afraid of making a change** (predictive changeability: "will this break something?")
+- Write tests when you want to **learn or optimize the structure** through TDD cycles
+- Do not write tests just for coverage; if a test does not reduce fear or improve design, it adds no value
+- TDD refactoring is the continuous process of tuning the balance between open extension and closed modification (OCP)
+
 ### Vitest Structure
 
 ```typescript
