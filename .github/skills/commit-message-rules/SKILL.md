@@ -29,6 +29,9 @@ description: "Conventional Commits format rules, types, body guidelines, languag
 - Always explain **Why** in the body
 - Do not explain **How** (implementation details)
 - Do not repeat what is obvious from the code
+- If "Why" is just "because the spec says so", write **what became possible** instead
+  - Bad: "add customer list feature because spec requires it"
+  - Good: "allow users to view customer list"
 
 ## Rules
 
@@ -38,6 +41,9 @@ description: "Conventional Commits format rules, types, body guidelines, languag
   - failing test → `test:`
   - implementation → `feat:`
   - refactoring → `refactor:`
+- Do not make commits that are too small — if the commit message only restates what the code obviously does (e.g., "create PostController"), the commit is likely too granular
+- Each commit must leave the application in a working (non-crashing) state — avoid commits where dependent files (routes, controllers, views) are missing
+- Separate auto-generated code (e.g., `gen-types`, bulk-generated helper files) into its own commit to distinguish intentional changes from generated changes
 
 ## Language
 
@@ -116,6 +122,24 @@ Each commit should have a single clear purpose.
 A reviewer should be able to answer:
 "What changed and why?"
 without reading unrelated modifications.
+
+# Commit Order
+
+Arrange commits in logical implementation order so the history reads like a smooth, intentional development flow.
+
+## Rules
+
+- Implement dependencies before the code that depends on them (e.g., define the API endpoint before implementing the API call)
+- Group related changes consecutively (e.g., PC nav change followed immediately by SP nav change, not separated by unrelated commits)
+- Commit frequently during development (even as WIP) to avoid a tangled history
+- When using LLMs to generate code, limit the scope per generation to keep commits clean
+- Use `git rebase -i` to fix commit order or squash/split commits before opening a PR
+
+## Anti-patterns
+
+- A commit calls a function that does not exist yet in the same or earlier commits
+- PC and SP variants of the same change are separated by unrelated commits
+- Auto-generated and hand-written changes are mixed in one commit
 
 ## Good
 
