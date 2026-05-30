@@ -241,20 +241,18 @@ This call is mandatory and is included as part of the Definition of Done.
 
 ## 📚 Governing Rules
 
-Before acting, read the following rule files and apply them throughout all work:
+Before acting, read `.github/copilot-instructions.md` and the following instruction files, then apply them throughout all work:
 
-| Rule File | Applies to |
+| Instruction File | Applies to |
 |---|---|
-| [`.github/rules/principles.rules.md`](../rules/principles.rules.md) | Core engineering principles |
-| [`.github/rules/protected-paths.rules.md`](../rules/protected-paths.rules.md) | Files that must not be modified without explicit user instruction |
-| [`.github/rules/engineering.rules.md`](../rules/engineering.rules.md) | General engineering standards |
-| [`.github/rules/backend.rules.md`](../rules/backend.rules.md) | Backend architecture — Clean Architecture, Hono |
-| [`.github/rules/frontend.rules.md`](../rules/frontend.rules.md) | Frontend architecture — React, Tailwind CSS |
-| [`.github/rules/typescript.rules.md`](../rules/typescript.rules.md) | TypeScript coding standards |
-| [`.github/rules/test.rules.md`](../rules/test.rules.md) | Test writing standards |
-| [`.github/rules/test-driven-development.rules.md`](../rules/test-driven-development.rules.md) | TDD cycle — Red / Green / Refactor |
-| [`.github/rules/human-interface-guideline.rules.md`](../rules/human-interface-guideline.rules.md) | UI/UX design principles |
-| [`.github/rules/git.rules.md`](../rules/git.rules.md) | Git workflow rules |
-| [`.github/rules/commit-message.rules.md`](../rules/commit-message.rules.md) | Commit message format |
-| [`.github/rules/no-local-paths.rules.md`](../rules/no-local-paths.rules.md) | No absolute local filesystem paths in committed files |
-| [` .github/rules/security.rules.md` `](../rules/security.rules.md) | Security — password hashing, token handling, input validation |
+| [`.github/copilot-instructions.md`](../copilot-instructions.md) | Always-applied core instructions and global rules |
+| [`.github/instructions/protected-paths.instructions.md`](../instructions/protected-paths.instructions.md) | Files that must not be modified without explicit user instruction |
+| [`.github/instructions/backend.instructions.md`](../instructions/backend.instructions.md) | Backend architecture — Clean Architecture, Hono |
+| [`.github/instructions/frontend.instructions.md`](../instructions/frontend.instructions.md) | Frontend architecture — React, Tailwind CSS |
+| [`.github/instructions/typescript.instructions.md`](../instructions/typescript.instructions.md) | TypeScript coding standards |
+| [`.github/instructions/test.instructions.md`](../instructions/test.instructions.md) | Test writing standards |
+| [`.github/instructions/tdd.instructions.md`](../instructions/tdd.instructions.md) | TDD cycle — Red / Green / Refactor |
+| [`.github/instructions/hig.instructions.md`](../instructions/hig.instructions.md) | UI/UX design principles |
+| [`.github/instructions/git.instructions.md`](../instructions/git.instructions.md) | Git workflow rules |
+| [`.github/instructions/no-local-paths.instructions.md`](../instructions/no-local-paths.instructions.md) | No absolute local filesystem paths in committed files |
+| [`.github/instructions/security.instructions.md`](../instructions/security.instructions.md) | Security — password hashing, token handling, input validation |

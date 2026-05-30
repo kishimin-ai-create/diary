@@ -202,7 +202,7 @@ When converting work into an article:
    - Creating a new agent / module / component → one article per item
    - Fixing a bug → one article per root cause
    - Adding a feature → one article per user-facing capability
-   - Updating a rule file or config → one article per document if the change is substantial
+   - Updating a instruction file or config → one article per document if the change is substantial
 2. **Decide split vs. combine**: Use one article when changes are tightly coupled (e.g., a refactor that fixes a bug it introduced). Use **separate articles** when:
    - Each change can be understood independently
    - The reader benefit differs (different audiences, different problems solved)
@@ -220,61 +220,9 @@ When converting work into an article:
 9. Highlight decisions that would help another engineer repeat the work
 10. End with practical takeaways, not generic conclusions
 
-## 🧱 Recommended Structure
+## 🧰 Reference Skill
 
-Choose the structure that matches the article type unless the user asks for
-another format.
-
-### A. Product validation / feature exploration
-
-1. Title
-2. Target readers
-3. What this article covers / does not cover
-4. Product or technology overview
-5. Try it out
-6. Behavior check
-7. Applied or integrated usage
-8. Summary
-
-### B. Error resolution
-
-1. Title
-2. Error overview
-3. Cause
-4. Conclusion
-5. Summary
-
-### C. Technical issue solving
-
-1. Title
-2. Target readers
-3. Problem background
-4. Cause or constraint
-5. Solution
-6. Implementation details
-7. Points to watch out for
-8. Summary
-
-## 🎨 Format Variants
-
-### A. Technical Blog Post
-
-- Stronger narrative
-- More explanation and context
-- Good for Zenn / Qiita / team blog
-- Prefer short sections and readable Markdown
-- Use callouts, lists, and collapsible sections when they improve scanning
-
-### B. Devlog / Work Report
-
-- More chronological
-- Good for internal sharing
-- Emphasize decisions and outcomes
-
-### C. Release Note
-
-- Concise and user-facing
-- Focus on impact and operational changes
+For reusable article structures and format variants, read [`.github/skills/article-patterns/SKILL.md`](../skills/article-patterns/SKILL.md).
 
 ## ✅ Definition of Done
 
@@ -309,12 +257,12 @@ Use this agent with prompts like:
 
 ## 📚 Governing Rules
 
-Before acting, read the following rule files and apply them throughout all work:
+Before acting, read `.github/copilot-instructions.md` and the following instruction files, then apply them throughout all work:
 
-| Rule File | Applies to |
+| Instruction File | Applies to |
 |---|---|
-| [`.github/rules/principles.rules.md`](../rules/principles.rules.md) | Core engineering principles |
-| [`.github/rules/protected-paths.rules.md`](../rules/protected-paths.rules.md) | Files that must not be modified without explicit user instruction |
-| [`.github/rules/git.rules.md`](../rules/git.rules.md) | Git workflow rules — reading history and diffs for evidence gathering |
-| [`.github/rules/no-local-paths.rules.md`](../rules/no-local-paths.rules.md) | No absolute local filesystem paths in committed files |
-| [` .github/rules/security.rules.md` `](../rules/security.rules.md) | Security — password hashing, token handling, input validation |
+| [`.github/copilot-instructions.md`](../copilot-instructions.md) | Always-applied core instructions and global rules |
+| [`.github/instructions/protected-paths.instructions.md`](../instructions/protected-paths.instructions.md) | Files that must not be modified without explicit user instruction |
+| [`.github/instructions/git.instructions.md`](../instructions/git.instructions.md) | Git workflow rules — reading history and diffs for evidence gathering |
+| [`.github/instructions/no-local-paths.instructions.md`](../instructions/no-local-paths.instructions.md) | No absolute local filesystem paths in committed files |
+| [`.github/instructions/security.instructions.md`](../instructions/security.instructions.md) | Security — password hashing, token handling, input validation |

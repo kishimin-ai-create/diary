@@ -1,3 +1,7 @@
+---
+applyTo: "**"
+---
+
 # No Hardcoded Local Paths
 
 Committing absolute filesystem paths or local environment information is
@@ -32,12 +36,12 @@ This rule applies to **ALL files tracked by git**, including:
 - Documentation (`.md` files: `README.md`, `review/`, `blog/`, `diary/`, `docs/`)
 - Configuration files (`.json`, `.yml`, `.yaml`, `.env.example`, etc.)
 - Agent definitions (`.github/agents/`)
-- Rule files (`.github/rules/`)
+- Instruction files (`.github/instructions/`) and `.github/copilot-instructions.md`
 
 ### ✅ Relative paths are always acceptable
 
 Paths relative to the project root (e.g., `backend/src/infrastructure/hono-app.ts`,
-`./config`, `../rules/git.rules.md`) are always permitted and preferred.
+`./config`, `../instructions/git.instructions.md`) are always permitted and preferred.
 
 ### ✅ Exceptions
 
@@ -46,7 +50,7 @@ Paths relative to the project root (e.g., `backend/src/infrastructure/hono-app.t
 - Generated files that are **not tracked** by git (e.g., build artifacts,
   test reports, `storybook-static/`).
 - `vite.config.ts` proxy config referencing `localhost` for local dev convenience
-  (already covered by `no-hardcoded-urls.rules.md`).
+  (already covered by `no-hardcoded-urls.instructions.md`).
 
 ## Detection
 

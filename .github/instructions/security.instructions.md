@@ -1,3 +1,7 @@
+---
+applyTo: "**"
+---
+
 # Security
 
 Security-sensitive operations (authentication, credential storage, token

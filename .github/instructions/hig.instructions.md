@@ -1,3 +1,7 @@
+---
+applyTo: "frontend/**"
+---
+
 # UI Design Principles (Full Version with Explanations)
 
 ## Core Principles

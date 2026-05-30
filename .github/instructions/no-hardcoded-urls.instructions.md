@@ -1,3 +1,7 @@
+---
+applyTo: "**"
+---
+
 # No Hardcoded URLs
 
 Hardcoding URLs (base URLs, API roots, OAuth endpoints, CDN paths, etc.) directly

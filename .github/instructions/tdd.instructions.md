@@ -1,3 +1,7 @@
+---
+applyTo: "**"
+---
+
 # Test Driven Development
 
 > This approach is based on the TDD practice style recommended by **twada (Takuto Wada)**.

@@ -1,3 +1,7 @@
+---
+applyTo: "**/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx"
+---
+
 # Test Rules
 
 - Classical

@@ -1,3 +1,7 @@
+---
+applyTo: "frontend/**"
+---
+
 # Frontend rules
 
 ## Overall

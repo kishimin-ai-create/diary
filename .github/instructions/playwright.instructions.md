@@ -1,3 +1,7 @@
+---
+applyTo: "**/*.spec.ts,**/*.spec.tsx,**/e2e/**"
+---
+
 # Playwright E2E Test Rules
 
 ## Test Size

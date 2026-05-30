@@ -1,3 +1,7 @@
+---
+applyTo: "**/*.ts,**/*.tsx"
+---
+
 # TypeScript Rules
 
 ## Type Assertions (`as`)

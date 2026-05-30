@@ -158,13 +158,7 @@ When implementing code:
 
 ### Step 1: Analyze Test Structure
 
-```
-Read test file completely
-├── Identify describe blocks → Implementation modules/classes needed
-├── Identify beforeEach hooks → Constructor setup, dependencies
-├── Identify it() test names → Methods, parameters, return types
-└── Identify assertions → Response structure, error codes, values
-```
+Read the test file completely and identify the required modules, constructor setup, method names, inputs, outputs, and asserted behaviors before writing any production code.
 
 ### Step 2: Extract Implementation Contract
 
@@ -179,18 +173,7 @@ For each describe block / test suite, determine:
 
 ### Step 3: Implement Incrementally
 
-```typescript
-export class TargetClass {
-  constructor(private dependency: DependencyType) {}
-
-  async execute(input: InputType): Promise<OutputType> {
-    // Step 3a: Validate input (from validation error tests)
-    // Step 3b: Query dependencies (from happy path tests)
-    // Step 3c: Handle error cases (from error assertion tests)
-    // Step 3d: Return successful response (from happy path tests)
-  }
-}
-```
+Implement only what the tests demand, in order: input validation, dependency calls, error handling, and the successful return shape. Keep each addition minimal and test-driven.
 
 ### Step 4: Verify Against Tests
 
@@ -207,274 +190,9 @@ export class TargetClass {
 - [ ] All tests pass (no failing assertions)
 - [ ] Error handling matches domain entities
 
-## 📋 Common Implementation Patterns
+## 🧰 Reference Skill
 
-### Pattern 1: Validation First (Then Success/Error)
-
-```typescript
-async execute(input: InputType): Promise<OutputType> {
-  // Validation errors (422)
-  if (!input.name || input.name.trim() === "") {
-    return {
-      success: false,
-      statusCode: 422,
-      error: { code: "INVALID_INPUT", message: "Field required" },
-      data: null,
-    };
-  }
-
-  if (input.name.length > 100) {
-    return {
-      success: false,
-      statusCode: 422,
-      error: { code: "INVALID_INPUT", message: "Too long" },
-      data: null,
-    };
-  }
-
-  // Business rules (409)
-  const existing = await this.repository.findByName(input.name);
-  if (existing) {
-    return {
-      success: false,
-      statusCode: 409,
-      error: { code: "DUPLICATE", message: "Already exists" },
-      data: null,
-    };
-  }
-
-  // Success path (201)
-  try {
-    const created = await this.repository.create(input);
-    return {
-      success: true,
-      statusCode: 201,
-      data: created,
-    };
-  } catch (error) {
-    // Infrastructure errors (500)
-    return {
-      success: false,
-      statusCode: 500,
-      error: { code: "INTERNAL_SERVER_ERROR", message: "Internal server error" },
-      data: null,
-    };
-  }
-}
-```
-
-### Pattern 2: Error Throwing (vs Returning)
-
-If tests expect exceptions:
-
-```typescript
-async execute(input: InputType): Promise<OutputType> {
-  if (!input.isValid) {
-    throw new ValidationError("Invalid input");
-  }
-  return this.repository.create(input);
-}
-```
-
-### Pattern 3: React Component (Happy Path First)
-
-```typescript
-export function AppCreatePage() {
-  const [name, setName] = useState("");
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await api.createApp({ name });
-      // Success logic (from test assertions)
-    } catch (err) {
-      // Error logic (from test assertions)
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <input value={name} onChange={(e) => setName(e.target.value)} />
-      {error && <div role="alert">{error}</div>}
-      <button type="submit">Create</button>
-    </form>
-  );
-}
-```
-
-## 🚀 Example: CreateApp Interactor
-
-**Given Failing Tests** (like CreateApp.test.ts):
-
-- Happy path: creates app with valid name → 201, returns app data
-- Validation: empty name → 422, returns error with code "APP_NAME_INVALID"
-- Duplicate: name exists → 409, returns error with code "APP_NAME_DUPLICATE"
-- Boundary: 1-char and 100-char names should pass
-- Infrastructure: repository errors → 500, generic error message
-
-**Implementation**:
-
-```typescript
-import {
-  App,
-  AppNameValidationError,
-  AppNameDuplicateError,
-  AppNotFoundError,
-} from "../../domain/entities/App";
-import { AppRepository } from "../../domain/repositories/AppRepository";
-
-export interface CreateAppInput {
-  name: string;
-}
-
-export interface CreateAppOutput {
-  success: boolean;
-  statusCode: number;
-  data: App | null;
-  error?: { code: string; message: string };
-}
-
-export class CreateAppInteractor {
-  constructor(private appRepository: AppRepository) {}
-
-  async execute(input: CreateAppInput): Promise<CreateAppOutput> {
-    try {
-      // Validation: empty/whitespace name
-      if (!input.name || input.name.trim() === "") {
-        return {
-          success: false,
-          statusCode: 422,
-          error: { code: "APP_NAME_INVALID", message: "App name is required" },
-          data: null,
-        };
-      }
-
-      // Validation: too long
-      if (input.name.length > 100) {
-        return {
-          success: false,
-          statusCode: 422,
-          error: {
-            code: "APP_NAME_INVALID",
-            message: "App name must not exceed 100 characters",
-          },
-          data: null,
-        };
-      }
-
-      // Business rule: duplicate name check
-      const existing = await this.appRepository.findByName(input.name);
-      if (existing) {
-        return {
-          success: false,
-          statusCode: 409,
-          error: {
-            code: "APP_NAME_DUPLICATE",
-            message: `App with name "${input.name}" already exists`,
-          },
-          data: null,
-        };
-      }
-
-      // Success: create app
-      const createdApp = await this.appRepository.create({ name: input.name });
-      return {
-        success: true,
-        statusCode: 201,
-        data: createdApp,
-      };
-    } catch (error) {
-      // Infrastructure error
-      return {
-        success: false,
-        statusCode: 500,
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred. Please try again later.",
-        },
-        data: null,
-      };
-    }
-  }
-}
-```
-
-**Why This Implementation**:
-
-- ✅ Validates empty/whitespace (passes empty string test)
-- ✅ Validates length (passes 101-char test)
-- ✅ Checks duplicate uniqueness (passes duplicate test)
-- ✅ Returns exact response structure (matches assertions)
-- ✅ Uses domain error codes (from domain entities)
-- ✅ Catches and handles infrastructure errors (500 status)
-- ✅ Nothing extra (no logging, no util functions, no comments)
-- ✅ All tests pass
-
-## 🎨 Frontend Component Example
-
-**Given Tests** (like AppCreatePage.test.tsx):
-
-- Renders form with name input, Create button
-- Shows error message on validation failure
-- Submits to API on valid input
-- Shows success toast after creation
-- Redirects to detail page
-
-**Implementation**:
-
-```typescript
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { api } from "../../api/client";
-
-export function AppCreatePage() {
-  const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-
-    try {
-      const result = await api.createApp({ name });
-      if (result.success) {
-        // Show success (test expects toast)
-        navigate(`/apps/${result.data.id}`);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create app");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label htmlFor="name">App Name *</label>
-        <input
-          id="name"
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          disabled={loading}
-        />
-      </div>
-      {error && <div role="alert">{error}</div>}
-      <button type="submit" disabled={loading}>
-        {loading ? "Creating..." : "Create"}
-      </button>
-      <button type="button" onClick={() => navigate("/apps")}>
-        Cancel
-      </button>
-    </form>
-  );
-}
-```
+For detailed implementation patterns, full worked examples, and anti-patterns, read [`.github/skills/implementation-patterns/SKILL.md`](../skills/implementation-patterns/SKILL.md).
 
 ## 🔍 Checklist Before Delivery
 
@@ -495,69 +213,6 @@ Implementation Quality Checks:
 - [ ] Try-catch handles infrastructure errors
 - [ ] No hardcoded secrets or sensitive data
 - [ ] Ready to integrate with calling layer
-```
-
-## 🚫 What NOT To Do
-
-### ❌ Anti-Pattern 1: Over-Making Features Beyond Tests
-
-```typescript
-// WRONG - Adds pagination not tested
-async findAll(): Promise<{ items: App[]; total: number; page: number }> {
-  const apps = await this.repository.findAll();
-  return {
-    items: apps,
-    total: apps.length,
-    page: 1,
-  };
-}
-
-// RIGHT - Return exactly what test expects
-async findAll(): Promise<App[]> {
-  return await this.repository.findAll();
-}
-```
-
-### ❌ Anti-Pattern 2: Refactoring Code During Green Phase
-
-```typescript
-// WRONG - Extracting helper function before it's tested
-private isValidAppName(name: string): boolean {
-  return name.length > 0 && name.length <= 100;
-}
-
-// RIGHT - Keep validation inline
-if (input.name.length > 100) {
-  return { success: false, statusCode: 422, ... };
-}
-```
-
-### ❌ Anti-Pattern 3: Hardcoding Rejection (When It Doesn't Pass Tests)
-
-```typescript
-// WRONG - Hardcoding when tests expect real logic
-async findByName(name: string): Promise<App | null> {
-  return null; // Always returns null - fails duplicate check test
-}
-
-// RIGHT - Implement actual logic (even if simple)
-async findByName(name: string): Promise<App | null> {
-  const existing = this.apps.find(a => a.name === name && !a.deletedAt);
-  return existing || null;
-}
-```
-
-### ❌ Anti-Pattern 4: Modifying Tests to Pass
-
-```typescript
-// WRONG - Modifying test expectations
-// expect(result.statusCode).toBe(422);  // Original
-// expect(result.statusCode).toBe(400);  // Wrong - changed test!
-
-// RIGHT - Change implementation to match test
-if (invalidInput) {
-  return { statusCode: 422, ... };  // Match what test expects
-}
 ```
 
 ## 📊 Success Criteria
@@ -585,22 +240,20 @@ git push origin HEAD
 
 ## 📚 Governing Rules
 
-Before acting, read the following rule files and apply them throughout all work:
+Before acting, read `.github/copilot-instructions.md` and the following instruction files, then apply them throughout all work:
 
-| Rule File | Applies to |
+| Instruction File | Applies to |
 |---|---|
-| [`.github/rules/principles.rules.md`](../rules/principles.rules.md) | Core engineering principles |
-| [`.github/rules/protected-paths.rules.md`](../rules/protected-paths.rules.md) | Files that must not be modified without explicit user instruction |
-| [`.github/rules/engineering.rules.md`](../rules/engineering.rules.md) | General engineering standards — code/test/commit responsibilities |
-| [`.github/rules/backend.rules.md`](../rules/backend.rules.md) | Backend architecture — Clean Architecture, Hono |
-| [`.github/rules/frontend.rules.md`](../rules/frontend.rules.md) | Frontend architecture — React, Tailwind CSS |
-| [`.github/rules/typescript.rules.md`](../rules/typescript.rules.md) | TypeScript coding standards |
-| [`.github/rules/test.rules.md`](../rules/test.rules.md) | Test writing standards |
-| [`.github/rules/test-driven-development.rules.md`](../rules/test-driven-development.rules.md) | TDD cycle — Red / Green / Refactor |
-| [`.github/rules/git.rules.md`](../rules/git.rules.md) | Git workflow rules |
-| [`.github/rules/commit-message.rules.md`](../rules/commit-message.rules.md) | Commit message format |
-| [`.github/rules/no-local-paths.rules.md`](../rules/no-local-paths.rules.md) | No absolute local filesystem paths in committed files |
-| [` .github/rules/security.rules.md` `](../rules/security.rules.md) | Security — password hashing, token handling, input validation |
+| [`.github/copilot-instructions.md`](../copilot-instructions.md) | Always-applied core instructions and global rules |
+| [`.github/instructions/protected-paths.instructions.md`](../instructions/protected-paths.instructions.md) | Files that must not be modified without explicit user instruction |
+| [`.github/instructions/backend.instructions.md`](../instructions/backend.instructions.md) | Backend architecture — Clean Architecture, Hono |
+| [`.github/instructions/frontend.instructions.md`](../instructions/frontend.instructions.md) | Frontend architecture — React, Tailwind CSS |
+| [`.github/instructions/typescript.instructions.md`](../instructions/typescript.instructions.md) | TypeScript coding standards |
+| [`.github/instructions/test.instructions.md`](../instructions/test.instructions.md) | Test writing standards |
+| [`.github/instructions/tdd.instructions.md`](../instructions/tdd.instructions.md) | TDD cycle — Red / Green / Refactor |
+| [`.github/instructions/git.instructions.md`](../instructions/git.instructions.md) | Git workflow rules |
+| [`.github/instructions/no-local-paths.instructions.md`](../instructions/no-local-paths.instructions.md) | No absolute local filesystem paths in committed files |
+| [`.github/instructions/security.instructions.md`](../instructions/security.instructions.md) | Security — password hashing, token handling, input validation |
 
 ## 🔚 Post-Completion Required Steps
 

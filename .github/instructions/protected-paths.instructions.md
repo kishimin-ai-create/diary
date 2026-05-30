@@ -1,3 +1,7 @@
+---
+applyTo: "**"
+---
+
 # Protected paths
 
 These files should not be modified by Copilot unless the user explicitly asks

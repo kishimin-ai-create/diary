@@ -1,3 +1,7 @@
+---
+applyTo: "backend/**"
+---
+
 # Backend Rules
 
 ## Directory Structure (DDD + Clean Architecture with Controller/Service Style)
@@ -133,4 +137,3 @@ npm run test
 
 * Improve testability continuously
 * Keep test plans simple and maintainable
-

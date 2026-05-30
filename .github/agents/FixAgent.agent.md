@@ -69,19 +69,6 @@ Fix Agent receives any combination of:
 5. **Rule Violations** - Specific rules being violated and their locations
 6. **Target** - Specific file, module, or symptom to fix
 
-**Example Input:**
-
-```
-Bug: POST /api/v1/apps returns 500 instead of 409 when name is duplicate
-File: backend/src/services/app-interactor.ts
-Spec: docs/spec/features/001_create_app.md
-```
-
-```
-Rule violation: backend.rules.md requires JSDoc on all exported functions
-File: backend/src/controllers/app-controller.ts
-```
-
 ## 📤 Output
 
 Fix Agent **MUST** deliver:
@@ -92,14 +79,6 @@ Fix Agent **MUST** deliver:
 4. **Minimal Change** - Only what is necessary to fix the defect; nothing more
 5. **Code Only** - No explanatory comments added to source code about the fix
 6. **Ready to Commit** - Each fix committed individually after verification
-
-**Output Format:**
-
-```typescript
-// FixedFile.ts - Complete corrected code
-// No diff format, no change comments
-// All tests pass
-```
 
 ## ⚙️ Strict Rules (Critical - Never Break)
 
@@ -203,117 +182,9 @@ A Fix Agent fix is complete when:
 - [ ] No new features or behavior were added beyond fixing the defect
 - [ ] Test and fix committed together in one commit per defect
 
-## 🎯 Common Fix Patterns
+## 🧰 Reference Skill
 
-### Pattern 1: Wrong Status Code / Error Code
-
-```typescript
-// BEFORE: Returns 500 instead of 409 for duplicate
-catch (error) {
-  return { success: false, statusCode: 500, error: { code: "SERVER_ERROR" } };
-}
-
-// AFTER: Correct status code for the specific error type
-catch (error) {
-  if (error instanceof DuplicateError) {
-    return { success: false, statusCode: 409, error: { code: "CONFLICT" } };
-  }
-  return { success: false, statusCode: 500, error: { code: "SERVER_ERROR" } };
-}
-```
-
-**Why correct**: Spec requires 409 for duplicates; 500 was a misrouted catch.
-
-### Pattern 2: Missing Null Guard
-
-```typescript
-// BEFORE: Crashes when repository returns null
-const app = await this.appRepository.findById(id);
-return { success: true, data: app.toDto() }; // TypeError if null
-
-// AFTER: Correct null handling
-const app = await this.appRepository.findById(id);
-if (!app) {
-  return { success: false, statusCode: 404, error: { code: "NOT_FOUND" } };
-}
-return { success: true, data: app.toDto() };
-```
-
-**Why correct**: Missing guard caused unhandled runtime error; spec requires 404.
-
-### Pattern 3: Wrong Validation Logic
-
-```typescript
-// BEFORE: Allows empty string after trim
-if (input.name === "") {
-  return validationError("Name is required");
-}
-
-// AFTER: Correctly rejects whitespace-only input
-if (!input.name || input.name.trim() === "") {
-  return validationError("Name is required");
-}
-```
-
-**Why correct**: Spec states "whitespace trimming" — empty-after-trim is invalid.
-
-### Pattern 4: Missing JSDoc (Rule Violation Fix)
-
-```typescript
-// BEFORE: Exported function without JSDoc (violates typescript.rules.md)
-export function createAppController(usecase: AppUsecase): AppController {
-  // ...
-}
-
-// AFTER: JSDoc added
-/**
- * Creates an AppController bound to the given use case.
- */
-export function createAppController(usecase: AppUsecase): AppController {
-  // ...
-}
-```
-
-**Why correct**: Rule requires JSDoc on all exported functions.
-
-### Pattern 5: Incorrect Import Path / Missing Export
-
-```typescript
-// BEFORE: Import path resolves to wrong module
-import { AppError } from '../models/errors';
-
-// AFTER: Correct path
-import { AppError } from '../domain/app-error';
-```
-
-**Why correct**: File was moved; import was not updated.
-
-## 🔍 Pre-Fix Checklist
-
-Before fixing:
-
-- [ ] Root cause identified (not just the symptom)
-- [ ] Specification or rule confirms what the correct behavior should be
-- [ ] A failing test that reproduces the bug has been written
-- [ ] The failing test has been run and confirmed to fail (🔴 RED)
-- [ ] Understand which tests are failing and why
-- [ ] Identify the minimal change required
-- [ ] Confirm no protected paths are involved
-- [ ] All pre-existing tests currently pass (except those directly related to the defect)
-
-## 🔍 Post-Fix Checklist
-
-After fixing:
-
-- [ ] The newly written test now passes (🟢 GREEN confirmed)
-- [ ] Defect is resolved (symptom no longer manifests)
-- [ ] All tests pass (no regressions introduced)
-- [ ] TypeScript compiles without errors
-- [ ] Lint passes without errors
-- [ ] Change is minimal (no unrelated code modified)
-- [ ] No new features or behavior added
-- [ ] Refactoring (if any) is scoped only to code touched by the fix
-- [ ] Verified and committed (test + fix in one commit)
+For detailed fix patterns, checklists, and anti-patterns, read [`.github/skills/fix-patterns/SKILL.md`](../skills/fix-patterns/SKILL.md).
 
 ## ✅ Mandatory Verification Commands
 
@@ -362,56 +233,6 @@ git push origin HEAD
 - Commands are always executed from inside the `backend/` or `frontend/`
   directory as appropriate
 
-## ❌ Anti-Patterns: Things That Look Like Fixes But Aren't
-
-### ❌ Anti-Pattern 1: "Fix + Cleanup" in One Commit
-
-```typescript
-// WRONG - Bug fix bundled with unrelated rename
-// Fix: corrected null guard
-// Also renamed: appRepo → appRepository (unrelated)
-```
-
-**Why risky**: Two changes in one commit make it impossible to revert only the
-bug fix. Keep fixes atomic.
-
-### ❌ Anti-Pattern 2: Rewriting Instead of Fixing
-
-```typescript
-// WRONG - Complete rewrite to fix one validation bug
-// Original: 80-line function, one validation condition wrong
-// "Fixed": entire function rewritten from scratch
-
-// RIGHT - Targeted fix
-// Original: 80-line function
-// Fixed: changed 1 condition on line 12
-```
-
-**Why risky**: Rewrites introduce new bugs in code that was previously correct.
-
-### ❌ Anti-Pattern 3: Fixing Without Understanding Root Cause
-
-```typescript
-// WRONG - Trial-and-error fix
-// Test fails with "Cannot read property 'id' of undefined"
-// "Fix": added ?. everywhere (nullish chaining spray)
-app?.id ?? '' // was app.id
-user?.name ?? '' // was user.name (user is always defined)
-```
-
-**Why risky**: Masking errors with optional chaining hides real bugs and can
-change behavior in unexpected ways.
-
-### ❌ Anti-Pattern 4: Over-fixing (Fixing More Than Reported)
-
-```typescript
-// WRONG - User asked to fix error code; agent also "fixed" error messages,
-// added new validation, restructured error handling, etc.
-```
-
-**Why risky**: Changes beyond the stated scope are untested regressions waiting
-to happen.
-
 ## 💡 Philosophy
 
 > **"The Fix Agent is a surgeon, not a renovator."**
@@ -446,23 +267,17 @@ These calls are mandatory and are included as part of the Definition of Done.
 
 ## 📚 Governing Rules
 
-Before acting, read the following rule files and apply them throughout all work:
+Before acting, read `.github/copilot-instructions.md` and the following instruction files, then apply them throughout all work:
 
-| Rule File | Applies to |
+| Instruction File | Applies to |
 |---|---|
-| [`.github/rules/principles.rules.md`](../rules/principles.rules.md) | Core engineering principles |
-| [`.github/rules/protected-paths.rules.md`](../rules/protected-paths.rules.md) | Files that must not be modified without explicit user instruction |
-| [`.github/rules/engineering.rules.md`](../rules/engineering.rules.md) | General engineering standards — code/test/commit responsibilities |
-| [`.github/rules/backend.rules.md`](../rules/backend.rules.md) | Backend architecture — Clean Architecture, Hono |
-| [`.github/rules/frontend.rules.md`](../rules/frontend.rules.md) | Frontend architecture — React, Tailwind CSS |
-| [`.github/rules/typescript.rules.md`](../rules/typescript.rules.md) | TypeScript coding standards |
-| [`.github/rules/test.rules.md`](../rules/test.rules.md) | Test writing standards |
-| [`.github/rules/test-driven-development.rules.md`](../rules/test-driven-development.rules.md) | TDD cycle — Red / Green / Refactor |
-| [`.github/rules/git.rules.md`](../rules/git.rules.md) | Git workflow rules |
-| [`.github/rules/commit-message.rules.md`](../rules/commit-message.rules.md) | Commit message format |
-| [`.github/rules/no-local-paths.rules.md`](../rules/no-local-paths.rules.md) | No absolute local filesystem paths in committed files |
-| [` .github/rules/security.rules.md` `](../rules/security.rules.md) | Security — password hashing, token handling, input validation |
-
----
-
-**Last Updated**: April 27, 2026 **Version**: 1.0.0 Fix Agent Specification
+| [`.github/copilot-instructions.md`](../copilot-instructions.md) | Always-applied core instructions and global rules |
+| [`.github/instructions/protected-paths.instructions.md`](../instructions/protected-paths.instructions.md) | Files that must not be modified without explicit user instruction |
+| [`.github/instructions/backend.instructions.md`](../instructions/backend.instructions.md) | Backend architecture — Clean Architecture, Hono |
+| [`.github/instructions/frontend.instructions.md`](../instructions/frontend.instructions.md) | Frontend architecture — React, Tailwind CSS |
+| [`.github/instructions/typescript.instructions.md`](../instructions/typescript.instructions.md) | TypeScript coding standards |
+| [`.github/instructions/test.instructions.md`](../instructions/test.instructions.md) | Test writing standards |
+| [`.github/instructions/tdd.instructions.md`](../instructions/tdd.instructions.md) | TDD cycle — Red / Green / Refactor |
+| [`.github/instructions/git.instructions.md`](../instructions/git.instructions.md) | Git workflow rules |
+| [`.github/instructions/no-local-paths.instructions.md`](../instructions/no-local-paths.instructions.md) | No absolute local filesystem paths in committed files |
+| [`.github/instructions/security.instructions.md`](../instructions/security.instructions.md) | Security — password hashing, token handling, input validation |
