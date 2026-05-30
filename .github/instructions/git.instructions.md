@@ -31,7 +31,7 @@ applyTo: "**"
 ## Commit Discipline
 
 - Commit messages must follow Conventional Commits format — see
-  `copilot-instructions.md` for the full commit message rules.
+  `skills/commit-message-rules/SKILL.md` for the full commit message rules.
 - One commit = one logical change. Never bundle unrelated changes.
 - Each TDD step must be a separate commit (`test:` → `feat:` → `refactor:`).
 
