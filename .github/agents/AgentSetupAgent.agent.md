@@ -70,6 +70,8 @@ Current agents (as of last update):
 - `RedAgent`, `RefactorAgent`, `RegressionTestAgent`, `ReviewResponseAgent`
 - `StorybookCreatorAgent`, `UIDesignAgent`, `WorkSummaryAgent`
 - `AgentSetupAgent` (this agent)
+- **Fix specialists**: `FixDispatcherAgent`, `FixSecurityAgent`, `FixTypeAgent`,
+  `FixTestAgent`, `FixLintAgent`, `FixFrontendAgent`, `FixBackendAgent`
 
 ---
 

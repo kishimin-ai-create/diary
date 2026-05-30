@@ -3,9 +3,11 @@ description:
   "Use when: fixing bugs, incorrect behavior, rule violations, or any defect
   where the current code does not work as intended. The FixAgent identifies the
   root cause of each problem, applies a minimal targeted fix, verifies with
-  typecheck + lint + tests, then commits — one fix per commit. Unlike
-  RefactorAgent, FixAgent is allowed to change external behavior when the
-  current behavior is wrong."
+  typecheck + lint + tests, then commits — one fix per commit. For domain-specific
+  fixes, prefer the specialized agents: FixDispatcherAgent (auto-routes),
+  FixSecurityAgent, FixTypeAgent, FixTestAgent, FixLintAgent, FixFrontendAgent,
+  FixBackendAgent. Unlike RefactorAgent, FixAgent is allowed to change external
+  behavior when the current behavior is wrong."
 tools: [read, search, edit, execute, agent, git]
 user-invocable: true
 ---
