@@ -220,3 +220,92 @@ misleading. The Getting Started section now shows only `bun install` and `bun de
 
 *Response file generated: 2026-05-31*
 *Findings processed: 10 (8 fix-delegated, 2 reply-only — Findings 3 & 4 share the same FixAgent commit)*
+
+---
+
+## Finding 11: WebKit CI — Duplicate Comment
+
+**Disposition:** reply-only
+
+> **Original comment:**
+> The PR workflow installs only Chromium, but `playwright.config.ts` defines both Chromium and WebKit
+> projects. `bun run e2e` will try to run WebKit as well and fail on CI because the WebKit
+> browser/dependencies were not installed.
+
+**Reply:**
+This is a duplicate of Finding 1 (P1 — Install WebKit Before Running PR E2E), which was already
+addressed in the first pass. The `.github/workflows/ci-pr.yml` install step was updated from
+`bunx playwright install --with-deps chromium` to `bunx playwright install --with-deps chromium webkit`
+in that earlier fix. No further action is required.
+
+---
+
+## Finding 12: Testing Library Flat Config Spread Drops Plugin/Rules
+
+**Disposition:** fix-delegated
+
+> **Original comment:**
+> Spreading the Testing Library flat config and then redefining `plugins` and `rules` drops the
+> Testing Library plugin/rules from this override. As written, test files only get the Vitest rules,
+> so the configured Testing Library checks are not enforced.
+
+**Reply:**
+Confirmed — in JavaScript object literals, last-write wins. The `...testingLibrary.configs["flat/react"]`
+spread at the top level correctly set `plugins` and `rules` from Testing Library, but the immediately
+following explicit `plugins: { vitest }` and `rules: { ...vitest.configs.recommended.rules }` keys
+completely overwrote those spread values. Testing Library's plugin and all its rules were silently
+dropped; only Vitest rules were active. The fix explicitly merges both plugin sets and rule sets so
+both Testing Library and Vitest checks are enforced on test files.
+
+> ✅ Fixed by FixAgent — `frontend/eslint.config.mjs` test-files override block updated:
+> `plugins` changed to `{ ...testingLibrary.configs["flat/react"].plugins, vitest }` and
+> `rules` changed to `{ ...testingLibrary.configs["flat/react"].rules, ...vitest.configs.recommended.rules, ... }`;
+> `bun run lint` exits cleanly (commit `3ccdc01`)
+
+---
+
+## Finding 13: Unnecessary Type Assertion in Storybook Docs Config
+
+**Disposition:** fix-delegated
+
+> **Original comment:**
+> This type assertion is unnecessary here and bypasses TypeScript checking for the Storybook docs
+> config. The object can be assigned directly and still be checked against `StorybookConfig`.
+
+**Reply:**
+The root cause turned out to be deeper than a cosmetic assertion. In Storybook 10 (the installed
+version), `DocsOptions` no longer includes `autodocs` — that property was removed from the type in
+Storybook 8. The `as StorybookConfig["docs"]` assertion was suppressing a real TypeScript error
+caused by an outdated API rather than being a harmless cast. The fix removes the entire `docs` block
+(which only contained the now-invalid `autodocs: "tag"` property), eliminating both the assertion
+and the underlying type mismatch. `bun run typecheck` now reports zero errors.
+
+> ✅ Fixed by FixAgent — `frontend/.storybook/main.ts` entire `docs: { autodocs: "tag" } as StorybookConfig["docs"]`
+> block removed; `bun run typecheck` exits with 0 errors
+
+---
+
+## Finding 14: Playwright Test File Naming Convention
+
+**Disposition:** fix-delegated
+
+> **Original comment:**
+> This Playwright test is committed in a `*.spec.ts` file, but the repository test rules require E2E
+> tests to use `e2e/**/*.medium.test.ts` so CI/test discovery can classify them consistently. Please
+> rename this file before merging.
+
+**Reply:**
+Agreed — `frontend/e2e/example.spec.ts` used a `*.spec.ts` suffix without a size prefix, in direct
+violation of the test naming rule: *"Never create `*.test.ts`, `*.test.tsx`, `*.spec.ts`, or `*.spec.tsx`
+without the size prefix."* The file has been renamed to `example.medium.test.ts` (medium is correct
+for an E2E test that uses localhost network access). The ESLint test override pattern
+`**/*.{small,medium,large}.test.{ts,tsx}` already covers the renamed file — no ESLint config changes
+were needed. Git history is preserved via `git mv`. `bun run lint` exits cleanly.
+
+> ✅ Fixed by FixAgent — `frontend/e2e/example.spec.ts` renamed to `frontend/e2e/example.medium.test.ts`
+> via `git mv`; file content unchanged; ESLint pattern already covers the new name (commit `3ccdc01`)
+
+---
+
+*Response file updated: 2026-05-31*
+*Total findings processed: 14 (10 fix-delegated, 4 reply-only — Findings 3 & 4 share a commit; Finding 11 is duplicate of Finding 1; Findings 12 & 14 share commit `3ccdc01`)*
