@@ -80,7 +80,7 @@ jobs:
         run: bun run build
 
       - name: Install Playwright Browsers
-        run: bunx playwright install --with-deps chromium
+        run: bunx playwright install --with-deps chromium webkit
 
       - name: Run E2E tests
         run: bun run e2e
