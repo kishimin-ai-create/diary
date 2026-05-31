@@ -1,0 +1,18 @@
+{
+  "core": {
+    "workingDir": ".reg",
+    "addReceivedPrefix": false,
+    "addPluginPrefix": false,
+    "thresholdRate": 0,
+    "concurrency": 4
+  },
+  "plugins": {
+    "reg-simple-keygen-plugin": {
+      "expectedKey": "snapshot",
+      "actualKey": "snapshot"
+    },
+    "reg-publish-filesystem-plugin": {
+      "publishDir": ".reg-snapshots"
+    }
+  }
+}
