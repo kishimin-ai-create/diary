@@ -176,6 +176,9 @@ export default defineConfig([
       "vitest.setup.ts",
     ],
     extends: [tseslint.configs.disableTypeChecked],
+    languageOptions: {
+      globals: globals.node,
+    },
   },
 
   // Next.js App Router pages and layouts:
