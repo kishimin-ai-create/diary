@@ -50,13 +50,25 @@ jobs:
       - name: Run frontend coverage
         id: frontend_coverage
         continue-on-error: true
-        run: bun run test:coverage
+        run: |
+          count=$(find . -name "*.test.*" ! -path "*/node_modules/*" ! -path "*/e2e/*" 2>/dev/null | wc -l)
+          if [ "$count" -gt 0 ]; then
+            bun run test:coverage
+          else
+            echo "No frontend test files found — skipping"
+          fi
         working-directory: frontend
 
       - name: Run backend coverage
         id: backend_coverage
         continue-on-error: true
-        run: bun run test:coverage
+        run: |
+          count=$(find src -name "*.test.*" 2>/dev/null | wc -l)
+          if [ "$count" -gt 0 ]; then
+            bun run test:coverage
+          else
+            echo "No backend test files found — skipping"
+          fi
         working-directory: backend
         env:
           DB_HOST: 127.0.0.1
