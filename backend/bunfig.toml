@@ -1,0 +1,11 @@
+[test]
+# Enforce test file naming convention: *.small.test.ts / *.medium.test.ts / *.large.test.ts
+# Plain *.test.ts or *.spec.ts files are intentionally excluded.
+include = [
+  "**/*.small.test.ts",
+  "**/*.medium.test.ts",
+  "**/*.large.test.ts",
+  "**/*.small.test.tsx",
+  "**/*.medium.test.tsx",
+  "**/*.large.test.tsx",
+]

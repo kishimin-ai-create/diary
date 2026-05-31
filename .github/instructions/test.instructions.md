@@ -1,8 +1,21 @@
 ---
-applyTo: "**/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx"
+applyTo: "**"
 ---
 
 # Test Rules
+
+## File Naming Convention
+
+All test files **must** include the size prefix in the filename:
+
+| Size   | Pattern                  | Examples                                |
+| ------ | ------------------------ | --------------------------------------- |
+| Small  | `*.small.test.ts(x)`     | `createApp.small.test.ts`               |
+| Medium | `*.medium.test.ts(x)`    | `createApp.medium.test.ts`              |
+| Large  | `*.large.test.ts(x)`     | `checkout.large.test.ts`                |
+
+- **Never** create `*.test.ts`, `*.test.tsx`, `*.spec.ts`, or `*.spec.tsx` without the size prefix.
+- The size prefix must match the test's actual resource usage (see classification table below).
 
 ## Test Size Classification
 
@@ -27,4 +40,31 @@ applyTo: "**/*.test.ts,**/*.test.tsx,**/*.spec.ts,**/*.spec.tsx"
   external services in production.
 - Large (E2E) tests should be used minimally — only for critical end-to-end
   flows.
+
+## Technical Enforcement
+
+### Backend (Bun) — `backend/bunfig.toml`
+
+`bunfig.toml` restricts `bun test` to only discover files matching the naming convention.
+Files named `*.test.ts` without a size prefix are silently ignored by the test runner.
+
+### Frontend (Vitest) — `vitest.config.ts`
+
+When setting up Vitest, use the following `include` pattern:
+
+```typescript
+// vitest.config.ts
+export default defineConfig({
+  test: {
+    include: [
+      "**/*.small.test.ts",
+      "**/*.medium.test.ts",
+      "**/*.large.test.ts",
+      "**/*.small.test.tsx",
+      "**/*.medium.test.tsx",
+      "**/*.large.test.tsx",
+    ],
+  },
+});
+```
 
