@@ -1,7 +1,7 @@
 import "./globals.css";
 
 import type { Metadata } from "next";
-// eslint-disable-next-line camelcase
+// eslint-disable-next-line camelcase -- Geist_Mono is a Next.js font variable exported in snake_case by design
 import { Geist, Geist_Mono } from "next/font/google";
 
 const geistSans = Geist({

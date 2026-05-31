@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import vitest from "@vitest/eslint-plugin";
+import eslintComments from "@eslint-community/eslint-plugin-eslint-comments";
 import { defineConfig, globalIgnores } from "eslint/config";
 import prettier from "eslint-config-prettier";
 import importPlugin from "eslint-plugin-import";
@@ -34,6 +35,7 @@ export default defineConfig([
   {
     plugins: {
       "unused-imports": unusedImports,
+      "@eslint-community/eslint-comments": eslintComments,
     },
     rules: {
       "@typescript-eslint/no-unused-vars": "off",
@@ -47,6 +49,7 @@ export default defineConfig([
           argsIgnorePattern: "^_",
         },
       ],
+      "@eslint-community/eslint-comments/require-description": "error",
     },
   },
 

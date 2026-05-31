@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import eslintComments from "@eslint-community/eslint-plugin-eslint-comments";
 import stylistic from "@stylistic/eslint-plugin";
 import { defineConfig } from "eslint/config";
 import prettier from "eslint-config-prettier";
@@ -20,6 +21,10 @@ export default defineConfig([
       "unused-imports": unusedImports,
       "simple-import-sort": simpleImportSort,
       drizzle,
+      "@eslint-community/eslint-comments": eslintComments,
+    },
+    rules: {
+      "@eslint-community/eslint-comments/require-description": "error",
     },
   },
   jsdoc.configs["flat/recommended"],

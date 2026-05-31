@@ -24,6 +24,7 @@
     "mysql2": "^3.22.4"
   },
   "devDependencies": {
+    "@eslint-community/eslint-plugin-eslint-comments": "^4.7.2",
     "@eslint/js": "^10.0.1",
     "@hono/standard-validator": "^0.2.2",
     "@hono/swagger-ui": "^0.6.1",
