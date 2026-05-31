@@ -6,6 +6,7 @@ import stylistic from "@stylistic/eslint-plugin";
 import jsdoc from "eslint-plugin-jsdoc";
 import unusedImports from "eslint-plugin-unused-imports";
 import vitest from "@vitest/eslint-plugin";
+import prettier from "eslint-config-prettier";
 
 export default defineConfig([
   {
@@ -112,4 +113,6 @@ export default defineConfig([
     },
     languageOptions: { globals: { ...vitest.environments.env.globals } },
   },
+  // Must be last: disables all ESLint rules that conflict with Prettier
+  prettier,
 ]);
