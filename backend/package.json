@@ -1,7 +1,9 @@
 {
   "name": "backend",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "test": "bun test",
+    "test:ci": "bun test --coverage"
   },
   "dependencies": {
     "hono": "^4.12.23"

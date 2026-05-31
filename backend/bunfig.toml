@@ -9,3 +9,7 @@ include = [
   "**/*.medium.test.tsx",
   "**/*.large.test.tsx",
 ]
+
+# Require 80% coverage across all metrics; test run fails if below threshold
+coverage = true
+coverageThreshold = 0.80
