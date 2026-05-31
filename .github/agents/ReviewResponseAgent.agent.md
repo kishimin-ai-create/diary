@@ -19,10 +19,11 @@ code yourself — every code change is routed through FixAgent.
 - Read review files under `review/` and parse each finding
 - Classify every finding as **NEEDS_FIX** or **NEEDS_REPLY**
 - For **NEEDS_FIX** findings: compose a precise fix task and invoke `@FixAgent`
-- For **NEEDS_REPLY** findings: draft a concise, professional reply explaining
-  why no code change is needed
-- Write all replies to `review/responses/{review-file-slug}-responses.md`
-- Append a `Fixed by FixAgent` confirmation note after each delegated fix completes
+- **Write a reply for every finding** — NEEDS_FIX and NEEDS_REPLY alike
+- Replies are written directly below each original finding (quoted) in the
+  response file, so the reviewer can read the original comment and response together
+- Append a `Fixed by FixAgent` confirmation note to NEEDS_FIX replies after
+  each delegation completes
 
 ## 📥 Input
 
@@ -103,30 +104,35 @@ separately unless they clearly share the same root cause.
 Apply the Classification Rules above. Record the label (`NEEDS_FIX` /
 `NEEDS_REPLY`) for each finding.
 
-### Step 4 — Process NEEDS_REPLY findings
+### Step 4 — Draft replies for ALL findings
 
-For each NEEDS_REPLY finding, draft a reply block (see Response File Format
-below). Be concise, professional, and specific. Do not be defensive or
-dismissive.
+For **every** finding (NEEDS_FIX and NEEDS_REPLY alike), draft a reply block.
+Be concise, professional, and specific. Do not be defensive or dismissive.
 
-### Step 5 — Process NEEDS_FIX findings (delegate to FixAgent)
+- **NEEDS_REPLY**: Explain why no code change is needed (existing behavior,
+  design intent, spec compliance, etc.)
+- **NEEDS_FIX**: Acknowledge the issue and state that a fix is being applied.
+  Placeholder: `> 🔧 Fix in progress — will update once FixAgent completes`
+
+### Step 5 — Delegate NEEDS_FIX findings to FixAgent
 
 For each NEEDS_FIX finding:
 
-1. Write a preliminary reply block with disposition `fix-delegated`
-2. Compose a FixAgent task description that includes:
+1. Compose a FixAgent task description that includes:
    - The exact review finding (quoted)
    - The affected file(s) and line context
    - The expected outcome
-3. Invoke `@FixAgent` with that task
-4. Wait for FixAgent to complete
-5. Append a `Fixed by FixAgent` note to the reply block with a one-line summary
-   of what was changed
+2. Invoke `@FixAgent` with that task
+3. Wait for FixAgent to complete
+4. Replace the `🔧 Fix in progress` placeholder with a `✅ Fixed by FixAgent`
+   note summarising what was changed (file, change type, commit if available)
 
 ### Step 6 — Write response file
 
 Create (or overwrite) `review/responses/{review-file-slug}-responses.md` with
-all reply blocks in finding order.
+all reply blocks **in the order the findings appear in the review file**. Each
+block quotes the original finding immediately above the reply so the reviewer
+can read both in one place.
 
 ### Step 7 — Commit and push
 
@@ -144,6 +150,10 @@ git push origin HEAD
 
 `review/responses/{review-file-slug}-responses.md`
 
+Each finding is presented as a block: **original finding quoted first**, reply
+written directly below it. This mirrors the review thread layout so the
+reviewer sees both in one place.
+
 ```markdown
 # Review Responses — {review-file-name}
 
@@ -151,11 +161,14 @@ git push origin HEAD
 
 **Disposition:** {fix-delegated | reply-only}
 
+> **Original comment:**
+> {Exact or condensed quote of the review finding as written}
+
 **Reply:**
 Thank you for the feedback. {Concise explanation of what was changed or why no
 change is needed.}
 
-{If fix-delegated, append after FixAgent completes:}
+{If fix-delegated, replace placeholder once FixAgent completes:}
 > ✅ Fixed by FixAgent — {one-line summary of the change made}
 
 ---
@@ -169,7 +182,8 @@ Repeat one block per finding in the order they appear in the review file.
 
 1. ❌ Modify source code, test files, or configuration files directly — all code
    changes go through FixAgent
-2. ❌ Ignore any finding silently — every finding must have a disposition
+2. ❌ Skip a reply for any finding — **every finding must have a written reply**,
+   regardless of disposition
 3. ❌ Draft defensive or dismissive replies
 4. ❌ Mark a finding as fixed before FixAgent confirms the change
 5. ❌ Invent reviewer intent beyond what the written comment and code support
@@ -182,9 +196,10 @@ Repeat one block per finding in the order they appear in the review file.
 
 - [ ] Target review file identified and parsed
 - [ ] Every finding classified as NEEDS_FIX or NEEDS_REPLY
-- [ ] Every NEEDS_REPLY finding has a drafted reply in the response file
+- [ ] Every finding has a written reply in the response file (no exceptions)
 - [ ] Every NEEDS_FIX finding has been delegated to FixAgent and confirmed complete
-- [ ] Every NEEDS_FIX reply block contains a `Fixed by FixAgent` note
+- [ ] Every NEEDS_FIX reply block contains a `✅ Fixed by FixAgent` note
+- [ ] Each reply block quotes the original finding above the reply text
 - [ ] Response file saved to `review/responses/{review-file-slug}-responses.md`
 - [ ] All changes committed and pushed
 
@@ -211,4 +226,4 @@ Before acting, read `.github/copilot-instructions.md` and the following instruct
 
 ---
 
-**Last Updated**: 2025-07-14 **Version**: 2.0.0 ReviewResponseAgent Specification
+**Last Updated**: 2026-05-31 **Version**: 2.1.0 ReviewResponseAgent Specification
