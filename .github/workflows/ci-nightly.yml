@@ -31,13 +31,31 @@ jobs:
         run: bun run typecheck
 
       - name: Run small tests
-        run: bun run test:small
+        run: |
+          count=$(find src -name "*.small.test.*" 2>/dev/null | wc -l)
+          if [ "$count" -gt 0 ]; then
+            bun run test:small
+          else
+            echo "No backend small test files found — skipping"
+          fi
 
       - name: Run medium tests
-        run: bun run test:medium
+        run: |
+          count=$(find src -name "*.medium.test.*" 2>/dev/null | wc -l)
+          if [ "$count" -gt 0 ]; then
+            bun run test:medium
+          else
+            echo "No backend medium test files found — skipping"
+          fi
 
       - name: Run large tests
-        run: bun run test:large
+        run: |
+          count=$(find src -name "*.large.test.*" 2>/dev/null | wc -l)
+          if [ "$count" -gt 0 ]; then
+            bun run test:large
+          else
+            echo "No backend large test files found — skipping"
+          fi
 
   frontend:
     name: Frontend CI (All Tests + VRT)

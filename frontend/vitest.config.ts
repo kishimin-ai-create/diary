@@ -6,6 +6,7 @@ export default defineConfig({
   plugins: [react(), tsconfigPaths()],
   test: {
     include: ["**/*.{small,medium,large}.test.{ts,tsx}"],
+    exclude: ["e2e/**/*"],
     passWithNoTests: true,
     environment: "jsdom",
     globals: true,
