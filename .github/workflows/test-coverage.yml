@@ -1,0 +1,100 @@
+name: Test Coverage
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ""
+          MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+          MYSQL_DATABASE: diary_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies (frontend)
+        run: bun install --frozen-lockfile
+        working-directory: frontend
+
+      - name: Install dependencies (backend)
+        run: bun install --frozen-lockfile
+        working-directory: backend
+
+      - name: Run frontend coverage
+        id: frontend_coverage
+        continue-on-error: true
+        run: |
+          count=$(find . -name "*.test.*" ! -path "*/node_modules/*" ! -path "*/e2e/*" 2>/dev/null | wc -l)
+          if [ "$count" -gt 0 ]; then
+            bun run test:coverage
+          else
+            echo "No frontend test files found — skipping"
+          fi
+        working-directory: frontend
+
+      - name: Run backend coverage
+        id: backend_coverage
+        continue-on-error: true
+        run: |
+          count=$(find src -name "*.test.*" 2>/dev/null | wc -l)
+          if [ "$count" -gt 0 ]; then
+            bun run test:coverage
+          else
+            echo "No backend test files found — skipping"
+          fi
+        working-directory: backend
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: diary_db
+          DB_USER: root
+          DB_PASSWORD: ""
+
+      - name: Upload frontend coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage-report
+          path: frontend/coverage/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload backend coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage-report
+          path: backend/coverage/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Fail when coverage failed
+        if: steps.frontend_coverage.outcome == 'failure' || steps.backend_coverage.outcome == 'failure'
+        run: exit 1

@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Frontend
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/coverage/
+frontend/.reg/
+frontend/.reg-snapshots/
+frontend/storybook-static/
+frontend/public/mockServiceWorker.js
+frontend/app/api/generated/
+
+# Backend
+backend/dist/
+backend/coverage/
+
+# Lockfiles
+bun.lock
+*.lock
+
+# Generated
+*.tsbuildinfo
+next-env.d.ts

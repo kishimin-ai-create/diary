@@ -9,3 +9,7 @@ include = [
   "**/*.medium.test.tsx",
   "**/*.large.test.tsx",
 ]
+
+coverageReporter = ["text", "lcov"]
+coverageDir = "coverage"
+coverageThreshold = { line = 80, function = 80, statement = 80 }

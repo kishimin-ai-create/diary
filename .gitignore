@@ -1,3 +1,13 @@
-**/workflows/
 **/diary/
 **/blog/
+
+# storybook
+storybook-static/
+
+# playwright
+playwright-report/
+test-results/
+
+# VRT
+.reg/
+.reg-snapshots/
