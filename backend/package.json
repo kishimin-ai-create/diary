@@ -6,6 +6,7 @@
     "test:small": "bun test small.test",
     "test:medium": "bun test medium.test",
     "test:large": "bun test large.test",
+    "test:coverage": "bun test --coverage",
     "typecheck": "bun run --bun tsgo --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
