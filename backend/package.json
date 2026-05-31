@@ -5,14 +5,24 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "hono": "^4.12.23"
+    "@hono/swagger-ui": "^0.6.1",
+    "@hono/zod-openapi": "^1.4.0",
+    "@js-temporal/polyfill": "^0.5.1",
+    "@supabase/supabase-js": "^2.106.2",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.23",
+    "postgres": "^3.4.9"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.16",
     "@eslint/js": "^10.0.1",
     "@hono/standard-validator": "^0.2.2",
     "@types/bun": "latest",
+    "@typescript/native-preview": "^7.0.0-dev.20260527.2",
     "@vitest/coverage-v8": "^4.1.7",
     "@vitest/eslint-plugin": "^1.6.18",
+    "drizzle-kit": "^0.31.10",
+    "drizzle-zod": "^0.8.3",
     "eslint": "^10.4.1",
     "eslint-plugin-jsdoc": "^63.0.0",
     "eslint-plugin-unused-imports": "^4.4.1",
