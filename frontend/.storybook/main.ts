@@ -9,9 +9,6 @@ const config: StorybookConfig = {
     name: "@storybook/nextjs",
     options: {},
   },
-  docs: {
-    autodocs: "tag",
-  } as StorybookConfig["docs"],
 };
 
 export default config;
