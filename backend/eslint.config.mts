@@ -5,7 +5,6 @@ import { defineConfig } from "eslint/config";
 import stylistic from "@stylistic/eslint-plugin";
 import jsdoc from "eslint-plugin-jsdoc";
 import unusedImports from "eslint-plugin-unused-imports";
-import vitest from "@vitest/eslint-plugin";
 import prettier from "eslint-config-prettier";
 
 export default defineConfig([
@@ -16,7 +15,6 @@ export default defineConfig([
     plugins: {
       "@stylistic": stylistic,
       "unused-imports": unusedImports,
-      vitest,
     },
   },
   jsdoc.configs["flat/recommended"],
@@ -90,28 +88,6 @@ export default defineConfig([
         },
       ],
     },
-  },
-  {
-    files: [
-      "**/*.test.{ts,tsx}",
-      "**/*.spec.{ts,tsx}",
-      "**/__tests__/**/*.{ts,tsx}",
-      "**/tests/**/**/*.{ts,tsx}",
-    ],
-    rules: {
-      ...vitest.configs.recommended.rules,
-      "@typescript-eslint/no-unsafe-call": "off",
-      "@typescript-eslint/no-unsafe-assignment": "off",
-      "@typescript-eslint/unbound-method": "off",
-      "vitest/unbound-method": "error",
-      "vitest/max-nested-describe": ["error", { max: 3 }],
-      "vitest/no-focused-tests": "error",
-      "vitest/no-disabled-tests": "warn",
-    },
-    settings: {
-      vitest: { typecheck: true },
-    },
-    languageOptions: { globals: { ...vitest.environments.env.globals } },
   },
   // Must be last: disables all ESLint rules that conflict with Prettier
   prettier,
