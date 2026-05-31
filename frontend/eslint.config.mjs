@@ -113,9 +113,11 @@ export default defineConfig([
     ],
     ...testingLibrary.configs["flat/react"],
     plugins: {
+      ...testingLibrary.configs["flat/react"].plugins,
       vitest,
     },
     rules: {
+      ...testingLibrary.configs["flat/react"].rules,
       ...vitest.configs.recommended.rules,
       "@typescript-eslint/no-unsafe-call": "off",
       "@typescript-eslint/no-unsafe-member-access": "off",
