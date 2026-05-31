@@ -2,16 +2,26 @@
   "name": "backend",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
-    "typecheck": "tsc --noEmit"
+    "test": "bun test",
+    "test:small": "bun test small.test",
+    "test:medium": "bun test medium.test",
+    "test:large": "bun test large.test",
+    "typecheck": "bun run --bun tsgo --noEmit",
+    "lint": "biome lint .",
+    "format": "biome format .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.6.1",
     "@hono/zod-openapi": "^1.4.0",
     "@js-temporal/polyfill": "^0.5.1",
-    "@supabase/supabase-js": "^2.106.2",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.23",
-    "postgres": "^3.4.9"
+    "mysql2": "^3.22.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
