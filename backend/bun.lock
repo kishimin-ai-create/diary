@@ -9,11 +9,13 @@
       },
       "devDependencies": {
         "@eslint/js": "^10.0.1",
+        "@hono/standard-validator": "^0.2.2",
         "@types/bun": "latest",
         "@vitest/coverage-v8": "^4.1.7",
         "@vitest/eslint-plugin": "^1.6.18",
         "eslint": "^10.4.1",
         "eslint-plugin-jsdoc": "^63.0.0",
+        "eslint-plugin-unused-imports": "^4.4.1",
         "globals": "^17.6.0",
         "jiti": "^2.7.0",
         "typescript-eslint": "^8.60.0",
