@@ -28,6 +28,7 @@
     "@hono/swagger-ui": "^0.6.1",
     "@hono/zod-openapi": "^1.4.0",
     "@js-temporal/polyfill": "^0.5.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
     "@types/bun": "latest",
     "@typescript/native-preview": "^7.0.0-dev.20260527.2",
     "@vitest/coverage-v8": "^4.1.7",
