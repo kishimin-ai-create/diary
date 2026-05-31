@@ -1,9 +1,12 @@
 import { defineConfig } from "orval";
 
+const OPENAPI_URL =
+  process.env.OPENAPI_URL ?? "http://localhost:3000/openapi/v1.json";
+
 export default defineConfig({
   diary: {
     input: {
-      target: "http://localhost:3000/openapi/v1.json",
+      target: OPENAPI_URL,
     },
     output: {
       mode: "tags-split",
@@ -24,7 +27,7 @@ export default defineConfig({
   },
   diaryZod: {
     input: {
-      target: "http://localhost:3000/openapi/v1.json",
+      target: OPENAPI_URL,
     },
     output: {
       mode: "tags-split",
