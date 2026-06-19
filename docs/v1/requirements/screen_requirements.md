@@ -33,7 +33,6 @@ Displays a list of diary entries available to all users.
   - Content excerpt
   - Created date
   - Updated date
-  - Author
 
 - Pagination
 
@@ -57,7 +56,6 @@ Displays the full content of a diary entry.
 - Content
 - Created date
 - Updated date
-- Author
 
 ### Behavior
 

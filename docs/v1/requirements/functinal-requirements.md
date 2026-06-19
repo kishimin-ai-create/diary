@@ -10,7 +10,6 @@ The diary list shall display:
 - Excerpt of the content
 - Created date
 - Updated date
-- Author
 
 Diary entries shall be displayed in descending order by creation date.
 
@@ -44,7 +43,8 @@ A diary entry shall contain:
 - Title
 - Content
 
-The system shall associate the diary entry with its author.
+The system shall associate the diary entry with the administrator account that
+created it.
 
 The system shall automatically record the creation timestamp.
 
