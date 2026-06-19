@@ -30,6 +30,9 @@ UIDesignAgent receives one or more of:
 If no explicit scope is given, audit the entire `frontend/src` directory for
 inconsistencies and apply improvements across all components.
 
+Always treat `.github/DESIGN.md` as the first project-wide design reference
+before reading optional design docs under `docs/design/`.
+
 ## 📤 Output
 
 UIDesignAgent **MUST** deliver:
@@ -192,6 +195,7 @@ export const Error: Story = {
 ### Step 1: Read Design Context
 
 ```
+Read .github/DESIGN.md first for project-wide design rules
 Read docs/design/ for any existing design tokens or guidelines
 ├── Check for color palette, spacing scale, typography rules
 ├── Note any Figma references or screenshots
@@ -274,6 +278,7 @@ Before acting, read `.github/copilot-instructions.md` and the following instruct
 | Instruction File | Applies to |
 |---|---|
 | [`.github/copilot-instructions.md`](../copilot-instructions.md) | Always-applied core instructions and global rules |
+| [`.github/DESIGN.md`](../DESIGN.md) | Project-wide design rules and design workflow references |
 | [`.github/instructions/protected-paths.instructions.md`](../instructions/protected-paths.instructions.md) | Files that must not be modified without explicit user instruction |
 | [`.github/instructions/frontend.instructions.md`](../instructions/frontend.instructions.md) | Frontend architecture — React, Tailwind CSS |
 | [`.github/instructions/typescript.instructions.md`](../instructions/typescript.instructions.md) | TypeScript coding standards |
