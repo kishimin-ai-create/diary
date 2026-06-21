@@ -1,10 +1,11 @@
-import { Hono } from "hono";
 import type { Context, Next } from "hono";
+import { Hono } from "hono";
 import { verify } from "hono/jwt";
 import { z } from "zod";
 
 import type { IDiaryRepository } from "../repositories/diary.repository";
 import { DiaryService } from "../services/diary.service";
+import { isServiceError } from "../shared/errors";
 
 type Env = {
   Variables: {
@@ -32,19 +33,14 @@ const diaryBodySchema = z.object({
   content: z.string().trim().min(1),
 });
 
-function isServiceError(
-  e: unknown,
-): e is { statusCode: number; message: string } {
-  return (
-    typeof e === "object" &&
-    e !== null &&
-    "statusCode" in e &&
-    "message" in e &&
-    typeof (e as Record<string, unknown>)["statusCode"] === "number" &&
-    typeof (e as Record<string, unknown>)["message"] === "string"
-  );
-}
-
+/**
+ * Creates a Hono router that handles diary entry CRUD operations.
+ *
+ * Public routes: GET / (list) and GET /:id (single entry).
+ * Protected routes (admin JWT required): POST /, PUT /:id, DELETE /:id.
+ *
+ * When mounted at /api/diaries in app.ts, app.get("/") matches GET /api/diaries.
+ */
 export function createDiaryController(
   diaryRepo: IDiaryRepository,
   jwtSecret: string,
@@ -63,7 +59,8 @@ export function createDiaryController(
     const token = authHeader.slice(7);
     try {
       const payload = await verify(token, jwtSecret, "HS256");
-      c.set("jwtPayload", payload as Record<string, unknown>);
+      // verify() returns JWTPayload which matches the Env.Variables.jwtPayload type exactly
+      c.set("jwtPayload", payload);
       return next();
     } catch {
       return c.json({ message: "Authentication required." }, 401);
@@ -74,14 +71,16 @@ export function createDiaryController(
     c: Context<Env>,
     next: Next,
   ): Promise<Response | void> {
+    // Null check omitted: jwtAuthMiddleware always sets jwtPayload before calling
+    // next(), so payload is guaranteed to be present when this middleware executes
     const payload = c.get("jwtPayload");
-    if (!payload || payload["role"] !== "admin") {
+    if (payload["role"] !== "admin") {
       return c.json({ message: "Access denied." }, 403);
     }
     return next();
   }
 
-  // GET /api/diaries — public
+  // GET /api/diaries — public list endpoint (mounted at /api/diaries in app.ts)
   app.get("/", async (c) => {
     const rawQuery: Record<string, string> = {};
     const page = c.req.query("page");
@@ -111,6 +110,8 @@ export function createDiaryController(
       return c.json(diary, 200);
     } catch (e) {
       if (isServiceError(e)) {
+        // Hono's c.json() requires a specific StatusCode union type;
+        // ServiceError.statusCode is typed as number so we must narrow it here
         return c.json({ message: e.message }, e.statusCode as 404 | 500);
       }
       throw e;
@@ -159,6 +160,8 @@ export function createDiaryController(
       return new Response(null, { status: 204 });
     } catch (e) {
       if (isServiceError(e)) {
+        // Hono's c.json() requires a specific StatusCode union type;
+        // ServiceError.statusCode is typed as number so we must narrow it here
         return c.json({ message: e.message }, e.statusCode as 404 | 500);
       }
       throw e;
@@ -166,6 +169,7 @@ export function createDiaryController(
   });
 
   // DELETE /api/diaries/:id — protected (admin only)
+  // eslint-disable-next-line drizzle/enforce-delete-with-where -- Hono HTTP route handler, not a Drizzle ORM delete statement
   app.delete("/:id", jwtAuthMiddleware, requireAdminMiddleware, async (c) => {
     const idResult = idParamSchema.safeParse({ id: c.req.param("id") });
     if (!idResult.success) {
@@ -177,6 +181,8 @@ export function createDiaryController(
       return new Response(null, { status: 204 });
     } catch (e) {
       if (isServiceError(e)) {
+        // Hono's c.json() requires a specific StatusCode union type;
+        // ServiceError.statusCode is typed as number so we must narrow it here
         return c.json({ message: e.message }, e.statusCode as 404 | 500);
       }
       throw e;

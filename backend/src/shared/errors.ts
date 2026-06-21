@@ -9,8 +9,8 @@
  * Structured error thrown by service layer methods to communicate an HTTP status
  * code and human-readable message to the controller layer.
  *
- * Extends Error so it satisfies the @typescript-eslint/only-throw-error rule
- * and integrates naturally with existing catch blocks.
+ * Extends Error so thrown instances are proper Error objects, satisfying the
+ * `only-throw-error` lint rule and integrating naturally with catch blocks.
  */
 export class ServiceError extends Error {
   /** HTTP status code to include in the JSON response. */
