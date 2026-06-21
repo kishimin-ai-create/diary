@@ -12,6 +12,41 @@ This file adapts the Copilot rules in `.github/` for Codex. More specific
 - `.github/` contains the Copilot instruction source that these Codex rules are
   based on.
 
+## GitHub Agent Bridge
+
+- Files under `.github/agents/*.agent.md` are instruction files, not
+  automatically installed tools in Codex.
+- If the user explicitly mentions an agent name such as `@ArticleWriterAgent`,
+  `@WorkSummaryAgent`, or `@PullRequestWriterAgent`, treat that as a request to
+  use the matching definition in `.github/agents/`.
+- Before acting on that request, read:
+  - `.github/CODEX_AGENT_BRIDGE.md`
+  - `.github/AGENT_IO.md`
+  - the matching `.github/agents/{AgentName}.agent.md`
+- If Codex sub-agent tools are available, prefer launching a well-scoped
+  sub-agent that follows the matched agent definition.
+- If sub-agent tools are unavailable, perform the task directly while following
+  the matched agent definition yourself.
+- Repository safety rules in this file override any conflicting instruction in
+  `.github/agents/*.agent.md`, especially around protected paths, git history,
+  and validation.
+- Do not assume chained follow-up agents in `.agent.md` files are mandatory in
+  Codex. Run them only when the current user request actually asks for that
+  outcome.
+
+## GitHub Prompt Bridge
+
+- Files under `.github/prompts/*.prompt.md` are Copilot prompt files.
+- Codex custom prompts are local-only and deprecated, so the repository-shared
+  Codex equivalent for these prompt files is repo-scoped skills under
+  `.agents/skills/`.
+- Treat `.github/prompts/write-article.prompt.md` as mapped to the
+  `write-article` skill.
+- Treat `.github/prompts/summarize-work.prompt.md` as mapped to the
+  `summarize-work` skill.
+- When the user asks for `/write-article` or `/summarize-work`, interpret that
+  as a request to use the corresponding mapped skill behavior.
+
 ## Working Style
 
 - When the requested change is clear, make the change directly and verify it.
