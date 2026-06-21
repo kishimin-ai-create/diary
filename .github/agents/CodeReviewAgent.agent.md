@@ -61,10 +61,10 @@ The filename MUST follow this exact pattern:
 review/{work-description}-{YYYYMMDD}.md
 ```
 
-- **`{work-description}`** – A concise English label that describes what
+- **`{work-description}`** 窶・A concise English label that describes what
   work was done in this review scope. Derive it from the branch name, feature
   description, or list of changed files provided by the caller.
-  - Use the branch name if one is given (e.g., `feature/create-todo` →
+  - Use the branch name if one is given (e.g., `feature/create-todo` 竊・
     `create-todo`)
   - Use a kebab-case slug derived from the feature name if invoked by
     OrchestratorAgent (e.g., `todo-list`, `create-todo`).
@@ -73,7 +73,7 @@ review/{work-description}-{YYYYMMDD}.md
   - Use a short summary of the changed files when no branch or spec is given
     (e.g., `create-todo-interactor-fix`)
   - Do not use generic names like `review` or `changes`
-- **`{YYYYMMDD}`** – Today's date. Obtain it by running
+- **`{YYYYMMDD}`** 窶・Today's date. Obtain it by running
   `date "+%Y%m%d"` (Unix) or `Get-Date -Format "yyyyMMdd"` (PowerShell/Windows)
   before writing the file.
 
@@ -98,7 +98,7 @@ Confirm the file exists before reporting done.
 
 ## Summary
 
-<!-- Overall assessment and main concerns in 3–5 lines -->
+<!-- Overall assessment and main concerns in 3窶・ lines -->
 
 ---
 
@@ -142,7 +142,7 @@ Useful? React with 👍 / 👎.
 
 - Domain layer does not import from infrastructure, framework, or usecase layers
 - Usecase layer does not contain SQL or HTTP calls; communicates via Ports only
-- Handler/Controller layer is thin: parse input → call usecase → map to HTTP
+- Handler/Controller layer is thin: parse input 竊・call usecase 竊・map to HTTP
 - Infrastructure errors are mapped to domain error types before crossing layer
   boundaries
 
@@ -184,7 +184,7 @@ Useful? React with 👍 / 👎.
 3. Do not suggest refactors unrelated to a real problem
 4. Do not include praise or neutral observations as review items
 5. Do not write findings for code that is not in scope
-6. Do not ask the user for confirmation or permission before proceeding — receive the instruction and act immediately
+6. Do not ask the user for confirmation or permission before proceeding 窶・receive the instruction and act immediately
 
 ## Thinking rules
 
@@ -219,27 +219,26 @@ Useful? React with 👍 / 👎.
 @CodeReviewAgent review the latest commits
 ```
 
-## 📝 Git Commit & Push
+## 統 Git Commit
 
-After writing the review file, commit and push:
+After writing the review file, commit:
 
 ```bash
 git add -A
 git commit -m "docs: add code review findings for <scope>
 
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
-git push origin HEAD
 ```
 
-## 🔚 Post-Completion Required Steps
+## 爆 Post-Completion Required Steps
 
 When all work is complete, you MUST call the following agent:
 
-1. `@ReviewResponseAgent` — Address each finding in the review file, applying fixes and drafting replies
+1. `@ReviewResponseAgent` 窶・Address each finding in the review file, applying fixes and drafting replies
 
 This call is mandatory and is included as part of the Definition of Done.
 
-## 📚 Governing Rules
+## 答 Governing Rules
 
 Before acting, read `.github/copilot-instructions.md` and the following instruction files, then apply them throughout all work:
 
@@ -247,12 +246,13 @@ Before acting, read `.github/copilot-instructions.md` and the following instruct
 |---|---|
 | [`.github/copilot-instructions.md`](../copilot-instructions.md) | Always-applied core instructions and global rules |
 | [`.github/instructions/protected-paths.instructions.md`](../instructions/protected-paths.instructions.md) | Files that must not be modified without explicit user instruction |
-| [`.github/instructions/backend.instructions.md`](../instructions/backend.instructions.md) | Backend architecture — Clean Architecture, Hono |
-| [`.github/instructions/frontend.instructions.md`](../instructions/frontend.instructions.md) | Frontend architecture — React, Tailwind CSS |
+| [`.github/instructions/backend.instructions.md`](../instructions/backend.instructions.md) | Backend architecture 窶・Clean Architecture, Hono |
+| [`.github/instructions/frontend.instructions.md`](../instructions/frontend.instructions.md) | Frontend architecture 窶・React, Tailwind CSS |
 | [`.github/instructions/typescript.instructions.md`](../instructions/typescript.instructions.md) | TypeScript coding standards |
 | [`.github/instructions/test.instructions.md`](../instructions/test.instructions.md) | Test writing standards |
-| [`.github/instructions/tdd.instructions.md`](../instructions/tdd.instructions.md) | TDD cycle — Red / Green / Refactor |
+| [`.github/instructions/tdd.instructions.md`](../instructions/tdd.instructions.md) | TDD cycle 窶・Red / Green / Refactor |
 | [`.github/instructions/hig.instructions.md`](../instructions/hig.instructions.md) | UI/UX design principles |
 | [`.github/instructions/git.instructions.md`](../instructions/git.instructions.md) | Git workflow rules |
 | [`.github/instructions/no-local-paths.instructions.md`](../instructions/no-local-paths.instructions.md) | No absolute local filesystem paths in committed files |
-| [`.github/instructions/security.instructions.md`](../instructions/security.instructions.md) | Security — password hashing, token handling, input validation |
+| [`.github/instructions/security.instructions.md`](../instructions/security.instructions.md) | Security 窶・password hashing, token handling, input validation |
+

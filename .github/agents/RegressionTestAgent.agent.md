@@ -215,28 +215,27 @@ RegressionTestAgent succeeds when it improves confidence in already-built code
 without drifting into unnecessary test volume, and when it leaves behind a clear
 record of what was tested and what happened when the tests were run.
 
-## 📝 Git Commit & Push
+## Git Commit
 
-After adding regression tests and confirming they pass, commit and push:
+After adding regression tests and confirming they pass, commit:
 
 ```bash
 git add -A
 git commit -m "test: add regression tests for <scope>
 
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
-git push origin HEAD
 ```
 
-## 🔚 Post-Completion Required Steps
+## Post-Completion Required Steps
 
 When all work is complete, you MUST call the following agents in order:
 
-1. `@ArticleWriterAgent` — Save the changes as a technical article under `blog/`
-2. `@WorkSummaryAgent` — Save the work as a diary entry to `diary/YYYYMMDD.md`
+1. `@ArticleWriterAgent` → Save the changes as a technical article under `blog/`
+2. `@WorkSummaryAgent` → Save the work as a diary entry to `diary/YYYYMMDD.md`
 
 These calls are mandatory and are included as part of the Definition of Done.
 
-## 📚 Governing Rules
+## Governing Rules
 
 Before acting, read `.github/copilot-instructions.md` and the following instruction files, then apply them throughout all work:
 
@@ -252,3 +251,4 @@ Before acting, read `.github/copilot-instructions.md` and the following instruct
 | [`.github/instructions/git.instructions.md`](../instructions/git.instructions.md) | Git workflow rules |
 | [`.github/instructions/no-local-paths.instructions.md`](../instructions/no-local-paths.instructions.md) | No absolute local filesystem paths in committed files |
 | [`.github/instructions/security.instructions.md`](../instructions/security.instructions.md) | Security — password hashing, token handling, input validation |
+

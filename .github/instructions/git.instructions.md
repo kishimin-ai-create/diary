@@ -15,6 +15,8 @@ applyTo: "**"
 ## History
 
 - Never force-push to `main` or any shared branch.
+- Agents must never run `git push` or any other command that writes to a remote.
+- Leave remote pushes to a human or another explicitly authorized workflow.
 - Do not rewrite (rebase, amend, squash) commits that have already been pushed
   to a shared branch.
 - Rebase / squash is allowed on your own feature branch before opening a PR.
@@ -34,4 +36,5 @@ applyTo: "**"
   `skills/commit-message-rules/SKILL.md` for the full commit message rules.
 - One commit = one logical change. Never bundle unrelated changes.
 - Each TDD step must be a separate commit (`test:` → `feat:` → `refactor:`).
+
 

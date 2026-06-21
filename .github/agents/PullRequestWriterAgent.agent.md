@@ -100,7 +100,7 @@ PullRequestWriterAgent MUST deliver:
    simpler
 4. Do not write a generic PR body that could apply to any change
 5. Do not change the template structure unless the user explicitly requests it
-6. Do not ask the user for confirmation or permission before proceeding — receive the instruction and act immediately
+6. Do not ask the user for confirmation or permission before proceeding 窶・receive the instruction and act immediately
 
 ## Thinking rules
 
@@ -135,28 +135,27 @@ When drafting a PR:
 @PullRequestWriterAgent output the changes related to issue #123 in PR template format
 ```
 
-## 📝 Git Commit & Push
+## 統 Git Commit
 
-After writing the PR draft, commit and push:
+After writing the PR draft, commit:
 
 ```bash
 git add -A
 git commit -m "docs: add PR draft for <feature or scope>
 
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
-git push origin HEAD
 ```
 
-## 🔚 Post-Completion Required Steps
+## 爆 Post-Completion Required Steps
 
 When all work is complete, you MUST call the following agents in order:
 
-1. `@ArticleWriterAgent` — Save the changes as a technical article under `blog/`
-2. `@WorkSummaryAgent` — Save the work as a diary entry to `diary/YYYYMMDD.md`
+1. `@ArticleWriterAgent` 窶・Save the changes as a technical article under `blog/`
+2. `@WorkSummaryAgent` 窶・Save the work as a diary entry to `diary/YYYYMMDD.md`
 
 These calls are mandatory and are included as part of the Definition of Done.
 
-## 📚 Governing Rules
+## 答 Governing Rules
 
 Before acting, read `.github/copilot-instructions.md` and the following instruction files, then apply them throughout all work:
 
@@ -166,4 +165,5 @@ Before acting, read `.github/copilot-instructions.md` and the following instruct
 | [`.github/instructions/protected-paths.instructions.md`](../instructions/protected-paths.instructions.md) | Files that must not be modified without explicit user instruction |
 | [`.github/instructions/git.instructions.md`](../instructions/git.instructions.md) | Git workflow rules |
 | [`.github/instructions/no-local-paths.instructions.md`](../instructions/no-local-paths.instructions.md) | No absolute local filesystem paths in committed files |
-| [`.github/instructions/security.instructions.md`](../instructions/security.instructions.md) | Security — password hashing, token handling, input validation |
+| [`.github/instructions/security.instructions.md`](../instructions/security.instructions.md) | Security 窶・password hashing, token handling, input validation |
+

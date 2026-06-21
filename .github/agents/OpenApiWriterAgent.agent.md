@@ -74,7 +74,7 @@ OpenApiWriterAgent MUST deliver:
    missing
 4. Do not overwrite unrelated existing paths without checking whether they still
    belong in the same spec
-5. Do not ask the user for confirmation or permission before proceeding — receive the instruction and act immediately
+5. Do not ask the user for confirmation or permission before proceeding 窶・receive the instruction and act immediately
 
 ## Thinking rules
 
@@ -103,28 +103,27 @@ When producing OpenAPI:
 @OpenApiWriterAgent update docs/spec/backend/openapi.yaml to match the apps endpoint implementation
 ```
 
-## 📝 Git Commit & Push
+## 統 Git Commit
 
-After writing or updating the OpenAPI spec, commit and push:
+After writing or updating the OpenAPI spec, commit:
 
 ```bash
 git add -A
 git commit -m "docs: update OpenAPI specification for <scope>
 
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
-git push origin HEAD
 ```
 
-## 🔚 Post-Completion Required Steps
+## 爆 Post-Completion Required Steps
 
 When all work is complete, you MUST call the following agents in order:
 
-1. `@ArticleWriterAgent` — Save the changes as a technical article under `blog/`
-2. `@WorkSummaryAgent` — Save the work as a diary entry to `diary/YYYYMMDD.md`
+1. `@ArticleWriterAgent` 窶・Save the changes as a technical article under `blog/`
+2. `@WorkSummaryAgent` 窶・Save the work as a diary entry to `diary/YYYYMMDD.md`
 
 These calls are mandatory and are included as part of the Definition of Done.
 
-## 📚 Governing Rules
+## 答 Governing Rules
 
 Before acting, read `.github/copilot-instructions.md` and the following instruction files, then apply them throughout all work:
 
@@ -132,8 +131,9 @@ Before acting, read `.github/copilot-instructions.md` and the following instruct
 |---|---|
 | [`.github/copilot-instructions.md`](../copilot-instructions.md) | Always-applied core instructions and global rules |
 | [`.github/instructions/protected-paths.instructions.md`](../instructions/protected-paths.instructions.md) | Files that must not be modified without explicit user instruction |
-| [`.github/instructions/backend.instructions.md`](../instructions/backend.instructions.md) | Backend architecture — primary reference for documenting routes |
-| [`.github/instructions/typescript.instructions.md`](../instructions/typescript.instructions.md) | TypeScript coding standards — for reading implementation accurately |
-| [`.github/instructions/git.instructions.md`](../instructions/git.instructions.md) | Git workflow rules — reading implementation changes |
+| [`.github/instructions/backend.instructions.md`](../instructions/backend.instructions.md) | Backend architecture 窶・primary reference for documenting routes |
+| [`.github/instructions/typescript.instructions.md`](../instructions/typescript.instructions.md) | TypeScript coding standards 窶・for reading implementation accurately |
+| [`.github/instructions/git.instructions.md`](../instructions/git.instructions.md) | Git workflow rules 窶・reading implementation changes |
 | [`.github/instructions/no-local-paths.instructions.md`](../instructions/no-local-paths.instructions.md) | No absolute local filesystem paths in committed files |
-| [`.github/instructions/security.instructions.md`](../instructions/security.instructions.md) | Security — password hashing, token handling, input validation |
+| [`.github/instructions/security.instructions.md`](../instructions/security.instructions.md) | Security 窶・password hashing, token handling, input validation |
+
