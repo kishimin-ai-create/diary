@@ -12,6 +12,16 @@
 | Success without body | `204 No Content` |
 | Error payload | `{ "message": "..." }` |
 
+## Performance Expectations
+
+- The API must provide sufficient response performance to satisfy the
+  non-functional requirements under normal operating conditions.
+- In particular, the APIs used for diary browsing must be designed and
+  implemented so the diary list page can be displayed within 3 seconds under
+  normal operating conditions.
+- `GET /api/diaries` uses pagination to keep response payloads bounded and to
+  support the required performance.
+
 ## Authentication APIs
 
 ### POST /api/auth/register
@@ -198,7 +208,7 @@ Creates a new diary entry.
 | Field | Type | Required | Rules |
 | ----- | ---- | -------- | ----- |
 | `title` | string | Yes | Trimmed length 1 to 100 characters |
-| `content` | string | Yes | Trimmed length 1 to 400 characters |
+| `content` | string | Yes | Trimmed length must be 1 character or more |
 
 #### Success Response
 
@@ -245,7 +255,7 @@ Updates an existing diary entry.
 | Field | Type | Required | Rules |
 | ----- | ---- | -------- | ----- |
 | `title` | string | Yes | Trimmed length 1 to 100 characters |
-| `content` | string | Yes | Trimmed length 1 to 400 characters |
+| `content` | string | Yes | Trimmed length must be 1 character or more |
 
 #### Success Response
 
