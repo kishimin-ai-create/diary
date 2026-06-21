@@ -8,7 +8,7 @@ This file adapts the Copilot rules in `.github/` for Codex. More specific
 - This repository is a diary application.
 - `backend/` contains the Hono + TypeScript API.
 - `frontend/` contains the Next.js + React + TypeScript UI.
-- `docs/requirements/` contains the product requirements and use cases.
+- `docs/v1/requirements/` contains the product requirements and use cases.
 - `.github/` contains the Copilot instruction source that these Codex rules are
   based on.
 
