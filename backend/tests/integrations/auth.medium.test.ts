@@ -240,9 +240,8 @@ describe("POST /api/auth/login", () => {
         findByEmail: mock(() =>
           Promise.resolve({
             ...TEST_USER,
-            // passwordHash is intentionally a placeholder — the Green phase will
-            // set this up properly using a real hash of 'Password123'
-            passwordHash: "placeholder:hash",
+            // Real scrypt hash of 'Password123' — generated in the Green phase
+            passwordHash: "798c0534f33660b2a73fc6f65f03e943:00b3916a7ed18d96313abbb1d1b20f11197a51ed74a039b39d0c6ea7cfe31c411112ce7ac382a97259ee61fb2fb4d5e9b64312a14321587b4909925589b0a6d7",
           }),
         ),
       };
