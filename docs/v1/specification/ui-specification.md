@@ -1,66 +1,132 @@
 # UI Specification
 
-## Scope
+## Design Direction
 
-This document converts the v1 requirements into an implementation-ready UI
-specification for the diary application.
+- The service name must be `つづる日記` in the Japanese locale and `Daybook` in the English locale.
+- The visual design may be defined freely, using common diary services and modern web applications as references while prioritizing readability and a calm tone.
+- The interface must prioritize diary readability over decorative presentation.
+- The experience must remain consistent across desktop and mobile screens.
 
-Source requirements:
+## Internationalization
 
-- `docs/v1/requirements/usecase.md`
-- `docs/v1/requirements/functinal-requirements.md`
-- `docs/v1/requirements/screen_requirements.md`
-- `docs/v1/requirements/non-functionnal-requirements.md`
-- `docs/v1/requirements/api-requirements.md`
+- Supported locales are `ja` and `en`, with `ja` as the default locale.
+- The frontend must use `next-intl` for internationalization.
+- All visible copy, validation messages, empty states, error messages, and loading text must be translatable.
+- The service logo is shared across locales, while the service name changes by locale.
+- Dates must be formatted according to the active locale.
+- Route paths are not translated by locale. For example, the diary creation screen always uses `/admin/create`.
 
-## Requirement Alignment
+## Screen Structure
 
-- The requirements define a login screen, but they do not define a public
-  registration screen.
-- This specification therefore includes administrator login only.
-- Initial administrator registration is handled outside the v1 UI through the
-  registration API.
-
-## Information Architecture
-
-| Screen | Suggested Route | Primary Actor | Purpose |
-| ------ | --------------- | ------------- | ------- |
+| Screen | Route | Primary Actor | Purpose |
+| ------ | ----- | ------------- | ------- |
 | Diary List | `/` | Visitor, Administrator | Browse published diary entries |
 | Diary Detail | `/diaries/{id}` | Visitor, Administrator | Read one diary entry |
 | Login | `/login` | Administrator | Authenticate administrator access |
 | Admin Dashboard | `/admin` | Administrator | Manage diary entries |
-| Diary Create | `/admin/diaries/new` | Administrator | Create a diary entry |
-| Diary Edit | `/admin/diaries/{id}/edit` | Administrator | Edit a diary entry |
+| Diary Create | `/admin/create` | Administrator | Create a diary entry |
+| Diary Edit | `/admin/edit/{id}` | Administrator | Edit a diary entry |
 
-## Common Layout
+## Screen Transition Diagram
 
-### Header
+```mermaid
+flowchart TD
+  diaryList["Diary List<br>/"] -->|Select diary| diaryDetail["Diary Detail<br>/diaries/{id}"]
+  diaryList -->|Log in| login["Login<br>/login"]
+  diaryDetail -->|Back to list| diaryList
+  login -->|Authentication success| adminDashboard["Admin Dashboard<br>/admin"]
+  login -->|Authentication failure| login
+  adminDashboard -->|Create new diary| diaryCreate["Diary Create<br>/admin/create"]
+  adminDashboard -->|Edit diary| diaryEdit["Diary Edit<br>/admin/edit/{id}"]
+  adminDashboard -->|Delete diary| deleteDialog["Delete Confirmation Dialog"]
+  deleteDialog -->|Confirm and refresh list| adminDashboard
+  deleteDialog -->|Cancel| adminDashboard
+  diaryCreate -->|Create success| adminDashboard
+  diaryEdit -->|Update success| adminDashboard
+  diaryCreate -->|Cancel or go back| adminDashboard
+  diaryEdit -->|Cancel or go back| adminDashboard
+```
 
-Displayed on all screens.
+## Shared Layout and Behavior
 
-Displayed items:
+### Layout
 
-- Service logo
-- Service name: `Tsuzuru Diary`
+- All screens use a shared header, main content area, and footer.
+- The header displays the service logo, locale-specific service name, and a language switcher.
+- Clicking the logo or service name navigates to the diary list.
+- The footer displays `© kishimin 2026`.
 
-Behavior:
+### Loading
 
-- Clicking the logo or service name navigates to the diary list page.
+- During full-page loading states, show a full-page loading overlay with the service logo centered on the screen.
+- For localized loading states such as list refetches or form submissions, do not block the entire page when a scoped loading indicator is sufficient.
 
-### Footer
+### Feedback
 
-Displayed on all screens.
+- Validation errors must appear near the relevant field, with a form-level summary when needed.
+- Submission errors that are not field-specific must use plain language and must not expose internal details.
+- Success messages should be brief and disappear on the next page transition or after a short delay.
+- Delete actions must use a reusable confirmation dialog.
 
-Displayed items:
+### Shared Input Rules
 
-- Copyright line for `kishimin 2026`
+- In the login form, email is required and must use a valid format, and password is required.
+- In the diary editor form, title is required and must be 1 to 100 characters, and content is required and must be at least 1 character.
+- The submit button for the active form must be disabled while submission is in progress.
 
-### Shared Behavior
+## Component Design (Atomic Design)
 
-- The layout must support desktop and mobile screens.
-- Long-form diary content must remain readable without horizontal scrolling.
-- Shared header and footer must be implemented as reusable UI components.
-- Error states must present a clear message without exposing internal details.
+### Atoms
+
+- `LogoMark`
+- `BrandText`
+- `Button`
+- `IconButton`
+- `TextInput`
+- `PasswordInput`
+- `TextArea`
+- `FieldLabel`
+- `HelperText`
+- `StatusMessage`
+- `PaginationButton`
+
+### Molecules
+
+- `BrandBlock`
+- `LocaleSwitcher`
+- `SearchForm`
+- `LabeledTextField`
+- `LabeledTextArea`
+- `DiaryMeta`
+- `PaginationControls`
+- `DialogActions`
+
+### Organisms
+
+- `GlobalHeader`
+- `GlobalFooter`
+- `DiaryListSection`
+- `DiaryDetailSection`
+- `LoginForm`
+- `DiaryEditorForm`
+- `AdminDiaryTable`
+- `DeleteConfirmDialog`
+- `FullPageLoadingOverlay`
+
+### Templates
+
+- `PublicPageTemplate`
+- `AuthPageTemplate`
+- `AdminPageTemplate`
+
+### Pages
+
+- `DiaryListPage`
+- `DiaryDetailPage`
+- `LoginPage`
+- `AdminDashboardPage`
+- `DiaryCreatePage`
+- `DiaryEditPage`
 
 ## Screen Specifications
 
@@ -76,34 +142,31 @@ Show published diary entries and support date-based search.
 
 #### Main Sections
 
-- Header
-- Date search form
-- Diary list
-- Pagination
-- Footer
+- `PublicPageTemplate`
+- `SearchForm`
+- `DiaryListSection`
+- `PaginationControls`
 
-#### Diary List Item
-
-Each item displays:
+#### Displayed Items
 
 - Title
-- Content excerpt
+- `contentPreview`
 - Created date
 - Updated date
 
 #### Interactions
 
-- The user can choose a date and submit the search form.
+- The user can choose a date and search.
 - The user can clear the date and return to the default list.
 - Selecting a diary item navigates to the diary detail page.
-- Pagination changes the current result set without changing the search rules.
+- Pagination changes the current results while preserving the active search condition.
 
 #### States
 
-- Initial state: newest diary entries are shown.
-- Loading state: search form and pagination remain visible while results load.
-- Empty state: display that no diary entries match the selected date.
-- Error state: display a retryable error message.
+- Initial state: newest diary entries are shown first.
+- Loading state: use full-page loading on initial page load and a scoped loading state for list refetches.
+- Empty state: show that no diary entries match the condition.
+- Error state: show an error message and do not display the diary list or pagination.
 
 ### 2. Diary Detail
 
@@ -117,10 +180,8 @@ Show the complete content of one diary entry.
 
 #### Main Sections
 
-- Header
-- Diary meta information
-- Diary content
-- Footer
+- `PublicPageTemplate`
+- `DiaryDetailSection`
 
 #### Displayed Items
 
@@ -132,12 +193,11 @@ Show the complete content of one diary entry.
 #### Interactions
 
 - The screen is reached from the diary list.
-- If the diary entry does not exist, the screen shows a not-found message and a
-  link back to the diary list.
+- If the diary entry does not exist, show a not-found message and a path back to the diary list.
 
 #### States
 
-- Loading state
+- Loading state: show full-page loading.
 - Not-found state
 - Error state
 
@@ -153,28 +213,25 @@ Authenticate the administrator.
 
 #### Main Sections
 
-- Header
-- Login form
-- Footer
+- `AuthPageTemplate`
+- `LoginForm`
 
 #### Displayed Items
 
-- Email address field
+- Email field
 - Password field
 - Login button
 
 #### Interactions
 
-- Submitting valid credentials redirects the administrator to the admin
-  dashboard.
-- Invalid credentials keep the user on the same screen and show an error
-  message.
-- The login button is disabled while submission is in progress.
+- Submitting valid credentials redirects the administrator to the admin dashboard.
+- Invalid credentials keep the user on the same screen and show a generic error message.
 
-#### Validation
+#### States
 
-- Email is required and must be in a valid format.
-- Password is required.
+- Initial state
+- Submitting state
+- Error state
 
 ### 4. Admin Dashboard
 
@@ -185,7 +242,7 @@ Provide diary management features for authenticated administrators.
 #### Access Control
 
 - Redirect unauthenticated users to `/login`.
-- Hide this route from general public navigation.
+- Do not expose admin navigation in the public browsing flow.
 
 #### Data Source
 
@@ -194,15 +251,12 @@ Provide diary management features for authenticated administrators.
 
 #### Main Sections
 
-- Header
+- `AdminPageTemplate`
 - Page title
 - Create button
-- Diary management list
-- Footer
+- `AdminDiaryTable`
 
-#### Diary Management Row
-
-Each row displays:
+#### Displayed Items
 
 - Title
 - Created date
@@ -212,22 +266,22 @@ Each row displays:
 
 #### Interactions
 
-- Create button navigates to the diary creation page.
-- Edit button navigates to the diary edit page.
-- Delete button opens a confirmation dialog before deletion.
-- After successful deletion, the list refreshes and a success message is shown.
+- The create button navigates to `/admin/create`.
+- The edit button navigates to the diary edit page.
+- The delete button opens a confirmation dialog.
+- After successful deletion, refresh the list and show a success message.
 
 #### States
 
 - Loading state
-- Empty state when no diary entries exist
-- Error state
+- Empty state
+- Error state: show an error message and do not display the management list.
 
 ### 5. Diary Create
 
 #### Purpose
 
-Allow an administrator to create a diary entry.
+Allow an administrator to create a new diary entry.
 
 #### Data Source
 
@@ -235,28 +289,21 @@ Allow an administrator to create a diary entry.
 
 #### Main Sections
 
-- Header
+- `AdminPageTemplate`
 - Page title
-- Diary form
-- Footer
-
-#### Displayed Items
-
-- Title input
-- Content textarea
-- Save button
-
-#### Validation
-
-- Title is required and must be 1 to 100 characters.
-- Content is required.
+- `DiaryEditorForm`
 
 #### Interactions
 
-- Successful submission redirects to the admin dashboard.
-- Validation errors are displayed near the relevant field and as a form-level
-  summary if needed.
-- The save button is disabled while submission is in progress.
+- On success, redirect to the admin dashboard.
+- Disable the save button while submission is in progress.
+
+#### States
+
+- Initial state
+- Submitting state
+- Validation error state
+- Error state
 
 ### 6. Diary Edit
 
@@ -271,67 +318,35 @@ Allow an administrator to update an existing diary entry.
 
 #### Main Sections
 
-- Header
+- `AdminPageTemplate`
 - Page title
-- Diary form prefilled with current values
-- Footer
-
-#### Displayed Items
-
-- Title input
-- Content textarea
-- Update button
-
-#### Validation
-
-- Title is required and must be 1 to 100 characters.
-- Content is required.
+- `DiaryEditorForm` prefilled with the current values
 
 #### Interactions
 
-- Successful submission redirects to the admin dashboard.
-- If the diary entry does not exist, show a not-found message instead of the
-  form.
-- The update button is disabled while submission is in progress.
+- On success, redirect to the admin dashboard.
+- If the diary entry does not exist, show a not-found message instead of the form.
+- Disable the update button while submission is in progress.
 
-## Confirmation Dialog
+#### States
 
-The delete action uses a confirmation dialog.
-
-Displayed items:
-
-- Short confirmation message
-- Confirm button
-- Cancel button
-
-Behavior:
-
-- Confirm executes `DELETE /api/diaries/{id}`.
-- Cancel closes the dialog without changing data.
-
-## Shared Validation and Feedback
-
-- Validation messages must be written in plain language and attached to the
-  relevant field when possible.
-- Form submission errors that are not field-specific must appear near the top of
-  the form.
-- Loading indicators must not block the entire page when a smaller scoped
-  loading state is enough.
-- Success feedback should be brief and disappear automatically or on the next
-  page transition.
+- Initial loading state
+- Submitting state
+- Not-found state
+- Validation error state
+- Error state
 
 ## Responsive Behavior
 
 - On mobile, forms and list content stack vertically in a single column.
-- Pagination remains usable on narrow screens without horizontal scrolling.
-- Diary content uses readable line length and spacing on both desktop and
-  mobile.
-- Buttons and form fields must remain large enough for touch interaction.
+- Pagination must remain usable on narrow screens without horizontal scrolling.
+- Diary content must preserve readable line length and spacing on both desktop and mobile.
+- Buttons and input fields must remain large enough for touch interaction.
 
-## Accessibility
+## a11y
 
 - All interactive elements must be keyboard accessible.
 - Inputs must have visible labels.
 - Focus styles must remain visible on all screens.
 - Error messages must be readable by assistive technologies.
-- The delete confirmation dialog must trap focus while it is open.
+- The delete confirmation dialog must trap focus while open.
