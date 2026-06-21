@@ -1,4 +1,4 @@
----
+﻿---
 description:
   "Use when: adding and running tests for already-implemented behavior outside the
   Red/Green TDD cycle. The RegressionTestAgent identifies necessary regression,
@@ -44,10 +44,10 @@ Use RegressionTestAgent when:
 Do **not** use this agent when:
 
 1. You need failing tests to define a brand-new feature before implementation
-   begins → use `@RedAgent`
-2. You need implementation code written to satisfy failing tests → use
+   begins 竊・use `@RedAgent`
+2. You need implementation code written to satisfy failing tests 竊・use
    `@GreenAgent`
-3. You only need code cleanup with existing tests unchanged → use
+3. You only need code cleanup with existing tests unchanged 竊・use
    `@RefactorAgent`
 
 ## Input
@@ -215,28 +215,27 @@ RegressionTestAgent succeeds when it improves confidence in already-built code
 without drifting into unnecessary test volume, and when it leaves behind a clear
 record of what was tested and what happened when the tests were run.
 
-## 📝 Git Commit & Push
+## 統 Git Commit
 
-After adding regression tests and confirming they pass, commit and push:
+After adding regression tests and confirming they pass, commit:
 
 ```bash
 git add -A
 git commit -m "test: add regression tests for <scope>
 
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
-git push origin HEAD
 ```
 
-## 🔚 Post-Completion Required Steps
+## 爆 Post-Completion Required Steps
 
 When all work is complete, you MUST call the following agents in order:
 
-1. `@ArticleWriterAgent` — Save the changes as a technical article under `blog/`
-2. `@WorkSummaryAgent` — Save the work as a diary entry to `diary/YYYYMMDD.md`
+1. `@ArticleWriterAgent` 窶・Save the changes as a technical article under `blog/`
+2. `@WorkSummaryAgent` 窶・Save the work as a diary entry to `diary/YYYYMMDD.md`
 
 These calls are mandatory and are included as part of the Definition of Done.
 
-## 📚 Governing Rules
+## 答 Governing Rules
 
 Before acting, read `.github/copilot-instructions.md` and the following instruction files, then apply them throughout all work:
 
@@ -244,11 +243,12 @@ Before acting, read `.github/copilot-instructions.md` and the following instruct
 |---|---|
 | [`.github/copilot-instructions.md`](../copilot-instructions.md) | Always-applied core instructions and global rules |
 | [`.github/instructions/protected-paths.instructions.md`](../instructions/protected-paths.instructions.md) | Files that must not be modified without explicit user instruction |
-| [`.github/instructions/backend.instructions.md`](../instructions/backend.instructions.md) | Backend architecture — Clean Architecture, Hono |
-| [`.github/instructions/frontend.instructions.md`](../instructions/frontend.instructions.md) | Frontend architecture — React, Tailwind CSS |
+| [`.github/instructions/backend.instructions.md`](../instructions/backend.instructions.md) | Backend architecture 窶・Clean Architecture, Hono |
+| [`.github/instructions/frontend.instructions.md`](../instructions/frontend.instructions.md) | Frontend architecture 窶・React, Tailwind CSS |
 | [`.github/instructions/typescript.instructions.md`](../instructions/typescript.instructions.md) | TypeScript coding standards |
 | [`.github/instructions/test.instructions.md`](../instructions/test.instructions.md) | Test writing standards |
-| [`.github/instructions/tdd.instructions.md`](../instructions/tdd.instructions.md) | TDD cycle — Red / Green / Refactor |
+| [`.github/instructions/tdd.instructions.md`](../instructions/tdd.instructions.md) | TDD cycle 窶・Red / Green / Refactor |
 | [`.github/instructions/git.instructions.md`](../instructions/git.instructions.md) | Git workflow rules |
 | [`.github/instructions/no-local-paths.instructions.md`](../instructions/no-local-paths.instructions.md) | No absolute local filesystem paths in committed files |
-| [`.github/instructions/security.instructions.md`](../instructions/security.instructions.md) | Security — password hashing, token handling, input validation |
+| [`.github/instructions/security.instructions.md`](../instructions/security.instructions.md) | Security 窶・password hashing, token handling, input validation |
+
