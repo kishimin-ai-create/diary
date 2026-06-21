@@ -65,7 +65,7 @@ erDiagram
   must be between 8 and 255 characters and include at least one letter and one
   number.
 - `diaries.title` must have a trimmed length between 1 and 100 characters.
-- `diaries.content` must have a trimmed length between 1 and 400 characters.
+- `diaries.content` must have a trimmed length of 1 character or more.
 - `diaries.user_id` references `users.id` with `ON DELETE RESTRICT` and
   `ON UPDATE RESTRICT`.
 
