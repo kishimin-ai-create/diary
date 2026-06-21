@@ -1,4 +1,4 @@
-﻿---
+---
 applyTo: "**"
 ---
 
@@ -32,9 +32,9 @@ applyTo: "**"
 
 ## Commit Discipline
 
-- Commit messages must follow Conventional Commits format 窶・see
+- Commit messages must follow Conventional Commits format — see
   `skills/commit-message-rules/SKILL.md` for the full commit message rules.
 - One commit = one logical change. Never bundle unrelated changes.
-- Each TDD step must be a separate commit (`test:` 竊・`feat:` 竊・`refactor:`).
+- Each TDD step must be a separate commit (`test:` → `feat:` → `refactor:`).
 
 

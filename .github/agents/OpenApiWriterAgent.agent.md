@@ -1,4 +1,4 @@
-﻿---
+---
 description:
   "Use when: documenting completed backend API work as an OpenAPI specification.
   The OpenApiWriterAgent reads route implementations, validators, specs, and

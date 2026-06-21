@@ -1,4 +1,4 @@
-﻿---
+---
 description:
   "Use when: processing review comments stored under review/. The
   ReviewResponseAgent reads review feedback, classifies each finding as

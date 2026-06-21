@@ -1,4 +1,4 @@
-﻿---
+---
 description:
   "Use when: adding and running tests for already-implemented behavior outside the
   Red/Green TDD cycle. The RegressionTestAgent identifies necessary regression,
@@ -215,7 +215,7 @@ RegressionTestAgent succeeds when it improves confidence in already-built code
 without drifting into unnecessary test volume, and when it leaves behind a clear
 record of what was tested and what happened when the tests were run.
 
-## 統 Git Commit
+## Git Commit
 
 After adding regression tests and confirming they pass, commit:
 
@@ -226,16 +226,16 @@ git commit -m "test: add regression tests for <scope>
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 ```
 
-## 爆 Post-Completion Required Steps
+## Post-Completion Required Steps
 
 When all work is complete, you MUST call the following agents in order:
 
-1. `@ArticleWriterAgent` 窶・Save the changes as a technical article under `blog/`
-2. `@WorkSummaryAgent` 窶・Save the work as a diary entry to `diary/YYYYMMDD.md`
+1. `@ArticleWriterAgent` → Save the changes as a technical article under `blog/`
+2. `@WorkSummaryAgent` → Save the work as a diary entry to `diary/YYYYMMDD.md`
 
 These calls are mandatory and are included as part of the Definition of Done.
 
-## 答 Governing Rules
+## Governing Rules
 
 Before acting, read `.github/copilot-instructions.md` and the following instruction files, then apply them throughout all work:
 

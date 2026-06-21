@@ -1,4 +1,4 @@
-﻿---
+---
 description:
   "Use when: drafting a pull request description from repository changes, specs,
   and task context. The PullRequestWriterAgent reads diffs, changed files, tests,

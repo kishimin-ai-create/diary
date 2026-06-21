@@ -97,7 +97,7 @@ GET /api/diaries
 
 ```json
 {
-  "items": [
+  "diaries": [
     {
       "id": "uuid",
       "title": "Diary Title",

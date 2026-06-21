@@ -8,8 +8,9 @@ These rules apply inside `docs/`.
 - Keep requirement files consistent with each other:
   - `usecase.md` for user flows
   - `screen_requirements.md` for screen behavior
-  - `data_requirements.md` for data requirements
-  - `functinal_requirements.md` for functional requirements
+  - `data-requirements.md` for data requirements
+  - `functinal-requirements.md` for functional requirements
+  - `non-functionnal-requirements.md` for non-functional requirements
 - If a requirement conflicts with code or ADRs, document the conflict instead of
   silently choosing one.
 

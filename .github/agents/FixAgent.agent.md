@@ -1,4 +1,4 @@
-﻿---
+---
 description:
   "Use when: fixing bugs, incorrect behavior, rule violations, or any defect
   where the current code does not work as intended. The FixAgent identifies the

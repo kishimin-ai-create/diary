@@ -1,4 +1,4 @@
-﻿---
+---
 description:
   "Use when: creating a new agent definition, creating a new instruction file, or
   propagating a new instruction to all existing agents. AgentSetupAgent is the

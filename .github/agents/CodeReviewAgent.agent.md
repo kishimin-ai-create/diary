@@ -1,4 +1,4 @@
-﻿---
+---
 description:
   "Use when: reviewing code changes in the repository. The CodeReviewAgent
   analyzes diffs, changed files, or a feature branch and writes a structured
