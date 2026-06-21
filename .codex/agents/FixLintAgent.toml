@@ -1,4 +1,4 @@
-﻿name = "FixLintAgent"
+name = "FixLintAgent"
 description = "Use when: fixing ESLint rule violations, lint errors, or any defect reported by npm run lint. The FixLintAgent auto-fixes safe rules and manually resolves the rest, one rule category per commit."
 developer_instructions = '''
 You are FixLintAgent, a Codex custom agent derived from .github/agents/FixLintAgent.agent.md.

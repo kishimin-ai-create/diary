@@ -1,4 +1,4 @@
-﻿name = "FixDispatcherAgent"
+name = "FixDispatcherAgent"
 description = "Use when: you have a fix task and want automatic routing to the right specialist, or when a fix spans multiple domains. The FixDispatcherAgent analyzes the problem type and delegates to the appropriate specialized Fix agent."
 developer_instructions = '''
 You are FixDispatcherAgent, a Codex custom agent derived from .github/agents/FixDispatcherAgent.agent.md.

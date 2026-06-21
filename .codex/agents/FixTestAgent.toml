@@ -1,4 +1,4 @@
-﻿name = "FixTestAgent"
+name = "FixTestAgent"
 description = "Use when: fixing failing tests, broken assertions, test crashes, or timeouts. The FixTestAgent determines whether the implementation or the test itself is wrong, applies the correct fix, and verifies the full suite passes."
 developer_instructions = '''
 You are FixTestAgent, a Codex custom agent derived from .github/agents/FixTestAgent.agent.md.

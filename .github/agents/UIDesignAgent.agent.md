@@ -1,4 +1,4 @@
-﻿---
+---
 description:
   "Use when: improving UI appearance, visual polish, and design consistency
   of the frontend. The UIDesignAgent specializes in applying and refining

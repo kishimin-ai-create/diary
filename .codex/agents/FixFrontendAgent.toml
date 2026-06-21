@@ -1,4 +1,4 @@
-﻿name = "FixFrontendAgent"
+name = "FixFrontendAgent"
 description = "Use when: fixing React component bugs, UI rendering issues, Tailwind CSS problems, frontend logic errors, or any defect in the frontend layer. The FixFrontendAgent applies minimal targeted fixes and verifies from the frontend/ directory."
 developer_instructions = '''
 You are FixFrontendAgent, a Codex custom agent derived from .github/agents/FixFrontendAgent.agent.md.

@@ -1,4 +1,4 @@
-﻿---
+---
 description:
   "Use when: creating comprehensive Storybook stories for React components.
   The StorybookCreatorAgent reads component implementations and test cases, then

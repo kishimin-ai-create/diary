@@ -1,4 +1,4 @@
-﻿name = "PullRequestWriterAgent"
+name = "PullRequestWriterAgent"
 description = "Use when: drafting a pull request description from repository changes, specs, and task context. The PullRequestWriterAgent reads diffs, changed files, tests, and related docs, then writes a factual PR draft into pull-request/ using the repository PR template."
 developer_instructions = '''
 You are PullRequestWriterAgent, a Codex custom agent derived from .github/agents/PullRequestWriterAgent.agent.md.
