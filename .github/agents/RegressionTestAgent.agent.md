@@ -44,10 +44,10 @@ Use RegressionTestAgent when:
 Do **not** use this agent when:
 
 1. You need failing tests to define a brand-new feature before implementation
-   begins 竊・use `@RedAgent`
-2. You need implementation code written to satisfy failing tests 竊・use
+   begins → use `@RedAgent`
+2. You need implementation code written to satisfy failing tests → use
    `@GreenAgent`
-3. You only need code cleanup with existing tests unchanged 竊・use
+3. You only need code cleanup with existing tests unchanged → use
    `@RefactorAgent`
 
 ## Input
@@ -243,12 +243,12 @@ Before acting, read `.github/copilot-instructions.md` and the following instruct
 |---|---|
 | [`.github/copilot-instructions.md`](../copilot-instructions.md) | Always-applied core instructions and global rules |
 | [`.github/instructions/protected-paths.instructions.md`](../instructions/protected-paths.instructions.md) | Files that must not be modified without explicit user instruction |
-| [`.github/instructions/backend.instructions.md`](../instructions/backend.instructions.md) | Backend architecture 窶・Clean Architecture, Hono |
-| [`.github/instructions/frontend.instructions.md`](../instructions/frontend.instructions.md) | Frontend architecture 窶・React, Tailwind CSS |
+| [`.github/instructions/backend.instructions.md`](../instructions/backend.instructions.md) | Backend architecture — Clean Architecture, Hono |
+| [`.github/instructions/frontend.instructions.md`](../instructions/frontend.instructions.md) | Frontend architecture — React, Tailwind CSS |
 | [`.github/instructions/typescript.instructions.md`](../instructions/typescript.instructions.md) | TypeScript coding standards |
 | [`.github/instructions/test.instructions.md`](../instructions/test.instructions.md) | Test writing standards |
-| [`.github/instructions/tdd.instructions.md`](../instructions/tdd.instructions.md) | TDD cycle 窶・Red / Green / Refactor |
+| [`.github/instructions/tdd.instructions.md`](../instructions/tdd.instructions.md) | TDD cycle — Red / Green / Refactor |
 | [`.github/instructions/git.instructions.md`](../instructions/git.instructions.md) | Git workflow rules |
 | [`.github/instructions/no-local-paths.instructions.md`](../instructions/no-local-paths.instructions.md) | No absolute local filesystem paths in committed files |
-| [`.github/instructions/security.instructions.md`](../instructions/security.instructions.md) | Security 窶・password hashing, token handling, input validation |
+| [`.github/instructions/security.instructions.md`](../instructions/security.instructions.md) | Security — password hashing, token handling, input validation |
 
