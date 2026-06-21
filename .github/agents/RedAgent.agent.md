@@ -113,11 +113,11 @@ A Red Agent test suite is complete when:
 - [ ] Test file is executable: `npm test -- path/to/test.ts`
 - [ ] File contains NO TODO comments or placeholders
 
-## 投 Coverage Strategy
+## Coverage Strategy
 
-Coverage is collected and reported as part of every test run, but **thresholds are not enforced** while the TDD cycle is in progress. Actual coverage (~27窶・6% across the stack) is well below the aspirational target (80%). Once coverage reaches the threshold, checks will be re-enabled to prevent regression.
+Coverage is collected and reported as part of every test run, but **thresholds are not enforced** while the TDD cycle is in progress. Actual coverage (~27-6% across the stack) is well below the aspirational target (80%). Once coverage reaches the threshold, checks will be re-enabled to prevent regression.
 
-## ｧｪ Test Conventions
+## Test Conventions
 
 ### Test File Naming
 
@@ -179,7 +179,7 @@ For detailed test patterns, mocking guidance, and full example files, read [`.gi
 
 1. **Tests Drive Development**: Write tests first, then implement to make them
    pass.
-2. **Specification 竊・Tests**: Tests are the executable specification. No
+2. **Specification – Tests**: Tests are the executable specification. No
    guessing.
 3. **Failure Is the Goal**: In the Red Phase, tests failing = correct. Tests
    passing = something is wrong with the test.
