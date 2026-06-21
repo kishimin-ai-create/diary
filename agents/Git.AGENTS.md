@@ -1,48 +1,21 @@
-# Git
+# Pull Request Review Guidance
 
-## 📌 Summary
+Use this file when the review scope includes pull request summaries, review
+documents, validation notes, or other reviewer-facing change descriptions.
 
-<!-- Briefly describe what this PR does and why it is needed -->
+## Check
 
-This PR introduces changes to improve / fix / add **[short description]**.
+- The summary explains why the change is needed before listing implementation
+  details.
+- Validation steps or results are included when they matter to reviewer
+  confidence.
+- Related requirements, ADRs, issues, or review files are referenced when they
+  help explain scope.
+- Intentionally excluded scope is mentioned when omission could confuse a
+  reviewer.
+- Repository-relative paths are used instead of local absolute filesystem paths.
 
-## 🎯 Purpose / Background
+## Avoid
 
-<!-- Why is this change necessary? What problem does it solve? -->
-
-- Background:
-- Related issue / ticket:
-- Motivation behind this change:
-
----
-
-## 🔧 Changes
-
-<!-- List the main changes in this PR -->
-
-- [ ] Added / Updated / Removed **XXX**
-- [ ] Refactored **YYY**
-- [ ] Fixed bug related to **ZZZ**
-
----
-
-## 🧩 Design / Implementation Notes
-
-<!-- Explain design decisions or trade-offs -->
-
-- Why this approach was chosen:
-- Alternatives considered (if any):
-- Scope intentionally left out:
-
----
-
-## 🧪 How to Test
-
-<!-- Steps for reviewers to verify the change -->
-
-1. Checkout this branch
-2. Run:
-   ```bash
-   # example
-   npm test
-   ```
+- Do not accept vague PR summaries that omit purpose or validation context.
+- Do not require unnecessary prose when a short, precise explanation is enough.
