@@ -109,6 +109,20 @@ describe("generateContentPreview", () => {
     });
   });
 
+  describe("Line Ending Normalisation", () => {
+    test("replaces Windows CRLF (\\r\\n) with a space", () => {
+      expect(generateContentPreview("line one\r\nline two")).toBe("line one line two");
+    });
+
+    test("replaces old Mac CR (\\r) with a space", () => {
+      expect(generateContentPreview("line one\rline two")).toBe("line one line two");
+    });
+
+    test("replaces multiple mixed line endings each with a space", () => {
+      expect(generateContentPreview("a\nb\r\nc\rd")).toBe("a b c d");
+    });
+  });
+
   describe("Edge Cases", () => {
     test("returns empty string when content is empty", () => {
       // Arrange

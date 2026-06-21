@@ -3,7 +3,7 @@
  * spaces and truncating to 100 characters with an ellipsis suffix when longer.
  */
 export function generateContentPreview(content: string): string {
-  const processed = content.replace(/\n/g, " ");
+  const processed = content.replace(/\r?\n|\r/g, " ");
   if (processed.length <= 100) {
     return processed;
   }
