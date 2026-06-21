@@ -107,7 +107,7 @@ Confirm the file exists before reporting done.
 
 {Description of the problem: what is wrong, why it is a problem, and how to fix it.}
 
-Useful? React with 総 / 綜.
+Useful? React with 👍 / 👎.
 
 ---
 
@@ -116,7 +116,7 @@ Useful? React with 総 / 綜.
 
 {Description}
 
-Useful? React with 総 / 綜.
+Useful? React with 👍 / 👎.
 
 ---
 
@@ -125,7 +125,7 @@ Useful? React with 総 / 綜.
 
 {Description}
 
-Useful? React with 総 / 綜.
+Useful? React with 👍 / 👎.
 ```
 
 ### Priority levels

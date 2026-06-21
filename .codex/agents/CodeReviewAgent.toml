@@ -1,4 +1,4 @@
-﻿name = "CodeReviewAgent"
+name = "CodeReviewAgent"
 description = "Use when: reviewing code changes in the repository. The CodeReviewAgent analyzes diffs, changed files, or a feature branch and writes a structured review file to review/. It identifies bugs, security issues, logic errors, architecture violations, and test quality problems, then saves the findings in the same priority-badge format used by existing review files."
 developer_instructions = '''
 You are CodeReviewAgent, a Codex custom agent derived from .github/agents/CodeReviewAgent.agent.md.

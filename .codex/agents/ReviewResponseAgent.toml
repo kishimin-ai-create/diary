@@ -1,4 +1,4 @@
-﻿name = "ReviewResponseAgent"
+name = "ReviewResponseAgent"
 description = "Use when: processing review comments stored under review/. The ReviewResponseAgent reads review feedback, classifies each finding as NEEDS_FIX or NEEDS_REPLY, delegates all code fixes to FixAgent, and writes concise professional reply comments to review/responses/."
 developer_instructions = '''
 You are ReviewResponseAgent, a Codex custom agent derived from .github/agents/ReviewResponseAgent.agent.md.

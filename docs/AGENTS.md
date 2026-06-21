@@ -4,7 +4,7 @@ These rules apply inside `docs/`.
 
 ## Source of Truth
 
-- `docs/requirements/` contains the product requirements.
+- `docs/v1/requirements/` contains the product requirements.
 - Keep requirement files consistent with each other:
   - `usecase.md` for user flows
   - `screen_requirements.md` for screen behavior
