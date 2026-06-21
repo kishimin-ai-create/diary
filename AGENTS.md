@@ -69,7 +69,7 @@ You may read protected paths for context.
 
 ## Requirements, ADRs, and Design
 
-- Treat `docs/requirements/` as the product behavior source of truth.
+- Treat `docs/v1/requirements/` as the product behavior source of truth.
 - Check `.github/ADR/` for related architectural decisions before implementation.
 - For design-related work, read `.github/DESIGN.md` first, then any relevant
   files under `docs/design/` if they exist.
