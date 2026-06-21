@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import type { IUserRepository } from "../repositories/user.repository";
 import { AuthService } from "../services/auth.service";
+import { isServiceError } from "../shared/errors";
 
 const registerSchema = z.object({
   name: z.string().trim().min(1).max(50),
@@ -20,19 +21,9 @@ const loginSchema = z.object({
   password: z.string().max(255),
 });
 
-function isServiceError(
-  e: unknown,
-): e is { statusCode: number; message: string } {
-  return (
-    typeof e === "object" &&
-    e !== null &&
-    "statusCode" in e &&
-    "message" in e &&
-    typeof (e as Record<string, unknown>)["statusCode"] === "number" &&
-    typeof (e as Record<string, unknown>)["message"] === "string"
-  );
-}
-
+/**
+ * Creates a Hono router that handles user registration and login.
+ */
 export function createAuthController(
   userRepo: IUserRepository,
   jwtSecret: string,
@@ -58,6 +49,8 @@ export function createAuthController(
       return c.json({ id }, 201);
     } catch (e) {
       if (isServiceError(e)) {
+        // Hono's c.json() requires a specific StatusCode union type;
+        // ServiceError.statusCode is typed as number so we must narrow it here
         return c.json(
           { message: e.message },
           e.statusCode as 400 | 409 | 500,
@@ -85,6 +78,8 @@ export function createAuthController(
       return c.json({ accessToken }, 200);
     } catch (e) {
       if (isServiceError(e)) {
+        // Hono's c.json() requires a specific StatusCode union type;
+        // ServiceError.statusCode is typed as number so we must narrow it here
         return c.json(
           { message: e.message },
           e.statusCode as 400 | 401 | 500,
