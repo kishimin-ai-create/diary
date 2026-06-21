@@ -11,7 +11,7 @@
  *
  * All tests FAIL until `backend/src/services/auth.service.ts` is implemented.
  */
-import { scryptSync, randomBytes } from "crypto";
+import { randomBytes,scryptSync } from "node:crypto";
 
 import { describe, expect, mock, test } from "bun:test";
 

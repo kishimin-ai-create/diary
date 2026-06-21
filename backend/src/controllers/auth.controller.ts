@@ -18,7 +18,7 @@ const registerSchema = z.object({
 
 const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string().max(255),
+  password: z.string().min(1).max(255),
 });
 
 /**
