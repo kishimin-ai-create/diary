@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   AdminDiaryList,
+  DiaryDetailView,
   DiaryEditorForm,
   DiaryListView,
   LoginForm,
@@ -57,6 +58,26 @@ describe("LoginForm", () => {
 
     expect(screen.getByText("メールアドレスを入力してください。")).toBeInTheDocument();
     expect(screen.getByText("パスワードを入力してください。")).toBeInTheDocument();
+  });
+});
+
+describe("DiaryDetailView", () => {
+  it("renders full diary content and back link", () => {
+    renderWithMessages(
+      <DiaryDetailView
+        diary={{
+          id: "diary-1",
+          title: "一日の終わり",
+          content: "本文をすべて表示する。",
+          createdAt: "2026-06-22T09:00:00.000Z",
+          updatedAt: "2026-06-22T10:00:00.000Z",
+        }}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "一日の終わり" })).toBeInTheDocument();
+    expect(screen.getByText("本文をすべて表示する。")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "一覧へ戻る" })).toHaveAttribute("href", "/");
   });
 });
 

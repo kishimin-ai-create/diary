@@ -1,0 +1,68 @@
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { NextIntlClientProvider } from "next-intl";
+import { describe, expect, it, vi } from "vitest";
+
+import CreateDiaryPage from "./page";
+import { messages } from "@/app/i18n/messages";
+
+const mutateMock = vi.hoisted(() => vi.fn());
+const pushMock = vi.hoisted(() => vi.fn());
+const useCreateDiaryMock = vi.hoisted(() => vi.fn());
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: pushMock }),
+}));
+
+vi.mock("@/app/api/generated/diaries/diaries", () => ({
+  useCreateDiary: useCreateDiaryMock,
+}));
+
+describe("CreateDiaryPage", () => {
+  it("submits valid diary input through the generated create mutation", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    useCreateDiaryMock.mockReturnValue({
+      isError: false,
+      isPending: false,
+      mutate: mutateMock,
+    });
+    render(
+      <NextIntlClientProvider locale="ja" messages={messages.ja} timeZone="Asia/Tokyo">
+        <CreateDiaryPage />
+      </NextIntlClientProvider>,
+    );
+
+    // Act
+    await user.type(screen.getByLabelText("タイトル"), "今日の記録");
+    await user.type(screen.getByLabelText("本文"), "よく歩いた。");
+    await user.click(screen.getByRole("button", { name: "保存" }));
+
+    // Assert
+    expect(mutateMock).toHaveBeenCalledWith({
+      data: {
+        title: "今日の記録",
+        content: "よく歩いた。",
+      },
+    });
+  });
+
+  it("shows a save error when create mutation fails", () => {
+    // Arrange
+    useCreateDiaryMock.mockReturnValue({
+      isError: true,
+      isPending: false,
+      mutate: mutateMock,
+    });
+
+    // Act
+    render(
+      <NextIntlClientProvider locale="ja" messages={messages.ja} timeZone="Asia/Tokyo">
+        <CreateDiaryPage />
+      </NextIntlClientProvider>,
+    );
+
+    // Assert
+    expect(screen.getByText("保存できませんでした。")).toBeInTheDocument();
+  });
+});
