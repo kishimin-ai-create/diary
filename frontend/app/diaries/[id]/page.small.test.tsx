@@ -16,6 +16,25 @@ vi.mock("@/app/api/generated/diaries/diaries", () => ({
 }));
 
 describe("DiaryDetailPage", () => {
+  it("renders loading message while generated query is loading", () => {
+    // Arrange
+    useGetDiaryMock.mockReturnValue({
+      data: undefined,
+      isError: false,
+      isLoading: true,
+    });
+
+    // Act
+    render(
+      <NextIntlClientProvider locale="ja" messages={messages.ja} timeZone="Asia/Tokyo">
+        <DiaryDetailPage />
+      </NextIntlClientProvider>,
+    );
+
+    // Assert
+    expect(screen.getByText("日記を読み込んでいます。")).toBeInTheDocument();
+  });
+
   it("renders diary detail when generated query returns data", () => {
     // Arrange
     useGetDiaryMock.mockReturnValue({

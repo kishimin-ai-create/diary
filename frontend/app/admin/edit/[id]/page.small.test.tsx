@@ -7,12 +7,24 @@ import EditDiaryPage from "./page";
 import { messages } from "@/app/i18n/messages";
 
 const mutateMock = vi.hoisted(() => vi.fn());
+const pushMock = vi.hoisted(() => vi.fn());
+type UpdateOptions = { mutation: { onSuccess: () => void } };
+type UpdateResult = {
+  isError: boolean;
+  isPending: boolean;
+  mutate: typeof mutateMock;
+};
+const updateOptions = vi.hoisted<Array<{ mutation: { onSuccess: () => void } }>>(
+  () => [],
+);
 const useGetDiaryMock = vi.hoisted(() => vi.fn());
-const useUpdateDiaryMock = vi.hoisted(() => vi.fn());
+const useUpdateDiaryMock = vi.hoisted(() =>
+  vi.fn<(options: UpdateOptions) => UpdateResult>(),
+);
 
 vi.mock("next/navigation", () => ({
   useParams: () => ({ id: "diary-1" }),
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: pushMock }),
 }));
 
 vi.mock("@/app/api/generated/diaries/diaries", () => ({
@@ -21,6 +33,41 @@ vi.mock("@/app/api/generated/diaries/diaries", () => ({
 }));
 
 describe("EditDiaryPage", () => {
+  it("redirects to admin when update succeeds", () => {
+    // Arrange
+    updateOptions.length = 0;
+    useGetDiaryMock.mockReturnValue({
+      data: {
+        id: "diary-1",
+        title: "元のタイトル",
+        content: "元の本文",
+        createdAt: "2026-06-23T08:00:00.000Z",
+        updatedAt: "2026-06-23T09:00:00.000Z",
+      },
+      isError: false,
+      isLoading: false,
+    });
+    useUpdateDiaryMock.mockImplementation((options) => {
+      updateOptions.push(options);
+      return {
+        isError: false,
+        isPending: false,
+        mutate: mutateMock,
+      };
+    });
+
+    // Act
+    render(
+      <NextIntlClientProvider locale="ja" messages={messages.ja} timeZone="Asia/Tokyo">
+        <EditDiaryPage />
+      </NextIntlClientProvider>,
+    );
+    updateOptions[0]?.mutation.onSuccess();
+
+    // Assert
+    expect(pushMock).toHaveBeenCalledWith("/admin");
+  });
+
   it("renders existing diary values and submits updates through generated mutation", async () => {
     // Arrange
     const user = userEvent.setup();
@@ -85,5 +132,29 @@ describe("EditDiaryPage", () => {
 
     // Assert
     expect(screen.getByText("日記を読み込んでいます。")).toBeInTheDocument();
+  });
+
+  it("shows save error when diary detail cannot be loaded", () => {
+    // Arrange
+    useGetDiaryMock.mockReturnValue({
+      data: undefined,
+      isError: true,
+      isLoading: false,
+    });
+    useUpdateDiaryMock.mockReturnValue({
+      isError: false,
+      isPending: false,
+      mutate: mutateMock,
+    });
+
+    // Act
+    render(
+      <NextIntlClientProvider locale="ja" messages={messages.ja} timeZone="Asia/Tokyo">
+        <EditDiaryPage />
+      </NextIntlClientProvider>,
+    );
+
+    // Assert
+    expect(screen.getByText("保存できませんでした。")).toBeInTheDocument();
   });
 });

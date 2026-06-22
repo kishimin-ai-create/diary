@@ -47,6 +47,33 @@ describe("DiaryListView", () => {
     expect(screen.getByRole("link", { name: /雨の日のメモ/ })).toBeInTheDocument();
     expect(screen.getByText("静かな午後に読み返したこと")).toBeInTheDocument();
   });
+
+  it("calls search and pagination handlers when controls are used", async () => {
+    const user = userEvent.setup();
+    const onDateSearch = vi.fn();
+    const onPageChange = vi.fn();
+    renderWithMessages(
+      <DiaryListView
+        date="2026-06-22"
+        diaries={[sampleDiary]}
+        isError={false}
+        isLoading={false}
+        onDateSearch={onDateSearch}
+        onPageChange={onPageChange}
+        page={2}
+        pageSize={1}
+        totalCount={3}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "解除" }));
+    await user.click(screen.getByRole("button", { name: "前へ" }));
+    await user.click(screen.getByRole("button", { name: "次へ" }));
+
+    expect(onDateSearch).toHaveBeenCalledWith("");
+    expect(onPageChange).toHaveBeenCalledWith(1);
+    expect(onPageChange).toHaveBeenCalledWith(3);
+  });
 });
 
 describe("LoginForm", () => {
@@ -96,6 +123,25 @@ describe("DiaryEditorForm", () => {
 
     expect(screen.getByText("タイトルを入力してください。")).toBeInTheDocument();
     expect(screen.getByText("本文を入力してください。")).toBeInTheDocument();
+  });
+
+  it("shows a title length error when title exceeds 100 characters", async () => {
+    const user = userEvent.setup();
+    renderWithMessages(
+      <DiaryEditorForm
+        initialDiary={{
+          title: "あ".repeat(101),
+          content: "本文",
+        }}
+        mode="create"
+        isPending={false}
+        onSubmit={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "保存" }));
+
+    expect(screen.getByText("タイトルは100文字以内で入力してください。")).toBeInTheDocument();
   });
 });
 

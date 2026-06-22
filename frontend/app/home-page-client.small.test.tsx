@@ -78,4 +78,27 @@ describe("HomePageClient", () => {
     // Assert
     expect(pushMock).toHaveBeenCalledWith("/?page=1&date=2026-06-24");
   });
+
+  it("falls back to first page and omits date when query params are invalid", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    searchParams = new URLSearchParams("page=invalid");
+    useListDiariesMock.mockReturnValue({
+      data: undefined,
+      isError: false,
+      isLoading: false,
+    });
+
+    // Act
+    renderWithMessages(<HomePageClient />);
+    await user.click(screen.getByRole("button", { name: "絞り込む" }));
+
+    // Assert
+    expect(useListDiariesMock).toHaveBeenCalledWith({
+      date: undefined,
+      page: 1,
+      pageSize: 10,
+    });
+    expect(pushMock).toHaveBeenCalledWith("/?page=1");
+  });
 });

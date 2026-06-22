@@ -8,7 +8,18 @@ import { messages } from "@/app/i18n/messages";
 
 const mutateMock = vi.hoisted(() => vi.fn());
 const pushMock = vi.hoisted(() => vi.fn());
-const useCreateDiaryMock = vi.hoisted(() => vi.fn());
+type CreateOptions = { mutation: { onSuccess: () => void } };
+type CreateResult = {
+  isError: boolean;
+  isPending: boolean;
+  mutate: typeof mutateMock;
+};
+const createOptions = vi.hoisted<Array<{ mutation: { onSuccess: () => void } }>>(
+  () => [],
+);
+const useCreateDiaryMock = vi.hoisted(() =>
+  vi.fn<(options: CreateOptions) => CreateResult>(),
+);
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
@@ -19,6 +30,30 @@ vi.mock("@/app/api/generated/diaries/diaries", () => ({
 }));
 
 describe("CreateDiaryPage", () => {
+  it("redirects to admin when create succeeds", () => {
+    // Arrange
+    createOptions.length = 0;
+    useCreateDiaryMock.mockImplementation((options) => {
+      createOptions.push(options);
+      return {
+        isError: false,
+        isPending: false,
+        mutate: mutateMock,
+      };
+    });
+
+    // Act
+    render(
+      <NextIntlClientProvider locale="ja" messages={messages.ja} timeZone="Asia/Tokyo">
+        <CreateDiaryPage />
+      </NextIntlClientProvider>,
+    );
+    createOptions[0]?.mutation.onSuccess();
+
+    // Assert
+    expect(pushMock).toHaveBeenCalledWith("/admin");
+  });
+
   it("submits valid diary input through the generated create mutation", async () => {
     // Arrange
     const user = userEvent.setup();

@@ -4,11 +4,23 @@ import { NextIntlClientProvider } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
 
 import LoginPage from "./page";
+import { readAccessToken } from "@/app/auth";
 import { messages } from "@/app/i18n/messages";
 
 const mutateMock = vi.hoisted(() => vi.fn());
 const pushMock = vi.hoisted(() => vi.fn());
-const useLoginAdminMock = vi.hoisted(() => vi.fn());
+type LoginOptions = { mutation: { onSuccess: (data: { accessToken: string }) => void } };
+type LoginResult = {
+  isError: boolean;
+  isPending: boolean;
+  mutate: typeof mutateMock;
+};
+const loginOptions = vi.hoisted<
+  Array<{ mutation: { onSuccess: (data: { accessToken: string }) => void } }>
+>(() => []);
+const useLoginAdminMock = vi.hoisted(() =>
+  vi.fn<(options: LoginOptions) => LoginResult>(),
+);
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
@@ -19,6 +31,31 @@ vi.mock("@/app/api/generated/auth/auth", () => ({
 }));
 
 describe("LoginPage", () => {
+  it("stores token and redirects to admin when login succeeds", () => {
+    // Arrange
+    loginOptions.length = 0;
+    useLoginAdminMock.mockImplementation((options) => {
+      loginOptions.push(options);
+      return {
+        isError: false,
+        isPending: false,
+        mutate: mutateMock,
+      };
+    });
+
+    // Act
+    render(
+      <NextIntlClientProvider locale="ja" messages={messages.ja} timeZone="Asia/Tokyo">
+        <LoginPage />
+      </NextIntlClientProvider>,
+    );
+    loginOptions[0]?.mutation.onSuccess({ accessToken: "token-789" });
+
+    // Assert
+    expect(readAccessToken()).toBe("token-789");
+    expect(pushMock).toHaveBeenCalledWith("/admin");
+  });
+
   it("submits credentials through the generated login mutation", async () => {
     // Arrange
     const user = userEvent.setup();
