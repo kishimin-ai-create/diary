@@ -90,6 +90,18 @@ export default defineConfig([
       "@typescript-eslint/no-unsafe-member-access": "off",
     },
   },
+  // Bun's test helpers and Response.json() currently surface broad any-like
+  // types in tests. Keep production code strict while allowing behavior-focused
+  // HTTP assertions to stay readable.
+  {
+    files: ["**/*.small.test.ts", "**/*.medium.test.ts", "**/*.large.test.ts"],
+    rules: {
+      "@typescript-eslint/await-thenable": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+    },
+  },
   // Security rules for backend APIs
   security.configs.recommended,
   {
