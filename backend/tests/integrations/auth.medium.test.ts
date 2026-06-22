@@ -14,10 +14,10 @@ import { describe, expect, mock, test } from "bun:test";
 
 import { createApp } from "../../src/app";
 import {
-  TEST_JWT_SECRET,
-  TEST_USER,
   createMockDiaryRepo,
   createMockUserRepo,
+  TEST_JWT_SECRET,
+  TEST_USER,
 } from "./helpers";
 
 // ---------------------------------------------------------------------------

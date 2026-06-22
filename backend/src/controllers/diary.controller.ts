@@ -15,7 +15,7 @@ type Env = {
 
 const listQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
-  pageSize: z.coerce.number().int().min(1).default(10),
+  pageSize: z.coerce.number().int().min(1).max(100).default(10),
   date: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/)
@@ -132,7 +132,16 @@ export function createDiaryController(
       return c.json({ message: "Invalid input." }, 400);
     }
 
-    const { id } = await diaryService.createDiary(bodyResult.data);
+    const payload = c.get("jwtPayload");
+    const userId = payload["sub"];
+    if (typeof userId !== "string") {
+      return c.json({ message: "Authentication required." }, 401);
+    }
+
+    const { id } = await diaryService.createDiary({
+      ...bodyResult.data,
+      userId,
+    });
     return c.json({ id }, 201);
   });
 

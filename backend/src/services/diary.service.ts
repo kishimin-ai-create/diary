@@ -79,6 +79,7 @@ export class DiaryService {
   async createDiary(data: {
     title: string;
     content: string;
+    userId: string;
   }): Promise<{ id: string }> {
     return this.diaryRepo.create(data);
   }

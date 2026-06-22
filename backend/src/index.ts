@@ -1,9 +1,14 @@
-import { Hono } from 'hono'
+import { createProductionApp } from "./app";
+import { createRuntimeConfig } from "./infrastructures/config";
 
-const app = new Hono()
+const app = createProductionApp();
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
+if (import.meta.main) {
+  const config = createRuntimeConfig();
+  Bun.serve({
+    fetch: app.fetch,
+    port: config.port,
+  });
+}
 
-export default app
+export default app;

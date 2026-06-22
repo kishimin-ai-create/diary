@@ -13,7 +13,11 @@ export interface IDiaryRepository {
     date?: string;
   }): Promise<{ diaries: Diary[]; totalCount: number }>;
   findById(id: string): Promise<Diary | null>;
-  create(data: { title: string; content: string }): Promise<{ id: string }>;
+  create(data: {
+    title: string;
+    content: string;
+    userId: string;
+  }): Promise<{ id: string }>;
   update(id: string, data: { title: string; content: string }): Promise<void>;
   delete(id: string): Promise<void>;
 }

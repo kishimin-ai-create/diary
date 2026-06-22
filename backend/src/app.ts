@@ -2,6 +2,10 @@ import { Hono } from "hono";
 
 import { createAuthController } from "./controllers/auth.controller";
 import { createDiaryController } from "./controllers/diary.controller";
+import { createRuntimeConfig } from "./infrastructures/config";
+import { createDatabase } from "./infrastructures/db/client";
+import { DrizzleDiaryRepository } from "./infrastructures/repositories/drizzle-diary.repository";
+import { DrizzleUserRepository } from "./infrastructures/repositories/drizzle-user.repository";
 import type { IDiaryRepository } from "./repositories/diary.repository";
 import type { IUserRepository } from "./repositories/user.repository";
 import { isServiceError } from "./shared/errors";
@@ -41,4 +45,20 @@ export function createApp(deps: AppDeps): Hono {
   );
 
   return app;
+}
+
+/**
+ * Creates the production Hono app with runtime configuration and MySQL
+ * persistence adapters.
+ */
+export function createProductionApp(
+  env: Record<string, string | undefined> = process.env,
+): Hono {
+  const config = createRuntimeConfig(env);
+  const db = createDatabase(config.databaseUrl);
+  return createApp({
+    userRepo: new DrizzleUserRepository(db),
+    diaryRepo: new DrizzleDiaryRepository(db),
+    jwtSecret: config.jwtSecret,
+  });
 }

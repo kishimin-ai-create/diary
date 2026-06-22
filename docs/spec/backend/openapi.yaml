@@ -1,0 +1,441 @@
+openapi: 3.1.0
+info:
+  title: Diary API
+  version: 1.0.0
+servers:
+  - url: /api
+security: []
+paths:
+  /auth/register:
+    post:
+      summary: Register the first administrator account
+      operationId: registerAdmin
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Administrator account created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponse"
+        "400":
+          $ref: "#/components/responses/InvalidInput"
+        "409":
+          description: Administrator account already exists.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: Admin account already exists.
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /auth/login:
+    post:
+      summary: Authenticate the administrator
+      operationId: loginAdmin
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Authentication succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          $ref: "#/components/responses/InvalidInput"
+        "401":
+          description: Invalid email or password.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: Invalid email or password.
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /diaries:
+    get:
+      summary: List diary entries
+      operationId: listDiaries
+      tags:
+        - Diaries
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+            pattern: "^\\d{4}-\\d{2}-\\d{2}$"
+            examples:
+              - "2026-06-22"
+      responses:
+        "200":
+          description: Diary list response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiaryListResponse"
+        "400":
+          description: Invalid query parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: Invalid query parameters.
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    post:
+      summary: Create a diary entry
+      operationId: createDiary
+      tags:
+        - Diaries
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiaryWriteRequest"
+      responses:
+        "201":
+          description: Diary entry created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IdResponse"
+        "400":
+          $ref: "#/components/responses/InvalidInput"
+        "401":
+          $ref: "#/components/responses/AuthenticationRequired"
+        "403":
+          $ref: "#/components/responses/AccessDenied"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+  /diaries/{id}:
+    get:
+      summary: Get a diary entry
+      operationId: getDiary
+      tags:
+        - Diaries
+      parameters:
+        - $ref: "#/components/parameters/DiaryId"
+      responses:
+        "200":
+          description: Diary entry detail.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiaryDetail"
+        "400":
+          description: Invalid diary ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: Invalid diary ID.
+        "404":
+          $ref: "#/components/responses/ResourceNotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    put:
+      summary: Update a diary entry
+      operationId: updateDiary
+      tags:
+        - Diaries
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/DiaryId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DiaryWriteRequest"
+      responses:
+        "204":
+          description: Diary entry updated.
+        "400":
+          description: Invalid diary ID, JSON, or input.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                invalidDiaryId:
+                  value:
+                    message: Invalid diary ID.
+                invalidJson:
+                  value:
+                    message: Invalid JSON.
+                invalidInput:
+                  value:
+                    message: Invalid input.
+        "401":
+          $ref: "#/components/responses/AuthenticationRequired"
+        "403":
+          $ref: "#/components/responses/AccessDenied"
+        "404":
+          $ref: "#/components/responses/ResourceNotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+    delete:
+      summary: Delete a diary entry
+      operationId: deleteDiary
+      tags:
+        - Diaries
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/DiaryId"
+      responses:
+        "204":
+          description: Diary entry deleted.
+        "400":
+          description: Invalid diary ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                message: Invalid diary ID.
+        "401":
+          $ref: "#/components/responses/AuthenticationRequired"
+        "403":
+          $ref: "#/components/responses/AccessDenied"
+        "404":
+          $ref: "#/components/responses/ResourceNotFound"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    DiaryId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+  responses:
+    AccessDenied:
+      description: Authenticated user is not an administrator.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: Access denied.
+    AuthenticationRequired:
+      description: Missing or invalid bearer token.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: Authentication required.
+    InternalServerError:
+      description: Unexpected server-side failure.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: An unexpected error occurred.
+    InvalidInput:
+      description: Invalid JSON or request body.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            invalidJson:
+              value:
+                message: Invalid JSON.
+            invalidInput:
+              value:
+                message: Invalid input.
+    ResourceNotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            message: Resource not found.
+  schemas:
+    DiaryDetail:
+      type: object
+      required:
+        - id
+        - title
+        - content
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    DiaryListItem:
+      type: object
+      required:
+        - id
+        - title
+        - contentPreview
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        contentPreview:
+          type: string
+          description: Content with line breaks replaced by spaces, truncated to 100 characters with an ellipsis when longer.
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    DiaryListResponse:
+      type: object
+      required:
+        - diaries
+        - page
+        - pageSize
+        - totalCount
+      properties:
+        diaries:
+          type: array
+          items:
+            $ref: "#/components/schemas/DiaryListItem"
+        page:
+          type: integer
+          minimum: 1
+        pageSize:
+          type: integer
+          minimum: 1
+          maximum: 100
+        totalCount:
+          type: integer
+          minimum: 0
+    DiaryWriteRequest:
+      type: object
+      required:
+        - title
+        - content
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Trimmed before validation.
+        content:
+          type: string
+          minLength: 1
+          description: Trimmed before validation.
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    IdResponse:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+          format: uuid
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 1
+          maxLength: 255
+    LoginResponse:
+      type: object
+      required:
+        - accessToken
+      properties:
+        accessToken:
+          type: string
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Trimmed before validation.
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        password:
+          type: string
+          minLength: 8
+          maxLength: 255
+          pattern: "^(?=.*[A-Za-z])(?=.*[0-9]).+$"

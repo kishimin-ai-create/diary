@@ -265,6 +265,7 @@ describe("DiaryService", () => {
       const result = await service.createDiary({
         title: "New Entry",
         content: "Some content here.",
+        userId: "admin-user-uuid",
       });
 
       // Assert

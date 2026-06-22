@@ -17,13 +17,14 @@ import { describe, expect, mock, test } from "bun:test";
 
 import { createApp } from "../../src/app";
 import {
-  TEST_DIARY,
-  TEST_DIARY_ID,
-  TEST_JWT_SECRET,
   createMockDiaryRepo,
   createMockUserRepo,
   makeAdminToken,
   makeNonAdminToken,
+  TEST_DIARY,
+  TEST_DIARY_ID,
+  TEST_JWT_SECRET,
+  TEST_USER_ID,
 } from "./helpers";
 
 // Valid UUID that is not present in the mock repo (triggers 404)
@@ -184,6 +185,23 @@ describe("GET /api/diaries", () => {
       // Assert
       expect(response.status).toBe(400);
     });
+
+    test("returns 400 when pageSize exceeds 100", async () => {
+      // Arrange
+      const app = createApp({
+        userRepo: createMockUserRepo(),
+        diaryRepo: createMockDiaryRepo(),
+        jwtSecret: TEST_JWT_SECRET,
+      });
+
+      // Act
+      const response = await app.request("/api/diaries?pageSize=101", {
+        method: "GET",
+      });
+
+      // Assert
+      expect(response.status).toBe(400);
+    });
   });
 });
 
@@ -288,9 +306,17 @@ describe("POST /api/diaries", () => {
   describe("Happy Path", () => {
     test("returns 201 with { id } when valid body and admin JWT are provided", async () => {
       // Arrange
+      let capturedCreateInput:
+        | { title: string; content: string; userId: string }
+        | undefined;
       const diaryRepo = {
         ...createMockDiaryRepo(),
-        create: mock(() => Promise.resolve({ id: TEST_DIARY_ID })),
+        create: mock(
+          (data: { title: string; content: string; userId: string }) => {
+            capturedCreateInput = data;
+            return Promise.resolve({ id: TEST_DIARY_ID });
+          },
+        ),
       };
       const app = createApp({
         userRepo: createMockUserRepo(),
@@ -316,6 +342,7 @@ describe("POST /api/diaries", () => {
       // Assert
       expect(response.status).toBe(201);
       expect(typeof body.id).toBe("string");
+      expect(capturedCreateInput?.userId).toBe(TEST_USER_ID);
     });
   });
 
