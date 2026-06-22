@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 
-import { createDrizzleConfig } from "./drizzle.config";
+import { createDrizzleConfig } from "./drizzle.config.factory";
 
 describe("createDrizzleConfig", () => {
   test("uses PostgreSQL dialect and preserves the configured DATABASE_URL", () => {
