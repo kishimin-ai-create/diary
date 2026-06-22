@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { openAPIRouteHandler } from "hono-openapi";
 
 import { createAuthController } from "./controllers/auth.controller";
 import { createDiaryController } from "./controllers/diary.controller";
@@ -6,6 +7,7 @@ import { createRuntimeConfig } from "./infrastructures/config";
 import { createDatabase } from "./infrastructures/db/client";
 import { DrizzleDiaryRepository } from "./infrastructures/repositories/drizzle-diary.repository";
 import { DrizzleUserRepository } from "./infrastructures/repositories/drizzle-user.repository";
+import { openApiOptions } from "./openapi";
 import type { IDiaryRepository } from "./repositories/diary.repository";
 import type { IUserRepository } from "./repositories/user.repository";
 import { isServiceError } from "./shared/errors";
@@ -43,6 +45,7 @@ export function createApp(deps: AppDeps): Hono {
     "/api/diaries",
     createDiaryController(deps.diaryRepo, deps.jwtSecret),
   );
+  app.get("/openapi.json", openAPIRouteHandler(app, openApiOptions));
 
   return app;
 }

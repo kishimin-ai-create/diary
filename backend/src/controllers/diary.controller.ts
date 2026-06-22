@@ -1,6 +1,8 @@
 import type { Context, Next } from "hono";
 import { Hono } from "hono";
 import { verify } from "hono/jwt";
+import { describeRoute, resolver } from "hono-openapi";
+import type { OpenAPIV3_1 as OpenApiV31 } from "openapi-types";
 import { z } from "zod";
 
 import type { IDiaryRepository } from "../repositories/diary.repository";
@@ -32,6 +34,76 @@ const diaryBodySchema = z.object({
   title: z.string().trim().min(1).max(100),
   content: z.string().trim().min(1),
 });
+
+const dateTimeSchema = z.string().describe("ISO 8601 date-time string");
+
+const diarySummaryResponseSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  contentPreview: z.string(),
+  createdAt: dateTimeSchema,
+  updatedAt: dateTimeSchema,
+});
+
+const diaryResponseSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  content: z.string(),
+  createdAt: dateTimeSchema,
+  updatedAt: dateTimeSchema,
+});
+
+const diaryListResponseSchema = z.object({
+  diaries: z.array(diarySummaryResponseSchema),
+  page: z.number().int(),
+  pageSize: z.number().int(),
+  totalCount: z.number().int(),
+});
+
+const idResponseSchema = z.object({
+  id: z.string(),
+});
+
+const diaryBodyRequestSchema = {
+  type: "object",
+  required: ["title", "content"],
+  additionalProperties: false,
+  properties: {
+    title: { type: "string", minLength: 1, maxLength: 100 },
+    content: { type: "string", minLength: 1 },
+  },
+} satisfies OpenApiV31.SchemaObject;
+
+const diaryIdParameter = {
+  name: "id",
+  in: "path",
+  required: true,
+  schema: {
+    type: "string",
+    pattern: uuidRegex.source,
+  },
+} satisfies OpenApiV31.ParameterObject;
+
+const diaryListParameters = [
+  {
+    name: "page",
+    in: "query",
+    required: false,
+    schema: { type: "integer", minimum: 1, default: 1 },
+  },
+  {
+    name: "pageSize",
+    in: "query",
+    required: false,
+    schema: { type: "integer", minimum: 1, maximum: 100, default: 10 },
+  },
+  {
+    name: "date",
+    in: "query",
+    required: false,
+    schema: { type: "string", pattern: "^\\d{4}-\\d{2}-\\d{2}$" },
+  },
+] satisfies OpenApiV31.ParameterObject[];
 
 /**
  * Creates a Hono router that handles diary entry CRUD operations.
@@ -81,7 +153,26 @@ export function createDiaryController(
   }
 
   // GET /api/diaries — public list endpoint (mounted at /api/diaries in app.ts)
-  app.get("/", async (c) => {
+  app.get(
+    "/",
+    describeRoute({
+      operationId: "listDiaries",
+      tags: ["Diaries"],
+      summary: "List diary entries",
+      parameters: diaryListParameters,
+      responses: {
+        200: {
+          description: "Paginated diary summaries.",
+          content: {
+            "application/json": { schema: resolver(diaryListResponseSchema) },
+          },
+        },
+        400: {
+          $ref: "#/components/responses/InvalidQueryParameters",
+        },
+      },
+    }),
+    async (c) => {
     const rawQuery: Record<string, string> = {};
     const page = c.req.query("page");
     const pageSize = c.req.query("pageSize");
@@ -97,10 +188,36 @@ export function createDiaryController(
 
     const result = await diaryService.listDiaries(queryResult.data);
     return c.json(result, 200);
-  });
+    },
+  );
 
   // GET /api/diaries/:id — public
-  app.get("/:id", async (c) => {
+  app.get(
+    "/:id",
+    describeRoute({
+      operationId: "getDiary",
+      tags: ["Diaries"],
+      summary: "Get a diary entry",
+      parameters: [diaryIdParameter],
+      responses: {
+        200: {
+          description: "Full diary entry.",
+          content: {
+            "application/json": { schema: resolver(diaryResponseSchema) },
+          },
+        },
+        400: {
+          $ref: "#/components/responses/InvalidDiaryId",
+        },
+        404: {
+          $ref: "#/components/responses/ResourceNotFound",
+        },
+        500: {
+          $ref: "#/components/responses/InternalServerError",
+        },
+      },
+    }),
+    async (c) => {
     const idResult = idParamSchema.safeParse({ id: c.req.param("id") });
     if (!idResult.success) {
       return c.json({ message: "Invalid diary ID." }, 400);
@@ -116,10 +233,44 @@ export function createDiaryController(
       }
       throw e;
     }
-  });
+    },
+  );
 
   // POST /api/diaries — protected (admin only)
-  app.post("/", jwtAuthMiddleware, requireAdminMiddleware, async (c) => {
+  app.post(
+    "/",
+    describeRoute({
+      operationId: "createDiary",
+      tags: ["Diaries"],
+      summary: "Create a diary entry",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": { schema: diaryBodyRequestSchema },
+        },
+      },
+      responses: {
+        201: {
+          description: "Diary entry was created.",
+          content: {
+            "application/json": { schema: resolver(idResponseSchema) },
+          },
+        },
+        400: {
+          $ref: "#/components/responses/InvalidJsonOrInput",
+        },
+        401: {
+          $ref: "#/components/responses/AuthenticationRequired",
+        },
+        403: {
+          $ref: "#/components/responses/AccessDenied",
+        },
+      },
+    }),
+    jwtAuthMiddleware,
+    requireAdminMiddleware,
+    async (c) => {
     let body: unknown;
     try {
       body = await c.req.json();
@@ -143,10 +294,46 @@ export function createDiaryController(
       userId,
     });
     return c.json({ id }, 201);
-  });
+    },
+  );
 
   // PUT /api/diaries/:id — protected (admin only)
-  app.put("/:id", jwtAuthMiddleware, requireAdminMiddleware, async (c) => {
+  app.put(
+    "/:id",
+    describeRoute({
+      operationId: "updateDiary",
+      tags: ["Diaries"],
+      summary: "Update a diary entry",
+      security: [{ bearerAuth: [] }],
+      parameters: [diaryIdParameter],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": { schema: diaryBodyRequestSchema },
+        },
+      },
+      responses: {
+        204: { description: "Diary entry was updated." },
+        400: {
+          $ref: "#/components/responses/InvalidJsonOrInput",
+        },
+        401: {
+          $ref: "#/components/responses/AuthenticationRequired",
+        },
+        403: {
+          $ref: "#/components/responses/AccessDenied",
+        },
+        404: {
+          $ref: "#/components/responses/ResourceNotFound",
+        },
+        500: {
+          $ref: "#/components/responses/InternalServerError",
+        },
+      },
+    }),
+    jwtAuthMiddleware,
+    requireAdminMiddleware,
+    async (c) => {
     const idResult = idParamSchema.safeParse({ id: c.req.param("id") });
     if (!idResult.success) {
       return c.json({ message: "Invalid diary ID." }, 400);
@@ -175,11 +362,41 @@ export function createDiaryController(
       }
       throw e;
     }
-  });
+    },
+  );
 
   // DELETE /api/diaries/:id — protected (admin only)
   // eslint-disable-next-line drizzle/enforce-delete-with-where -- Hono HTTP route handler, not a Drizzle ORM delete statement
-  app.delete("/:id", jwtAuthMiddleware, requireAdminMiddleware, async (c) => {
+  app.delete(
+    "/:id",
+    describeRoute({
+      operationId: "deleteDiary",
+      tags: ["Diaries"],
+      summary: "Delete a diary entry",
+      security: [{ bearerAuth: [] }],
+      parameters: [diaryIdParameter],
+      responses: {
+        204: { description: "Diary entry was deleted." },
+        400: {
+          $ref: "#/components/responses/InvalidDiaryId",
+        },
+        401: {
+          $ref: "#/components/responses/AuthenticationRequired",
+        },
+        403: {
+          $ref: "#/components/responses/AccessDenied",
+        },
+        404: {
+          $ref: "#/components/responses/ResourceNotFound",
+        },
+        500: {
+          $ref: "#/components/responses/InternalServerError",
+        },
+      },
+    }),
+    jwtAuthMiddleware,
+    requireAdminMiddleware,
+    async (c) => {
     const idResult = idParamSchema.safeParse({ id: c.req.param("id") });
     if (!idResult.success) {
       return c.json({ message: "Invalid diary ID." }, 400);
@@ -196,7 +413,8 @@ export function createDiaryController(
       }
       throw e;
     }
-  });
+    },
+  );
 
   return app;
 }
