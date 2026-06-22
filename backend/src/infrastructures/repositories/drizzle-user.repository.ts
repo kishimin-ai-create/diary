@@ -7,7 +7,7 @@ import type { Database } from "../db/client";
 import { users } from "../db/schema";
 
 /**
- * Drizzle-backed MySQL implementation of the user repository port.
+ * Drizzle-backed PostgreSQL implementation of the user repository port.
  */
 export class DrizzleUserRepository implements IUserRepository {
   /**

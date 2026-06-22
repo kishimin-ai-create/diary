@@ -1,35 +1,43 @@
+import { sql } from "drizzle-orm";
 import {
   boolean,
   index,
-  mysqlTable,
+  pgTable,
   text,
   timestamp,
   uniqueIndex,
+  uuid,
   varchar,
-} from "drizzle-orm/mysql-core";
+} from "drizzle-orm/pg-core";
 
-export const users = mysqlTable(
+export const users = pgTable(
   "users",
   {
-    id: varchar("id", { length: 36 }).primaryKey(),
+    id: uuid("id").defaultRandom().primaryKey(),
     name: varchar("name", { length: 50 }).notNull(),
     email: varchar("email", { length: 255 }).notNull(),
     passwordHash: varchar("password_hash", { length: 255 }).notNull(),
     isAdmin: boolean("is_admin").notNull().default(false),
-    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     uniqueIndex("users_email_key").on(table.email),
-    index("users_is_admin_idx").on(table.isAdmin),
+    uniqueIndex("users_single_admin_uidx")
+      .on(table.isAdmin)
+      .where(sql`${table.isAdmin} = true`),
   ],
 );
 
-export const diaries = mysqlTable(
+export const diaries = pgTable(
   "diaries",
   {
-    id: varchar("id", { length: 36 }).primaryKey(),
-    userId: varchar("user_id", { length: 36 })
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
       .notNull()
       .references(() => users.id, {
         onDelete: "restrict",
@@ -37,8 +45,12 @@ export const diaries = mysqlTable(
       }),
     title: varchar("title", { length: 100 }).notNull(),
     content: text("content").notNull(),
-    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date", withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     index("diaries_user_id_idx").on(table.userId),

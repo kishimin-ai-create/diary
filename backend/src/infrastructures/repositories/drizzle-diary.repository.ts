@@ -7,7 +7,7 @@ import type { Database } from "../db/client";
 import { diaries } from "../db/schema";
 
 /**
- * Drizzle-backed MySQL implementation of the diary repository port.
+ * Drizzle-backed PostgreSQL implementation of the diary repository port.
  */
 export class DrizzleDiaryRepository implements IDiaryRepository {
   /**

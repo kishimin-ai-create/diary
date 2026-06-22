@@ -1,14 +1,14 @@
-import { drizzle } from "drizzle-orm/mysql2";
-import mysql from "mysql2/promise";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 
 import * as schema from "./schema";
 
 export type Database = ReturnType<typeof createDatabase>;
 
 /**
- * Creates a Drizzle MySQL database client.
+ * Creates a Drizzle PostgreSQL database client.
  */
 export function createDatabase(databaseUrl: string) {
-  const pool = mysql.createPool(databaseUrl);
-  return drizzle(pool, { schema, mode: "default" });
+  const pool = new Pool({ connectionString: databaseUrl });
+  return drizzle(pool, { schema });
 }

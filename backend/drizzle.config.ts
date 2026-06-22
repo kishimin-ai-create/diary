@@ -3,30 +3,42 @@ import { join } from "node:path";
 
 import { defineConfig } from "drizzle-kit";
 
-const databaseUrl =
-  process.env["DATABASE_URL"] ??
-  readDotEnvValue("DATABASE_URL") ??
-  createDatabaseUrlFromParts();
+export default createDrizzleConfig();
 
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is required.");
+/**
+ * Builds the Drizzle Kit configuration from environment variables.
+ */
+export function createDrizzleConfig(
+  env: Record<string, string | undefined> = process.env,
+  cwd = process.cwd(),
+) {
+  const databaseUrl =
+    env["DATABASE_URL"] ??
+    readDotEnvValue("DATABASE_URL", cwd) ??
+    createDatabaseUrlFromParts(env, cwd);
+
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL is required.");
+  }
+
+  return defineConfig({
+    dialect: "postgresql",
+    dbCredentials: {
+      url: databaseUrl,
+    },
+    out: "./drizzle",
+    schema: "./src/infrastructures/db/schema.ts",
+  });
 }
 
-export default defineConfig({
-  dialect: "mysql",
-  dbCredentials: {
-    url: databaseUrl,
-  },
-  out: "./drizzle",
-  schema: "./src/infrastructures/db/schema.ts",
-});
-
-function readDotEnvValue(key: string): string | undefined {
-  const envPath = join(process.cwd(), ".env");
+function readDotEnvValue(key: string, cwd: string): string | undefined {
+  const envPath = join(cwd, ".env");
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- Drizzle config intentionally reads the project .env file selected by cwd.
   if (!existsSync(envPath)) {
     return undefined;
   }
 
+  // eslint-disable-next-line security/detect-non-literal-fs-filename -- Drizzle config intentionally reads the project .env file selected by cwd.
   const content = readFileSync(envPath, "utf8");
   for (const line of content.split(/\r?\n/)) {
     const trimmed = line.trim();
@@ -60,18 +72,21 @@ function unquoteEnvValue(value: string): string {
   return value;
 }
 
-function createDatabaseUrlFromParts(): string | undefined {
-  const host = readEnv("DB_HOST");
-  const port = readEnv("DB_PORT") ?? "3306";
-  const database = readEnv("DB_NAME");
-  const user = readEnv("DB_USER");
-  const password = readEnv("DB_PASSWORD");
+function createDatabaseUrlFromParts(
+  env: Record<string, string | undefined>,
+  cwd: string,
+): string | undefined {
+  const host = readEnv("DB_HOST", env, cwd);
+  const port = readEnv("DB_PORT", env, cwd) ?? "5432";
+  const database = readEnv("DB_NAME", env, cwd);
+  const user = readEnv("DB_USER", env, cwd);
+  const password = readEnv("DB_PASSWORD", env, cwd);
 
   if (!host || !database || !user || !password) {
     return undefined;
   }
 
-  return `mysql://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${host}:${port}/${database}`;
+  return `postgresql://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${host}:${port}/${database}`;
 }
 
 type DatabaseEnvKey =
@@ -81,17 +96,21 @@ type DatabaseEnvKey =
   | "DB_PORT"
   | "DB_USER";
 
-function readEnv(key: DatabaseEnvKey): string | undefined {
+function readEnv(
+  key: DatabaseEnvKey,
+  env: Record<string, string | undefined>,
+  cwd: string,
+): string | undefined {
   switch (key) {
     case "DB_HOST":
-      return process.env.DB_HOST ?? readDotEnvValue(key);
+      return env.DB_HOST ?? readDotEnvValue(key, cwd);
     case "DB_NAME":
-      return process.env.DB_NAME ?? readDotEnvValue(key);
+      return env.DB_NAME ?? readDotEnvValue(key, cwd);
     case "DB_PASSWORD":
-      return process.env.DB_PASSWORD ?? readDotEnvValue(key);
+      return env.DB_PASSWORD ?? readDotEnvValue(key, cwd);
     case "DB_PORT":
-      return process.env.DB_PORT ?? readDotEnvValue(key);
+      return env.DB_PORT ?? readDotEnvValue(key, cwd);
     case "DB_USER":
-      return process.env.DB_USER ?? readDotEnvValue(key);
+      return env.DB_USER ?? readDotEnvValue(key, cwd);
   }
 }

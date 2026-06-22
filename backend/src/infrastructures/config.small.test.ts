@@ -6,7 +6,7 @@ describe("createRuntimeConfig", () => {
   test("returns runtime config when required environment variables are present", () => {
     // Arrange
     const env = {
-      DATABASE_URL: "mysql://diary_user:password@localhost:3306/diary_db",
+      DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
       JWT_SECRET: "test-secret",
       PORT: "3010",
     };
@@ -39,7 +39,7 @@ describe("createRuntimeConfig", () => {
   test("throws an error when JWT_SECRET is missing", () => {
     // Arrange
     const env = {
-      DATABASE_URL: "mysql://diary_user:password@localhost:3306/diary_db",
+      DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
       PORT: "3010",
     };
 
