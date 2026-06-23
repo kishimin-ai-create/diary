@@ -44,7 +44,13 @@ definition.
 - Treat `.agent.md` files as behavior specifications, not as permission grants.
 - Follow repository-level `AGENTS.md` rules first when there is any conflict.
 - Do not run `git push`, force-push, or other remote-writing commands.
-- Do not commit unless the current user explicitly asks for a commit.
+- When the current user explicitly invokes an agent, that invocation grants the
+  agent permission to create any commit required by its `.agent.md` definition
+  after the required verification succeeds. Keep this permission scoped to the
+  requested task, use the commit granularity required by the agent definition,
+  and never push.
+- If the current user explicitly says not to commit, that instruction overrides
+  the agent commit permission.
 - Do not treat "post-completion required steps" in `.agent.md` as automatic.
   Only perform those follow-up tasks when the user asked for them or when they
   are clearly part of the requested deliverable.
