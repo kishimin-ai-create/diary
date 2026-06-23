@@ -1,5 +1,3 @@
-diary
-
 # Daybook
 
 Daybook is a full-stack diary application built with a Hono + TypeScript backend and a Next.js +
