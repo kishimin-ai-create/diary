@@ -4,11 +4,14 @@ services:
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
+    preDeployCommand: bun run db:migrate:runtime
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 3000
+      - key: DB_MIGRATE_ON_START
+        value: "false"
       - key: DATABASE_URL
         fromDatabase:
           name: diary-db

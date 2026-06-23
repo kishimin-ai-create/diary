@@ -17,6 +17,7 @@
     "check:fix": "eslint --fix . && prettier --write .",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "db:migrate:runtime": "bun run src/infrastructures/db/migrate.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {

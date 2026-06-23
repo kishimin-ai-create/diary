@@ -29,7 +29,10 @@ export function createRuntimeConfig(
   };
 }
 
-function readDatabaseUrl(
+/**
+ * Reads the database URL from DATABASE_URL or DB_* environment parts.
+ */
+export function readDatabaseUrl(
   env: Record<string, string | undefined>,
 ): string | undefined {
   const databaseUrl = env["DATABASE_URL"];
