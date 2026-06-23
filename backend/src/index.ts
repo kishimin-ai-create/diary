@@ -1,10 +1,7 @@
-import { createProductionApp } from "./app";
-import { createRuntimeConfig } from "./infrastructures/config";
+import { createProductionServer } from "./server";
 
-const config = createRuntimeConfig();
-export const app = createProductionApp();
+const productionServer = await createProductionServer();
 
-export default {
-  fetch: app.fetch,
-  port: config.port,
-};
+export const { app } = productionServer;
+
+export default productionServer.defaultExport;

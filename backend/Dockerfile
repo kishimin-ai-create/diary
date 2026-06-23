@@ -14,6 +14,7 @@ ENV PORT=3000
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json bun.lock ./
+COPY drizzle ./drizzle
 COPY src ./src
 
 EXPOSE 3000

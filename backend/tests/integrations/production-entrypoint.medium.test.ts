@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 function configureEntrypointEnv(): void {
   process.env["DATABASE_URL"] =
     "mysql://diary_user:password@localhost:3306/diary_db";
+  process.env["DB_MIGRATE_ON_START"] = "false";
   process.env["JWT_SECRET"] = "test-secret";
   process.env["PORT"] = "10000";
 }
