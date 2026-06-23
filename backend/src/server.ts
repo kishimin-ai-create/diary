@@ -10,7 +10,7 @@ interface ProductionServerDeps {
 }
 
 const DEFAULT_MIGRATION_RETRY_DELAY_MS = 2_000;
-const DEFAULT_MIGRATION_RETRY_LIMIT = 5;
+const DEFAULT_MIGRATION_RETRY_LIMIT = 30;
 
 /**
  * Creates the production Hono app and Bun server config.
