@@ -1,7 +1,7 @@
 import { defineConfig } from "orval";
 
 const OPENAPI_URL =
-  process.env.OPENAPI_URL ?? "http://localhost:3000/openapi/v1.json";
+  process.env.OPENAPI_URL ?? "http://localhost:3000/openapi.json";
 
 export default defineConfig({
   diary: {
@@ -14,7 +14,6 @@ export default defineConfig({
       schemas: "app/api/generated/model",
       client: "react-query",
       httpClient: "axios",
-      mock: true,
       clean: true,
       formatter: "prettier",
       override: {

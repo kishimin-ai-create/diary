@@ -1,9 +1,17 @@
-import axios from "axios";
+import { create } from "axios";
 import type { AxiosRequestConfig } from "axios";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:3000";
+import { readAccessToken } from "@/app/auth";
 
-const axiosInstance = axios.create({ baseURL: BACKEND_URL });
+const axiosInstance = create({ baseURL: "" });
+
+axiosInstance.interceptors.request.use((config) => {
+  const accessToken = readAccessToken();
+  if (accessToken) {
+    config.headers.set("Authorization", `Bearer ${accessToken}`);
+  }
+  return config;
+});
 
 /**
  * Custom Axios instance used by Orval-generated API clients.

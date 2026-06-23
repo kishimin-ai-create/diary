@@ -1,5 +1,5 @@
-**/diary/
-**/blog/
+/diary/
+/blog/
 
 # storybook
 storybook-static/

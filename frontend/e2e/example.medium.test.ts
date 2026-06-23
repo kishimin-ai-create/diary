@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("home page / on load / page title includes 'diary'", async ({ page }) => {
+test("home page / on load / page title shows the service name", async ({ page }) => {
   await page.goto("/");
-  await expect(page).toHaveTitle(/diary/i);
+  await expect(page).toHaveTitle("つづる日記");
 });
