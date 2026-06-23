@@ -27,11 +27,15 @@ export function createProductionServer(
   void migrationResult.catch(() => undefined);
 
   const app = createProductionApp(env);
+  const fetch: typeof app.fetch = async (...args) => {
+    await migrationResult;
+    return app.fetch(...args);
+  };
 
   return {
     app,
     defaultExport: {
-      fetch: app.fetch,
+      fetch,
       port: config.port,
     },
     migrationResult,

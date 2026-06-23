@@ -54,6 +54,38 @@ describe("createProductionServer", () => {
     expect(calls).toEqual([env.DATABASE_URL]);
   });
 
+  test("waits for pending database migrations before handling HTTP requests", async () => {
+    // Arrange
+    const env = {
+      DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
+      JWT_SECRET: "test-secret",
+      PORT: "10000",
+    };
+    let resolveMigration: (() => void) | undefined;
+    const server = createProductionServer(env, {
+      runDatabaseMigrations: () =>
+        new Promise<void>((resolve) => {
+          resolveMigration = resolve;
+        }),
+    });
+
+    // Act
+    let requestHandled = false;
+    const responsePromise = Promise.resolve(
+      server.defaultExport.fetch(new Request("http://localhost/openapi.json")),
+    ).then((response) => {
+      requestHandled = true;
+      return response;
+    });
+
+    // Assert
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(requestHandled).toBe(false);
+    resolveMigration?.();
+    const response = await responsePromise;
+    expect(response.status).toBe(200);
+  });
+
   test("skips database migrations when explicitly disabled", async () => {
     // Arrange
     const calls: string[] = [];

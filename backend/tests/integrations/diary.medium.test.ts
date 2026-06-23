@@ -88,6 +88,30 @@ describe("GET /api/diaries", () => {
       expect(body.pageSize).toBe(5);
     });
 
+    test("returns 200 with empty diaries when no diary entries exist", async () => {
+      // Arrange
+      const diaryRepo = {
+        ...createMockDiaryRepo(),
+        findMany: mock(() =>
+          Promise.resolve({ diaries: [], totalCount: 0 }),
+        ),
+      };
+      const app = createApp({
+        userRepo: createMockUserRepo(),
+        diaryRepo,
+        jwtSecret: TEST_JWT_SECRET,
+      });
+
+      // Act
+      const response = await app.request("/api/diaries");
+      const body = await response.json();
+
+      // Assert
+      expect(response.status).toBe(200);
+      expect(body.diaries).toEqual([]);
+      expect(body.totalCount).toBe(0);
+    });
+
     test("returns 200 with date filter query param forwarded to repository", async () => {
       // Arrange
       let capturedDate: string | undefined;
