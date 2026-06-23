@@ -2,6 +2,7 @@
   "name": "backend",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
+    "start": "bun run src/index.ts",
     "test": "bun test",
     "test:small": "bun test small.test",
     "test:medium": "bun test medium.test",

@@ -1,0 +1,12 @@
+.env
+.env.*
+
+.next
+coverage
+node_modules
+playwright-report
+storybook-static
+test-results
+
+*.log
+*.tsbuildinfo
