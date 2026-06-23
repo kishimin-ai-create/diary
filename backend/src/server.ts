@@ -15,14 +15,16 @@ const DEFAULT_MIGRATION_RETRY_LIMIT = 30;
 /**
  * Creates the production Hono app and Bun server config.
  */
-export async function createProductionServer(
+export function createProductionServer(
   env: Record<string, string | undefined> = process.env,
   deps: ProductionServerDeps = { runDatabaseMigrations },
 ) {
   const config = createRuntimeConfig(env);
-  if (env["DB_MIGRATE_ON_START"] !== "false") {
-    await runMigrationsWithRetry(config.databaseUrl, deps);
-  }
+  const migrationResult =
+    env["DB_MIGRATE_ON_START"] === "false"
+      ? Promise.resolve()
+      : runMigrationsWithRetry(config.databaseUrl, deps);
+  void migrationResult.catch(() => undefined);
 
   const app = createProductionApp(env);
 
@@ -32,6 +34,7 @@ export async function createProductionServer(
       fetch: app.fetch,
       port: config.port,
     },
+    migrationResult,
   };
 }
 

@@ -1,6 +1,6 @@
 import { createProductionServer } from "./server";
 
-const productionServer = await createProductionServer();
+const productionServer = createProductionServer();
 
 export const { app } = productionServer;
 
