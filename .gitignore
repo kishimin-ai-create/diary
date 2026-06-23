@@ -1,6 +1,14 @@
 /diary/
 /blog/
 
+# environment variables
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
 # storybook
 storybook-static/
 
