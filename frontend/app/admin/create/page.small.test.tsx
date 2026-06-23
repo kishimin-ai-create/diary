@@ -1,13 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import CreateDiaryPage from "./page";
 import { messages } from "@/app/i18n/messages";
 
 const mutateMock = vi.hoisted(() => vi.fn());
 const pushMock = vi.hoisted(() => vi.fn());
+const useAccessTokenMock = vi.hoisted(() => vi.fn());
 type CreateOptions = { mutation: { onSuccess: () => void } };
 type CreateResult = {
   isError: boolean;
@@ -25,14 +26,52 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: pushMock }),
 }));
 
+vi.mock("@/app/auth", () => ({
+  useAccessToken: useAccessTokenMock,
+}));
+
 vi.mock("@/app/api/generated/diaries/diaries", () => ({
   useCreateDiary: useCreateDiaryMock,
 }));
 
 describe("CreateDiaryPage", () => {
+  beforeEach(() => {
+    createOptions.length = 0;
+    mutateMock.mockReset();
+    pushMock.mockReset();
+    useAccessTokenMock.mockReset();
+    useCreateDiaryMock.mockReset();
+    useAccessTokenMock.mockReturnValue("token-123");
+  });
+
+  it("shows login guidance instead of the editor when access token is missing", () => {
+    // Arrange
+    useAccessTokenMock.mockReturnValue(null);
+    useCreateDiaryMock.mockReturnValue({
+      isError: false,
+      isPending: false,
+      mutate: mutateMock,
+    });
+
+    // Act
+    render(
+      <NextIntlClientProvider locale="ja" messages={messages.ja} timeZone="Asia/Tokyo">
+        <CreateDiaryPage />
+      </NextIntlClientProvider>,
+    );
+
+    // Assert
+    expect(screen.getByText("管理画面を開くにはログインしてください。")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "ログイン" })).toHaveAttribute(
+      "href",
+      "/login",
+    );
+    expect(screen.queryByLabelText("タイトル")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("本文")).not.toBeInTheDocument();
+  });
+
   it("redirects to admin when create succeeds", () => {
     // Arrange
-    createOptions.length = 0;
     useCreateDiaryMock.mockImplementation((options) => {
       createOptions.push(options);
       return {

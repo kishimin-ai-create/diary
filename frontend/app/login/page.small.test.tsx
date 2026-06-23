@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { NextIntlClientProvider } from "next-intl";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import LoginPage from "./page";
 import { readAccessToken } from "@/app/auth";
@@ -31,6 +31,14 @@ vi.mock("@/app/api/generated/auth/auth", () => ({
 }));
 
 describe("LoginPage", () => {
+  beforeEach(() => {
+    loginOptions.length = 0;
+    mutateMock.mockReset();
+    pushMock.mockReset();
+    useLoginAdminMock.mockReset();
+    window.sessionStorage.clear();
+  });
+
   it("stores token and redirects to admin when login succeeds", () => {
     // Arrange
     loginOptions.length = 0;
@@ -80,6 +88,34 @@ describe("LoginPage", () => {
       data: {
         email: "admin@example.com",
         password: "password",
+      },
+    });
+  });
+
+  it("trims email while preserving password whitespace for login", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    useLoginAdminMock.mockReturnValue({
+      isError: false,
+      isPending: false,
+      mutate: mutateMock,
+    });
+    render(
+      <NextIntlClientProvider locale="ja" messages={messages.ja} timeZone="Asia/Tokyo">
+        <LoginPage />
+      </NextIntlClientProvider>,
+    );
+
+    // Act
+    await user.type(screen.getByLabelText("メールアドレス"), " admin@example.com ");
+    await user.type(screen.getByLabelText("パスワード"), " password ");
+    await user.click(screen.getByRole("button", { name: "ログイン" }));
+
+    // Assert
+    expect(mutateMock).toHaveBeenCalledWith({
+      data: {
+        email: "admin@example.com",
+        password: " password ",
       },
     });
   });

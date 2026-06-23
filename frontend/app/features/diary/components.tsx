@@ -182,7 +182,7 @@ export function LoginForm({ isPending, errorMessage, onSubmit }: LoginFormProps)
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const email = readFormString(formData, "email");
-    const password = readFormString(formData, "password");
+    const password = readRawFormString(formData, "password");
     const nextErrors: FieldErrors = {};
     if (!email) {
       nextErrors.email = t("emailRequired");
@@ -386,8 +386,12 @@ function FormField({
 }
 
 function readFormString(formData: FormData, key: string): string {
+  return readRawFormString(formData, key).trim();
+}
+
+function readRawFormString(formData: FormData, key: string): string {
   const value = formData.get(key);
-  return typeof value === "string" ? value.trim() : "";
+  return typeof value === "string" ? value : "";
 }
 
 function formatDateTime(value: string): string {
