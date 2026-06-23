@@ -36,6 +36,29 @@ describe("createRuntimeConfig", () => {
     expect(act).toThrow("DATABASE_URL is required.");
   });
 
+  test("returns runtime config from database parts when DATABASE_URL is missing", () => {
+    // Arrange
+    const env = {
+      DB_HOST: "database.example",
+      DB_NAME: "diary_db",
+      DB_PASSWORD: "secret password",
+      DB_PORT: "5433",
+      DB_USER: "diary_user",
+      JWT_SECRET: "test-secret",
+      PORT: "3010",
+    };
+
+    // Act
+    const config = createRuntimeConfig(env);
+
+    // Assert
+    expect(config.databaseUrl).toBe(
+      "postgresql://diary_user:secret%20password@database.example:5433/diary_db",
+    );
+    expect(config.jwtSecret).toBe(env.JWT_SECRET);
+    expect(config.port).toBe(3010);
+  });
+
   test("throws an error when JWT_SECRET is missing", () => {
     // Arrange
     const env = {

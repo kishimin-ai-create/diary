@@ -12,7 +12,7 @@ const DEFAULT_PORT = 3000;
 export function createRuntimeConfig(
   env: Record<string, string | undefined> = process.env,
 ): RuntimeConfig {
-  const databaseUrl = env["DATABASE_URL"];
+  const databaseUrl = readDatabaseUrl(env);
   if (!databaseUrl) {
     throw new Error("DATABASE_URL is required.");
   }
@@ -27,6 +27,28 @@ export function createRuntimeConfig(
     jwtSecret,
     port: parsePort(env["PORT"]),
   };
+}
+
+function readDatabaseUrl(
+  env: Record<string, string | undefined>,
+): string | undefined {
+  const databaseUrl = env["DATABASE_URL"];
+  if (databaseUrl) {
+    return databaseUrl;
+  }
+
+  const host = env["DB_HOST"];
+  const database = env["DB_NAME"];
+  const user = env["DB_USER"];
+  const password = env["DB_PASSWORD"];
+
+  if (!host || !database || !user || !password) {
+    return undefined;
+  }
+
+  const port = parsePort(env["DB_PORT"] ?? "5432");
+
+  return `postgresql://${encodeURIComponent(user)}:${encodeURIComponent(password)}@${host}:${port}/${encodeURIComponent(database)}`;
 }
 
 function parsePort(rawPort: string | undefined): number {
