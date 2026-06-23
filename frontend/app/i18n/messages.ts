@@ -3,6 +3,7 @@ export const messages = {
     app: {
       name: "つづる日記",
       englishName: "Daybook",
+      logoAlt: "つづる日記のロゴ",
       tagline: "日々の記録を、静かに読み返せる場所。",
       footer: "© kishimin 2026",
     },
@@ -65,6 +66,7 @@ export const messages = {
     app: {
       name: "Daybook",
       englishName: "Daybook",
+      logoAlt: "Daybook logo",
       tagline: "A calm place to write and revisit daily notes.",
       footer: "© kishimin 2026",
     },

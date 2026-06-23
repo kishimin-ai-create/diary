@@ -1,6 +1,7 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Image from "next/image";
 import Link from "next/link";
 import { NextIntlClientProvider, useTranslations } from "next-intl";
 import {
@@ -60,9 +61,14 @@ function SiteFrame({ children }: { children: ReactNode }) {
     <>
       <header className="site-header">
         <Link className="brand" href="/" aria-label={tNav("home")}>
-          <span className="brand-mark" aria-hidden="true">
-            D
-          </span>
+          <Image
+            className="brand-logo"
+            src="/logo-image.png"
+            alt={tApp("logoAlt")}
+            width={40}
+            height={40}
+            priority
+          />
           <span>
             <strong>{tApp("name")}</strong>
             <small>{tApp("tagline")}</small>

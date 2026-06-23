@@ -4,8 +4,16 @@ import type { Metadata } from "next";
 import { AppProviders } from "./providers";
 
 export const metadata: Metadata = {
-  title: "diary | つづる日記",
-  description: "Daybook diary frontend",
+  applicationName: "つづる日記",
+  title: {
+    default: "つづる日記",
+    template: "%s | つづる日記",
+  },
+  description: "日々の記録を、静かに読み返せる場所。",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

@@ -101,15 +101,11 @@ textarea:focus-visible {
   text-decoration: none;
 }
 
-.brand-mark {
-  display: inline-grid;
+.brand-logo {
   width: 2.5rem;
   height: 2.5rem;
-  place-items: center;
   border-radius: 0.5rem;
-  background: var(--accent);
-  color: #fff;
-  font-weight: 700;
+  object-fit: cover;
 }
 
 .brand strong,

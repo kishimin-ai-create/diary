@@ -15,6 +15,7 @@ describe("AppProviders", () => {
 
     // Assert
     expect(screen.getByText("つづる日記")).toBeInTheDocument();
+    expect(screen.getByAltText("つづる日記のロゴ")).toBeInTheDocument();
     expect(screen.getByText("child content")).toBeInTheDocument();
     expect(screen.getByText("© kishimin 2026")).toBeInTheDocument();
   });
@@ -33,6 +34,7 @@ describe("AppProviders", () => {
 
     // Assert
     expect(screen.getByText("Daybook")).toBeInTheDocument();
+    expect(screen.getByAltText("Daybook logo")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Admin" })).toBeInTheDocument();
   });
 });
