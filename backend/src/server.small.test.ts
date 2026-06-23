@@ -54,7 +54,7 @@ describe("createProductionServer", () => {
     expect(calls).toEqual([env.DATABASE_URL]);
   });
 
-  test("waits for pending database migrations before handling HTTP requests", async () => {
+  test("returns 503 for API requests while database migrations are pending", async () => {
     // Arrange
     const env = {
       DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
@@ -70,20 +70,52 @@ describe("createProductionServer", () => {
     });
 
     // Act
-    let requestHandled = false;
-    const responsePromise = Promise.resolve(
-      server.defaultExport.fetch(new Request("http://localhost/openapi.json")),
-    ).then((response) => {
-      requestHandled = true;
-      return response;
-    });
+    const result = await Promise.race([
+      server.defaultExport.fetch(new Request("http://localhost/api/diaries")),
+      new Promise((resolve) => {
+        setTimeout(() => resolve("migration-pending"), 0);
+      }),
+    ]);
+    resolveMigration?.();
 
     // Assert
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(requestHandled).toBe(false);
+    expect(result).not.toBe("migration-pending");
+    expect(result).toBeInstanceOf(Response);
+    if (result instanceof Response) {
+      expect(result.status).toBe(503);
+    }
+  });
+
+  test("handles non-API requests without waiting for pending database migrations", async () => {
+    // Arrange
+    const env = {
+      DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
+      JWT_SECRET: "test-secret",
+      PORT: "10000",
+    };
+    let resolveMigration: (() => void) | undefined;
+    const server = createProductionServer(env, {
+      runDatabaseMigrations: () =>
+        new Promise<void>((resolve) => {
+          resolveMigration = resolve;
+        }),
+    });
+
+    // Act
+    const result = await Promise.race([
+      server.defaultExport.fetch(new Request("http://localhost/openapi.json")),
+      new Promise((resolve) => {
+        setTimeout(() => resolve("migration-pending"), 0);
+      }),
+    ]);
     resolveMigration?.();
-    const response = await responsePromise;
-    expect(response.status).toBe(200);
+
+    // Assert
+    expect(result).not.toBe("migration-pending");
+    expect(result).toBeInstanceOf(Response);
+    if (result instanceof Response) {
+      expect(result.status).toBe(200);
+    }
   });
 
   test("skips database migrations when explicitly disabled", async () => {

@@ -11,6 +11,7 @@ interface ProductionServerDeps {
 
 const DEFAULT_MIGRATION_RETRY_DELAY_MS = 2_000;
 const DEFAULT_MIGRATION_RETRY_LIMIT = 30;
+type MigrationState = "pending" | "ready" | "failed";
 
 /**
  * Creates the production Hono app and Bun server config.
@@ -24,11 +25,22 @@ export function createProductionServer(
     env["DB_MIGRATE_ON_START"] === "false"
       ? Promise.resolve()
       : runMigrationsWithRetry(config.databaseUrl, deps);
-  void migrationResult.catch(() => undefined);
+  let migrationState: MigrationState =
+    env["DB_MIGRATE_ON_START"] === "false" ? "ready" : "pending";
+  void migrationResult.then(
+    () => {
+      migrationState = "ready";
+    },
+    () => {
+      migrationState = "failed";
+    },
+  );
 
   const app = createProductionApp(env);
   const fetch: typeof app.fetch = async (...args) => {
-    await migrationResult;
+    if (shouldRequireMigration(args[0]) && migrationState !== "ready") {
+      return Response.json({ message: "Service unavailable." }, { status: 503 });
+    }
     return app.fetch(...args);
   };
 
@@ -40,6 +52,10 @@ export function createProductionServer(
     },
     migrationResult,
   };
+}
+
+function shouldRequireMigration(request: Request): boolean {
+  return new URL(request.url).pathname.startsWith("/api/");
 }
 
 async function runMigrationsWithRetry(
