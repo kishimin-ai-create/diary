@@ -1,14 +1,10 @@
 import { createProductionApp } from "./app";
 import { createRuntimeConfig } from "./infrastructures/config";
 
-const app = createProductionApp();
+const config = createRuntimeConfig();
+export const app = createProductionApp();
 
-if (import.meta.main) {
-  const config = createRuntimeConfig();
-  Bun.serve({
-    fetch: app.fetch,
-    port: config.port,
-  });
-}
-
-export default app;
+export default {
+  fetch: app.fetch,
+  port: config.port,
+};
