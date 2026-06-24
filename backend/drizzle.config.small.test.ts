@@ -17,6 +17,22 @@ describe("createDrizzleConfig", () => {
     expect(readDatabaseUrl(config)).toBe(env.DATABASE_URL);
   });
 
+  test("stores migration metadata in the public schema", () => {
+    // Arrange
+    const env = {
+      DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
+    };
+
+    // Act
+    const config = createDrizzleConfig(env);
+
+    // Assert
+    expect(config.migrations).toEqual({
+      schema: "public",
+      table: "__drizzle_migrations",
+    });
+  });
+
   test("builds a PostgreSQL DATABASE_URL from DB_* parts", () => {
     // Arrange
     const env = {

@@ -24,6 +24,10 @@ export function createDrizzleConfig(
     dbCredentials: {
       url: databaseUrl,
     },
+    migrations: {
+      schema: "public",
+      table: "__drizzle_migrations",
+    },
     out: "./drizzle",
     schema: "./src/infrastructures/db/schema.ts",
   });

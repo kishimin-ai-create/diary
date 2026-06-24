@@ -4,6 +4,25 @@ import { Pool } from "pg";
 
 import * as schema from "./schema";
 
+interface MigrationConfig {
+  migrationsFolder: string;
+  migrationsSchema: string;
+  migrationsTable: string;
+}
+
+/**
+ * Builds the Drizzle runtime migrator configuration.
+ */
+export function createMigrationConfig(
+  migrationsFolder = "./drizzle",
+): MigrationConfig {
+  return {
+    migrationsFolder,
+    migrationsSchema: "public",
+    migrationsTable: "__drizzle_migrations",
+  };
+}
+
 /**
  * Runs pending Drizzle migrations against the configured PostgreSQL database.
  */
@@ -14,9 +33,8 @@ export async function runDatabaseMigrations(
   const pool = new Pool({ connectionString: databaseUrl });
   try {
     const db = drizzle(pool, { schema });
-    await migrate(db, { migrationsFolder });
+    await migrate(db, createMigrationConfig(migrationsFolder));
   } finally {
     await pool.end();
   }
 }
-
