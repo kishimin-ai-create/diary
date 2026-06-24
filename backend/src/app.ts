@@ -1,3 +1,4 @@
+import { swaggerUI } from "@hono/swagger-ui";
 import { Hono } from "hono";
 import { openAPIRouteHandler } from "hono-openapi";
 
@@ -11,12 +12,7 @@ import { openApiOptions } from "./openapi";
 import type { IDiaryRepository } from "./repositories/diary.repository";
 import type { IUserRepository } from "./repositories/user.repository";
 import { isServiceError } from "./shared/errors";
-import {
-  type AppLogger,
-  consoleLogger,
-  errorLogMeta,
-  noopLogger,
-} from "./shared/logger";
+import { type AppLogger, consoleLogger, errorLogMeta, noopLogger } from "./shared/logger";
 
 interface AppDeps {
   userRepo: IUserRepository;
@@ -52,10 +48,7 @@ export function createApp(deps: AppDeps): Hono {
     if (isServiceError(err)) {
       // Hono's c.json() second arg requires a specific StatusCode union type;
       // ServiceError.statusCode is typed as number so we must narrow it here
-      return c.json(
-        { message: err.message },
-        err.statusCode as 400 | 401 | 403 | 404 | 409 | 500,
-      );
+      return c.json({ message: err.message }, err.statusCode as 400 | 401 | 403 | 404 | 409 | 500);
     }
     logger.error("unexpected request error", {
       method: c.req.method,
@@ -65,15 +58,10 @@ export function createApp(deps: AppDeps): Hono {
     return c.json({ message: "An unexpected error occurred." }, 500);
   });
 
-  app.route(
-    "/api/auth",
-    createAuthController(deps.userRepo, deps.jwtSecret),
-  );
-  app.route(
-    "/api/diaries",
-    createDiaryController(deps.diaryRepo, deps.jwtSecret),
-  );
+  app.route("/api/auth", createAuthController(deps.userRepo, deps.jwtSecret));
+  app.route("/api/diaries", createDiaryController(deps.diaryRepo, deps.jwtSecret));
   app.get("/openapi.json", openAPIRouteHandler(app, openApiOptions));
+  app.get("/swagger", swaggerUI({ url: "/openapi.json" }));
 
   return app;
 }
