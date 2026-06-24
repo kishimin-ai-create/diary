@@ -1,8 +1,15 @@
 import { createProductionApp } from "./app";
 import { createRuntimeConfig } from "./infrastructures/config";
 import { runDatabaseMigrations } from "./infrastructures/db/migrations";
+import {
+  type AppLogger,
+  consoleLogger,
+  errorLogMeta,
+  noopLogger,
+} from "./shared/logger";
 
 interface ProductionServerDeps {
+  logger?: AppLogger;
   migrationRetryDelayMs?: number;
   migrationRetryLimit?: number;
   runDatabaseMigrations: (databaseUrl: string) => Promise<void>;
@@ -18,9 +25,10 @@ type MigrationState = "pending" | "ready" | "failed";
  */
 export function createProductionServer(
   env: Record<string, string | undefined> = process.env,
-  deps: ProductionServerDeps = { runDatabaseMigrations },
+  deps: ProductionServerDeps = { logger: consoleLogger, runDatabaseMigrations },
 ) {
   const config = createRuntimeConfig(env);
+  const logger = deps.logger ?? noopLogger;
   const migrationResult =
     env["DB_MIGRATE_ON_START"] === "false"
       ? Promise.resolve()
@@ -30,15 +38,21 @@ export function createProductionServer(
   void migrationResult.then(
     () => {
       migrationState = "ready";
+      logger.info("database migrations ready");
     },
-    () => {
+    (error) => {
       migrationState = "failed";
+      logger.error("database migrations failed", errorLogMeta(error));
     },
   );
 
-  const app = createProductionApp(env);
+  const app = createProductionApp(env, { logger });
   const fetch: typeof app.fetch = async (...args) => {
     if (shouldRequireMigration(args[0]) && migrationState !== "ready") {
+      logger.warn("request blocked while database migrations are not ready", {
+        method: args[0].method,
+        path: new URL(args[0].url).pathname,
+      });
       return Response.json({ message: "Service unavailable." }, { status: 503 });
     }
     return app.fetch(...args);

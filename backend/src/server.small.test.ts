@@ -1,6 +1,12 @@
 import { describe, expect, test } from "bun:test";
 
 import { createProductionServer } from "./server";
+import type { AppLogger, LogMeta } from "./shared/logger";
+
+interface CapturedLog {
+  message: string;
+  meta?: LogMeta;
+}
 
 describe("createProductionServer", () => {
   test("starts database migrations when exposing the Bun server config", async () => {
@@ -61,8 +67,10 @@ describe("createProductionServer", () => {
       JWT_SECRET: "test-secret",
       PORT: "10000",
     };
+    const warnLogs: CapturedLog[] = [];
     let resolveMigration: (() => void) | undefined;
     const server = createProductionServer(env, {
+      logger: createCapturingLogger({ warnLogs }),
       runDatabaseMigrations: () =>
         new Promise<void>((resolve) => {
           resolveMigration = resolve;
@@ -84,6 +92,13 @@ describe("createProductionServer", () => {
     if (result instanceof Response) {
       expect(result.status).toBe(503);
     }
+    expect(warnLogs).toContainEqual({
+      message: "request blocked while database migrations are not ready",
+      meta: expect.objectContaining({
+        method: "GET",
+        path: "/api/diaries",
+      }),
+    });
   });
 
   test("handles non-API requests without waiting for pending database migrations", async () => {
@@ -187,6 +202,36 @@ describe("createProductionServer", () => {
     });
   });
 
+  test("logs database migration failure", async () => {
+    // Arrange
+    const errorLogs: CapturedLog[] = [];
+    const env = {
+      DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
+      JWT_SECRET: "test-secret",
+      PORT: "10000",
+    };
+
+    // Act
+    const server = createProductionServer(env, {
+      logger: createCapturingLogger({ errorLogs }),
+      migrationRetryLimit: 1,
+      runDatabaseMigrations: () =>
+        Promise.reject(new Error("connect ECONNREFUSED")),
+    });
+
+    // Assert
+    await expect(server.migrationResult).rejects.toThrow(
+      "connect ECONNREFUSED",
+    );
+    expect(errorLogs).toContainEqual({
+      message: "database migrations failed",
+      meta: expect.objectContaining({
+        errorMessage: "connect ECONNREFUSED",
+        errorName: "Error",
+      }),
+    });
+  });
+
   test("waits through a slow database startup before exposing the Bun server config", async () => {
     // Arrange
     const calls: string[] = [];
@@ -229,3 +274,21 @@ describe("createProductionServer", () => {
     });
   });
 });
+
+function createCapturingLogger(logs: {
+  errorLogs?: CapturedLog[];
+  infoLogs?: CapturedLog[];
+  warnLogs?: CapturedLog[];
+}): AppLogger {
+  return {
+    error: (message, meta) => {
+      logs.errorLogs?.push({ message, meta });
+    },
+    info: (message, meta) => {
+      logs.infoLogs?.push({ message, meta });
+    },
+    warn: (message, meta) => {
+      logs.warnLogs?.push({ message, meta });
+    },
+  };
+}

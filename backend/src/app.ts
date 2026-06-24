@@ -11,11 +11,22 @@ import { openApiOptions } from "./openapi";
 import type { IDiaryRepository } from "./repositories/diary.repository";
 import type { IUserRepository } from "./repositories/user.repository";
 import { isServiceError } from "./shared/errors";
+import {
+  type AppLogger,
+  consoleLogger,
+  errorLogMeta,
+  noopLogger,
+} from "./shared/logger";
 
 interface AppDeps {
   userRepo: IUserRepository;
   diaryRepo: IDiaryRepository;
   jwtSecret: string;
+  logger?: AppLogger;
+}
+
+interface ProductionAppDeps {
+  logger?: AppLogger;
 }
 
 /**
@@ -24,6 +35,18 @@ interface AppDeps {
  */
 export function createApp(deps: AppDeps): Hono {
   const app = new Hono();
+  const logger = deps.logger ?? noopLogger;
+
+  app.use("*", async (c, next) => {
+    const startedAt = Date.now();
+    await next();
+    logger.info("request completed", {
+      durationMs: Date.now() - startedAt,
+      method: c.req.method,
+      path: new URL(c.req.url).pathname,
+      status: c.res.status,
+    });
+  });
 
   app.onError((err, c) => {
     if (isServiceError(err)) {
@@ -34,6 +57,11 @@ export function createApp(deps: AppDeps): Hono {
         err.statusCode as 400 | 401 | 403 | 404 | 409 | 500,
       );
     }
+    logger.error("unexpected request error", {
+      method: c.req.method,
+      path: new URL(c.req.url).pathname,
+      ...errorLogMeta(err),
+    });
     return c.json({ message: "An unexpected error occurred." }, 500);
   });
 
@@ -56,6 +84,7 @@ export function createApp(deps: AppDeps): Hono {
  */
 export function createProductionApp(
   env: Record<string, string | undefined> = process.env,
+  deps: ProductionAppDeps = { logger: consoleLogger },
 ): Hono {
   const config = createRuntimeConfig(env);
   const db = createDatabase(config.databaseUrl);
@@ -63,5 +92,6 @@ export function createProductionApp(
     userRepo: new DrizzleUserRepository(db),
     diaryRepo: new DrizzleDiaryRepository(db),
     jwtSecret: config.jwtSecret,
+    logger: deps.logger,
   });
 }
