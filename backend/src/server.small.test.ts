@@ -94,10 +94,14 @@ describe("createProductionServer", () => {
       PORT: "10000",
     };
     let resolveMigration: (() => void) | undefined;
+    let migrationResolved = false;
     const server = createProductionServer(env, {
       runDatabaseMigrations: () =>
         new Promise<void>((resolve) => {
-          resolveMigration = resolve;
+          resolveMigration = () => {
+            migrationResolved = true;
+            resolve();
+          };
         }),
     });
 
@@ -105,17 +109,18 @@ describe("createProductionServer", () => {
     const result = await Promise.race([
       server.defaultExport.fetch(new Request("http://localhost/openapi.json")),
       new Promise((resolve) => {
-        setTimeout(() => resolve("migration-pending"), 0);
+        setTimeout(() => resolve("request-blocked"), 1_000);
       }),
     ]);
-    resolveMigration?.();
 
     // Assert
-    expect(result).not.toBe("migration-pending");
+    expect(result).not.toBe("request-blocked");
     expect(result).toBeInstanceOf(Response);
     if (result instanceof Response) {
       expect(result.status).toBe(200);
     }
+    expect(migrationResolved).toBeFalse();
+    resolveMigration?.();
   });
 
   test("skips database migrations when explicitly disabled", async () => {
