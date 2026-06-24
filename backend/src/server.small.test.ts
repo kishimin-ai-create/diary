@@ -9,11 +9,38 @@ interface CapturedLog {
 }
 
 describe("createProductionServer", () => {
-  test("starts database migrations when exposing the Bun server config", async () => {
+  test("skips database migrations unless explicitly enabled", async () => {
     // Arrange
     const calls: string[] = [];
     const env = {
       DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
+      JWT_SECRET: "test-secret",
+      PORT: "10000",
+    };
+
+    // Act
+    const server = await createProductionServer(env, {
+      runDatabaseMigrations: (databaseUrl) => {
+        calls.push(databaseUrl);
+        return Promise.resolve();
+      },
+    });
+
+    // Assert
+    await server.migrationResult;
+    expect(calls).toEqual([]);
+    expect(server.defaultExport).toMatchObject({
+      fetch: expect.any(Function),
+      port: 10000,
+    });
+  });
+
+  test("starts database migrations when explicitly enabled", async () => {
+    // Arrange
+    const calls: string[] = [];
+    const env = {
+      DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
+      DB_MIGRATE_ON_START: "true",
       JWT_SECRET: "test-secret",
       PORT: "10000",
     };
@@ -40,6 +67,7 @@ describe("createProductionServer", () => {
     const calls: string[] = [];
     const env = {
       DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
+      DB_MIGRATE_ON_START: "true",
       JWT_SECRET: "test-secret",
       PORT: "10000",
     };
@@ -64,6 +92,7 @@ describe("createProductionServer", () => {
     // Arrange
     const env = {
       DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
+      DB_MIGRATE_ON_START: "true",
       JWT_SECRET: "test-secret",
       PORT: "10000",
     };
@@ -105,6 +134,7 @@ describe("createProductionServer", () => {
     // Arrange
     const env = {
       DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
+      DB_MIGRATE_ON_START: "true",
       JWT_SECRET: "test-secret",
       PORT: "10000",
     };
@@ -167,6 +197,7 @@ describe("createProductionServer", () => {
     const waits: number[] = [];
     const env = {
       DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
+      DB_MIGRATE_ON_START: "true",
       JWT_SECRET: "test-secret",
       PORT: "10000",
     };
@@ -207,6 +238,7 @@ describe("createProductionServer", () => {
     const errorLogs: CapturedLog[] = [];
     const env = {
       DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
+      DB_MIGRATE_ON_START: "true",
       JWT_SECRET: "test-secret",
       PORT: "10000",
     };
@@ -238,6 +270,7 @@ describe("createProductionServer", () => {
     const waits: number[] = [];
     const env = {
       DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
+      DB_MIGRATE_ON_START: "true",
       JWT_SECRET: "test-secret",
       PORT: "10000",
     };

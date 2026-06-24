@@ -29,12 +29,13 @@ export function createProductionServer(
 ) {
   const config = createRuntimeConfig(env);
   const logger = deps.logger ?? noopLogger;
+  const shouldRunStartupMigrations = env["DB_MIGRATE_ON_START"] === "true";
   const migrationResult =
-    env["DB_MIGRATE_ON_START"] === "false"
-      ? Promise.resolve()
-      : runMigrationsWithRetry(config.databaseUrl, deps);
+    shouldRunStartupMigrations
+      ? runMigrationsWithRetry(config.databaseUrl, deps)
+      : Promise.resolve();
   let migrationState: MigrationState =
-    env["DB_MIGRATE_ON_START"] === "false" ? "ready" : "pending";
+    shouldRunStartupMigrations ? "pending" : "ready";
   void migrationResult.then(
     () => {
       migrationState = "ready";
