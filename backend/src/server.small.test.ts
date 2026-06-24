@@ -9,7 +9,7 @@ interface CapturedLog {
 }
 
 describe("createProductionServer", () => {
-  test("skips database migrations unless explicitly enabled", async () => {
+  test("runs database migrations by default", async () => {
     // Arrange
     const calls: string[] = [];
     const env = {
@@ -28,14 +28,14 @@ describe("createProductionServer", () => {
 
     // Assert
     await server.migrationResult;
-    expect(calls).toEqual([]);
+    expect(calls).toEqual([env.DATABASE_URL]);
     expect(server.defaultExport).toMatchObject({
       fetch: expect.any(Function),
       port: 10000,
     });
   });
 
-  test("starts database migrations when explicitly enabled", async () => {
+  test("starts database migrations when the legacy Render flag is enabled", async () => {
     // Arrange
     const calls: string[] = [];
     const env = {
@@ -60,6 +60,29 @@ describe("createProductionServer", () => {
       fetch: expect.any(Function),
       port: 10000,
     });
+  });
+
+  test("skips startup migrations only when the test skip flag is enabled", async () => {
+    // Arrange
+    const calls: string[] = [];
+    const env = {
+      DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
+      DB_SKIP_STARTUP_MIGRATIONS: "true",
+      JWT_SECRET: "test-secret",
+      PORT: "10000",
+    };
+
+    // Act
+    const server = await createProductionServer(env, {
+      runDatabaseMigrations: (databaseUrl) => {
+        calls.push(databaseUrl);
+        return Promise.resolve();
+      },
+    });
+
+    // Assert
+    await server.migrationResult;
+    expect(calls).toEqual([]);
   });
 
   test("exposes the Bun server config without waiting for pending database migrations", async () => {
@@ -168,7 +191,7 @@ describe("createProductionServer", () => {
     resolveMigration?.();
   });
 
-  test("skips database migrations when explicitly disabled", async () => {
+  test("runs startup migrations even when legacy Render env disables them", async () => {
     // Arrange
     const calls: string[] = [];
     const env = {
@@ -188,7 +211,7 @@ describe("createProductionServer", () => {
 
     // Assert
     await server.migrationResult;
-    expect(calls).toEqual([]);
+    expect(calls).toEqual([env.DATABASE_URL]);
   });
 
   test("retries database migrations when the database initially refuses connections", async () => {
