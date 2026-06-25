@@ -9,8 +9,6 @@ RUN bun install --frozen-lockfile
 FROM deps AS builder
 WORKDIR /app
 
-ARG BACKEND_URL=http://localhost:3000
-ENV BACKEND_URL=${BACKEND_URL}
 ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY . .

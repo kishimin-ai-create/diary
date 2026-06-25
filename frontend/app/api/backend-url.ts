@@ -1,0 +1,23 @@
+/**
+ * Resolves the backend origin used by server-side API proxy routes.
+ */
+export function createBackendUrl(
+  env: Record<string, string | undefined> = process.env,
+): string {
+  const backendHost = env["BACKEND_HOST"];
+  if (backendHost) {
+    const backendPort = env["BACKEND_PORT"];
+    if (!backendPort) {
+      return `http://${backendHost}`;
+    }
+
+    return `http://${backendHost}:${backendPort}`;
+  }
+
+  const backendUrl = env["BACKEND_URL"];
+  if (backendUrl) {
+    return backendUrl;
+  }
+
+  return "http://localhost:3000";
+}
