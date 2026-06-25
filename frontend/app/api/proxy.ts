@@ -33,8 +33,6 @@ export async function proxyBackendRequest(
     requestInit.body = await request.arrayBuffer();
   }
 
-  console.log(targetUrl);
-
   const backendResponse = await fetch(targetUrl, requestInit);
   const responseHeaders = copyProxyHeaders(backendResponse.headers);
 
