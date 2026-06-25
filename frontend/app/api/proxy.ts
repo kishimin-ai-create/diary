@@ -20,6 +20,8 @@ export async function proxyBackendRequest(
 ): Promise<Response> {
   const sourceUrl = new URL(request.url);
   const targetUrl = new URL(backendPath, createBackendUrl());
+  console.log(createBackendUrl());
+
   targetUrl.search = sourceUrl.search;
 
   const requestHeaders = copyProxyHeaders(request.headers);
