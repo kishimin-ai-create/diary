@@ -21,7 +21,11 @@ describe("proxyBackendRequest", () => {
     process.env["BACKEND_PORT"] = "10000";
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
       new Response(JSON.stringify({ diaries: [] }), {
-        headers: { "content-type": "application/json" },
+        headers: {
+          "content-encoding": "br",
+          "content-length": "999",
+          "content-type": "application/json",
+        },
         status: 200,
       }),
     );
@@ -59,6 +63,8 @@ describe("proxyBackendRequest", () => {
     }
     expect(headers.get("authorization")).toBe("Bearer token");
     expect(headers.has("connection")).toBe(false);
+    expect(response.headers.has("content-encoding")).toBe(false);
+    expect(response.headers.has("content-length")).toBe(false);
   });
 
   it("forwards request bodies and response status when method is not safe", async () => {
@@ -104,6 +110,34 @@ describe("proxyBackendRequest", () => {
     }
     expect(headers.get("content-type")).toBe("application/json");
     expect(headers.has("transfer-encoding")).toBe(false);
+  });
+
+  it("buffers backend response bodies before returning JSON content", async () => {
+    // Arrange
+    process.env["BACKEND_HOST"] = "backend.internal";
+    process.env["BACKEND_PORT"] = "10000";
+    const backendResponse = new Response(
+      JSON.stringify({
+        diaries: [{ contentPreview: "改行を含む本文\n次の行", title: "日記" }],
+      }),
+      {
+        headers: { "content-type": "application/json" },
+        status: 200,
+      },
+    );
+    globalThis.fetch = vi.fn<typeof fetch>().mockResolvedValue(backendResponse);
+
+    // Act
+    const response = await proxyBackendRequest(
+      new Request("https://frontend.example/api/diaries"),
+      "/api/diaries",
+    );
+
+    // Assert
+    expect(backendResponse.bodyUsed).toBe(true);
+    await expect(response.json()).resolves.toMatchObject({
+      diaries: [{ contentPreview: "改行を含む本文\n次の行", title: "日記" }],
+    });
   });
 
   it("rejects backend URL that points to the frontend origin", async () => {

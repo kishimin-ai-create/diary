@@ -9,6 +9,8 @@ const HOP_BY_HOP_HEADERS = [
   "trailer",
   "transfer-encoding",
   "upgrade",
+  "content-encoding",
+  "content-length",
 ];
 
 /**
@@ -35,8 +37,9 @@ export async function proxyBackendRequest(
 
   const backendResponse = await fetch(targetUrl, requestInit);
   const responseHeaders = copyProxyHeaders(backendResponse.headers);
+  const responseBody = await backendResponse.arrayBuffer();
 
-  return new Response(backendResponse.body, {
+  return new Response(responseBody, {
     headers: responseHeaders,
     status: backendResponse.status,
     statusText: backendResponse.statusText,
