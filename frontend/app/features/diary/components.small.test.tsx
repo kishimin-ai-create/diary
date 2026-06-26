@@ -48,6 +48,22 @@ describe("DiaryListView", () => {
     expect(screen.getByText("静かな午後に読み返したこと")).toBeInTheDocument();
   });
 
+  it("renders created and updated timestamps in UTC to match database values", () => {
+    renderWithMessages(
+      <DiaryListView
+        diaries={[sampleDiary]}
+        isError={false}
+        isLoading={false}
+        page={1}
+        pageSize={10}
+        totalCount={1}
+      />,
+    );
+
+    expect(screen.getByText("2026/06/22 9:00")).toBeInTheDocument();
+    expect(screen.getByText("2026/06/22 10:00")).toBeInTheDocument();
+  });
+
   it("calls search and pagination handlers when controls are used", async () => {
     const user = userEvent.setup();
     const onDateSearch = vi.fn();

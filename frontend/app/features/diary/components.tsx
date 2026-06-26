@@ -403,6 +403,7 @@ function readRawFormString(formData: FormData, key: string): string {
 function formatDateTime(value: string): string {
   return new Intl.DateTimeFormat("ja-JP", {
     dateStyle: "medium",
+    timeZone: "UTC",
     timeStyle: "short",
   }).format(new Date(value));
 }
