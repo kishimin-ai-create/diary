@@ -42,6 +42,7 @@ describe("DiaryListView", () => {
       />,
     );
 
+    expect(screen.getByRole("status")).toHaveClass("full-page-loading");
     expect(screen.getByAltText("つづる日記のロゴ")).toBeInTheDocument();
     expect(screen.getByText("日記を読み込んでいます。")).toBeInTheDocument();
   });
@@ -225,5 +226,29 @@ describe("AdminDiaryList", () => {
 
     expect(onDateSearch).toHaveBeenCalledWith("2026-06-22");
     expect(onDateSearch).toHaveBeenCalledWith("");
+  });
+
+  it("calls pagination handler when admin pagination controls are used", async () => {
+    const user = userEvent.setup();
+    const onPageChange = vi.fn();
+    renderWithMessages(
+      <AdminDiaryList
+        date="2026-06-22"
+        diaries={[sampleDiary]}
+        isDeleting={false}
+        onDelete={vi.fn()}
+        onPageChange={onPageChange}
+        page={2}
+        pageSize={1}
+        totalCount={3}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "前へ" }));
+    await user.click(screen.getByRole("button", { name: "次へ" }));
+
+    expect(screen.getByText("2 / 3 ページ")).toBeInTheDocument();
+    expect(onPageChange).toHaveBeenCalledWith(1);
+    expect(onPageChange).toHaveBeenCalledWith(3);
   });
 });

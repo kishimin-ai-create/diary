@@ -39,9 +39,13 @@ interface AdminDiaryListProps {
   date?: string;
   diaries: DiarySummary[];
   isDeleting: boolean;
+  page?: number;
+  pageSize?: number;
+  totalCount?: number;
   errorMessage?: string;
   onDateSearch?: (date: string) => void;
   onDelete: (id: string) => void;
+  onPageChange?: (page: number) => void;
 }
 
 interface FieldErrors {
@@ -66,7 +70,6 @@ export function DiaryListView({
   onPageChange,
 }: DiaryListViewProps) {
   const t = useTranslations("diary");
-  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
   return (
     <section className="content-stack">
@@ -101,25 +104,12 @@ export function DiaryListView({
           </article>
         ))}
       </div>
-      <div className="pagination" aria-label="Pagination">
-        <button
-          type="button"
-          className="button-secondary"
-          disabled={page <= 1}
-          onClick={() => onPageChange?.(page - 1)}
-        >
-          {t("previous")}
-        </button>
-        <span>{t("pageStatus", { page, totalPages })}</span>
-        <button
-          type="button"
-          className="button-secondary"
-          disabled={page >= totalPages}
-          onClick={() => onPageChange?.(page + 1)}
-        >
-          {t("next")}
-        </button>
-      </div>
+      <PaginationControls
+        onPageChange={onPageChange}
+        page={page}
+        pageSize={pageSize}
+        totalCount={totalCount}
+      />
     </section>
   );
 }
@@ -286,9 +276,13 @@ export function AdminDiaryList({
   date = "",
   diaries,
   isDeleting,
+  page = 1,
+  pageSize = 50,
+  totalCount = diaries.length,
   errorMessage,
   onDateSearch,
   onDelete,
+  onPageChange,
 }: AdminDiaryListProps) {
   const t = useTranslations("admin");
   const tDiary = useTranslations("diary");
@@ -346,7 +340,50 @@ export function AdminDiaryList({
           </article>
         ))}
       </div>
+      <PaginationControls
+        onPageChange={onPageChange}
+        page={page}
+        pageSize={pageSize}
+        totalCount={totalCount}
+      />
     </section>
+  );
+}
+
+function PaginationControls({
+  page,
+  pageSize,
+  totalCount,
+  onPageChange,
+}: {
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  onPageChange?: (page: number) => void;
+}) {
+  const t = useTranslations("diary");
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+
+  return (
+    <div className="pagination" aria-label="Pagination">
+      <button
+        type="button"
+        className="button-secondary"
+        disabled={page <= 1}
+        onClick={() => onPageChange?.(page - 1)}
+      >
+        {t("previous")}
+      </button>
+      <span>{t("pageStatus", { page, totalPages })}</span>
+      <button
+        type="button"
+        className="button-secondary"
+        disabled={page >= totalPages}
+        onClick={() => onPageChange?.(page + 1)}
+      >
+        {t("next")}
+      </button>
+    </div>
   );
 }
 
@@ -399,8 +436,18 @@ export function DiaryLoadingStatus() {
   const tDiary = useTranslations("diary");
 
   return (
-    <div className="status-message loading-status">
-      <Image src="/logo-image.png" alt={tApp("logoAlt")} width={40} height={40} />
+    <div
+      aria-live="polite"
+      className="full-page-loading"
+      role="status"
+    >
+      <Image
+        src="/logo-image.png"
+        alt={tApp("logoAlt")}
+        width={64}
+        height={64}
+        priority
+      />
       <span>{tDiary("loading")}</span>
     </div>
   );

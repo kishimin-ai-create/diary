@@ -134,6 +134,50 @@ describe("AdminPage", () => {
     );
   });
 
+  it("passes selected page to the diary list query when admin changes pages", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    useAccessTokenMock.mockReturnValue("token-123");
+    useListDiariesMock.mockReturnValue({
+      data: { diaries: [sampleDiary], page: 1, pageSize: 50, totalCount: 51 },
+      isError: false,
+      isLoading: false,
+    });
+
+    // Act
+    renderPage();
+    await user.click(screen.getByRole("button", { name: "次へ" }));
+
+    // Assert
+    expect(useListDiariesMock).toHaveBeenLastCalledWith(
+      { date: undefined, page: 2, pageSize: 50 },
+      { query: { enabled: true } },
+    );
+  });
+
+  it("resets admin pagination when filtering by date", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    useAccessTokenMock.mockReturnValue("token-123");
+    useListDiariesMock.mockReturnValue({
+      data: { diaries: [sampleDiary], page: 1, pageSize: 50, totalCount: 51 },
+      isError: false,
+      isLoading: false,
+    });
+
+    // Act
+    renderPage();
+    await user.click(screen.getByRole("button", { name: "次へ" }));
+    await user.type(screen.getByLabelText("日付で絞り込む"), "2026-06-23");
+    await user.click(screen.getByRole("button", { name: "絞り込む" }));
+
+    // Assert
+    expect(useListDiariesMock).toHaveBeenLastCalledWith(
+      { date: "2026-06-23", page: 1, pageSize: 50 },
+      { query: { enabled: true } },
+    );
+  });
+
   it("shows loading message when diary list is loading for an authenticated admin", () => {
     // Arrange
     useAccessTokenMock.mockReturnValue("token-123");
@@ -147,6 +191,7 @@ describe("AdminPage", () => {
     renderPage();
 
     // Assert
+    expect(screen.getByRole("status")).toHaveClass("full-page-loading");
     expect(screen.getByAltText("つづる日記のロゴ")).toBeInTheDocument();
     expect(screen.getByText("日記を読み込んでいます。")).toBeInTheDocument();
   });

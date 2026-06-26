@@ -254,6 +254,28 @@ h1 {
   color: var(--muted);
 }
 
+.full-page-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.7rem;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.76rem;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+.full-page-loading img {
+  display: block;
+  width: 4rem;
+  height: 4rem;
+  object-fit: contain;
+}
+
 .meta-line {
   display: flex;
   flex-wrap: wrap;

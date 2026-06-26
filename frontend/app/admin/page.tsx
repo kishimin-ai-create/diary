@@ -24,9 +24,10 @@ export default function AdminPage() {
   const queryClient = useQueryClient();
   const hasToken = Boolean(useAccessToken());
   const [date, setDate] = useState("");
+  const [page, setPage] = useState(1);
   const listParams = {
     date: date === "" ? undefined : date,
-    page: 1,
+    page,
     pageSize: ADMIN_PAGE_SIZE,
   };
 
@@ -67,8 +68,15 @@ export default function AdminPage() {
         diariesQuery.isError || deleteMutation.isError ? t("deleteFailed") : undefined
       }
       isDeleting={deleteMutation.isPending}
-      onDateSearch={setDate}
+      onDateSearch={(nextDate) => {
+        setDate(nextDate);
+        setPage(1);
+      }}
       onDelete={(id) => deleteMutation.mutate({ id })}
+      onPageChange={setPage}
+      page={page}
+      pageSize={ADMIN_PAGE_SIZE}
+      totalCount={diariesQuery.data?.totalCount ?? 0}
     />
   );
 }
