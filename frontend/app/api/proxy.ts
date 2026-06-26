@@ -19,7 +19,7 @@ export async function proxyBackendRequest(
   backendPath: string,
 ): Promise<Response> {
   const sourceUrl = new URL(request.url);
-  const targetUrl = new URL(backendPath, createBackendUrl());
+  const targetUrl = new URL(backendPath, createBackendUrl(process.env, sourceUrl.origin));
   targetUrl.search = sourceUrl.search;
 
   const requestHeaders = copyProxyHeaders(request.headers);

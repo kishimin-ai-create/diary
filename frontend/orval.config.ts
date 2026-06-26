@@ -1,7 +1,8 @@
 import { defineConfig } from "orval";
 
-const OPENAPI_URL =
-  process.env.OPENAPI_URL ?? "http://localhost:3000/openapi.json";
+import { readOpenApiUrl } from "./orval-url";
+
+const OPENAPI_URL = readOpenApiUrl();
 
 export default defineConfig({
   diary: {

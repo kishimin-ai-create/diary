@@ -48,7 +48,7 @@ describe("createBackendUrl", () => {
     const env = {
       BACKEND_HOST: "diary-backend",
       BACKEND_PORT: "10000",
-      BACKEND_URL: "http://localhost:3000",
+      BACKEND_URL: "https://frontend.example",
     };
 
     // Act
@@ -69,5 +69,20 @@ describe("createBackendUrl", () => {
 
     // Assert
     expect(act).toThrow("Backend URL is not configured.");
+  });
+
+  it("throws a configuration error when backend URL points to the frontend origin", () => {
+    // Arrange
+    const env = {
+      BACKEND_URL: "https://frontend.example",
+    };
+
+    // Act
+    const act = (): void => {
+      createBackendUrl(env, "https://frontend.example");
+    };
+
+    // Assert
+    expect(act).toThrow("Backend URL must not point to the frontend origin.");
   });
 });

@@ -5,11 +5,13 @@ import { proxyBackendRequest } from "./proxy";
 describe("proxyBackendRequest", () => {
   const originalBackendHost = process.env["BACKEND_HOST"];
   const originalBackendPort = process.env["BACKEND_PORT"];
+  const originalBackendUrl = process.env["BACKEND_URL"];
   const originalFetch = globalThis.fetch;
 
   afterEach(() => {
     restoreEnvValue("BACKEND_HOST", originalBackendHost);
     restoreEnvValue("BACKEND_PORT", originalBackendPort);
+    restoreEnvValue("BACKEND_URL", originalBackendUrl);
     globalThis.fetch = originalFetch;
   });
 
@@ -102,6 +104,25 @@ describe("proxyBackendRequest", () => {
     }
     expect(headers.get("content-type")).toBe("application/json");
     expect(headers.has("transfer-encoding")).toBe(false);
+  });
+
+  it("rejects backend URL that points to the frontend origin", async () => {
+    // Arrange
+    delete process.env["BACKEND_HOST"];
+    delete process.env["BACKEND_PORT"];
+    process.env["BACKEND_URL"] = "https://frontend.example";
+
+    // Act
+    const act = async (): Promise<Response> =>
+      proxyBackendRequest(
+        new Request("https://frontend.example/api/diaries"),
+        "/api/diaries",
+      );
+
+    // Assert
+    await expect(act()).rejects.toThrow(
+      "Backend URL must not point to the frontend origin.",
+    );
   });
 });
 
