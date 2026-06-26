@@ -30,6 +30,22 @@ function renderWithMessages(ui: ReactNode) {
 }
 
 describe("DiaryListView", () => {
+  it("shows the service logo while diaries are loading", () => {
+    renderWithMessages(
+      <DiaryListView
+        diaries={[]}
+        isError={false}
+        isLoading={true}
+        page={1}
+        pageSize={10}
+        totalCount={0}
+      />,
+    );
+
+    expect(screen.getByAltText("つづる日記のロゴ")).toBeInTheDocument();
+    expect(screen.getByText("日記を読み込んでいます。")).toBeInTheDocument();
+  });
+
   it("renders diary entries and exposes date search controls", () => {
     renderWithMessages(
       <DiaryListView
@@ -171,17 +187,43 @@ describe("DiaryEditorForm", () => {
 });
 
 describe("AdminDiaryList", () => {
-  it("renders edit and delete actions for each diary", () => {
+  it("renders date search controls with created and updated timestamps", () => {
+    const onDateSearch = vi.fn();
     renderWithMessages(
       <AdminDiaryList
+        date="2026-06-22"
         diaries={[sampleDiary]}
         isDeleting={false}
+        onDateSearch={onDateSearch}
         onDelete={vi.fn()}
       />,
     );
 
     expect(screen.getByRole("link", { name: "新規作成" })).toBeInTheDocument();
+    expect(screen.getByLabelText("日付で絞り込む")).toHaveValue("2026-06-22");
+    expect(screen.getByText("2026/06/22 18:00")).toBeInTheDocument();
+    expect(screen.getByText("2026/06/22 19:00")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "編集" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "削除" })).toBeInTheDocument();
+  });
+
+  it("calls date search handler when admin date filter controls are used", async () => {
+    const user = userEvent.setup();
+    const onDateSearch = vi.fn();
+    renderWithMessages(
+      <AdminDiaryList
+        date="2026-06-22"
+        diaries={[sampleDiary]}
+        isDeleting={false}
+        onDateSearch={onDateSearch}
+        onDelete={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "絞り込む" }));
+    await user.click(screen.getByRole("button", { name: "解除" }));
+
+    expect(onDateSearch).toHaveBeenCalledWith("2026-06-22");
+    expect(onDateSearch).toHaveBeenCalledWith("");
   });
 });

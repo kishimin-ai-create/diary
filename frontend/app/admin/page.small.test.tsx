@@ -107,7 +107,29 @@ describe("AdminPage", () => {
     // Assert
     expect(deleteMutateMock).toHaveBeenCalledWith({ id: "diary-1" });
     expect(useListDiariesMock).toHaveBeenCalledWith(
-      { page: 1, pageSize: 50 },
+      { date: undefined, page: 1, pageSize: 50 },
+      { query: { enabled: true } },
+    );
+  });
+
+  it("passes selected date to the diary list query when admin filters by date", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    useAccessTokenMock.mockReturnValue("token-123");
+    useListDiariesMock.mockReturnValue({
+      data: { diaries: [sampleDiary], page: 1, pageSize: 50, totalCount: 1 },
+      isError: false,
+      isLoading: false,
+    });
+
+    // Act
+    renderPage();
+    await user.type(screen.getByLabelText("日付で絞り込む"), "2026-06-23");
+    await user.click(screen.getByRole("button", { name: "絞り込む" }));
+
+    // Assert
+    expect(useListDiariesMock).toHaveBeenLastCalledWith(
+      { date: "2026-06-23", page: 1, pageSize: 50 },
       { query: { enabled: true } },
     );
   });
@@ -125,6 +147,7 @@ describe("AdminPage", () => {
     renderPage();
 
     // Assert
+    expect(screen.getByAltText("つづる日記のロゴ")).toBeInTheDocument();
     expect(screen.getByText("日記を読み込んでいます。")).toBeInTheDocument();
   });
 
@@ -166,7 +189,7 @@ describe("AdminPage", () => {
 
     // Assert
     expect(invalidateQueriesMock).toHaveBeenCalledWith({
-      queryKey: ["/api/diaries", { page: 1, pageSize: 50 }],
+      queryKey: ["/api/diaries", { date: undefined, page: 1, pageSize: 50 }],
     });
   });
 });

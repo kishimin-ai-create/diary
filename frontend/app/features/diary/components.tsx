@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState, type FormEvent } from "react";
@@ -35,9 +36,11 @@ interface LoginFormProps {
 }
 
 interface AdminDiaryListProps {
+  date?: string;
   diaries: DiarySummary[];
   isDeleting: boolean;
   errorMessage?: string;
+  onDateSearch?: (date: string) => void;
   onDelete: (id: string) => void;
 }
 
@@ -63,40 +66,15 @@ export function DiaryListView({
   onPageChange,
 }: DiaryListViewProps) {
   const t = useTranslations("diary");
-  const [selectedDate, setSelectedDate] = useState(date);
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
-
-  function submitSearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    onDateSearch?.(selectedDate);
-  }
 
   return (
     <section className="content-stack">
       <div className="section-header">
         <h1>{t("listTitle")}</h1>
-        <form className="toolbar" onSubmit={submitSearch}>
-          <label htmlFor="diary-date">{t("searchDate")}</label>
-          <input
-            id="diary-date"
-            type="date"
-            value={selectedDate}
-            onChange={(event) => setSelectedDate(event.currentTarget.value)}
-          />
-          <button type="submit">{t("search")}</button>
-          <button
-            type="button"
-            className="button-secondary"
-            onClick={() => {
-              setSelectedDate("");
-              onDateSearch?.("");
-            }}
-          >
-            {t("clearSearch")}
-          </button>
-        </form>
+        <DateSearchForm date={date} id="diary-date" onDateSearch={onDateSearch} />
       </div>
-      {isLoading ? <p className="status-message">{t("loading")}</p> : null}
+      {isLoading ? <DiaryLoadingStatus /> : null}
       {isError ? <p className="status-message error">{t("error")}</p> : null}
       {!isLoading && !isError && diaries.length === 0 ? (
         <p className="status-message">{t("empty")}</p>
@@ -305,20 +283,30 @@ export function DiaryEditorForm({
  * Renders the authenticated diary management list.
  */
 export function AdminDiaryList({
+  date = "",
   diaries,
   isDeleting,
   errorMessage,
+  onDateSearch,
   onDelete,
 }: AdminDiaryListProps) {
   const t = useTranslations("admin");
+  const tDiary = useTranslations("diary");
 
   return (
     <section className="content-stack">
       <div className="section-header">
         <h1>{t("title")}</h1>
-        <Link className="button-link" href="/admin/create">
-          {t("create")}
-        </Link>
+        <div className="toolbar">
+          <DateSearchForm
+            date={date}
+            id="admin-diary-date"
+            onDateSearch={onDateSearch}
+          />
+          <Link className="button-link" href="/admin/create">
+            {t("create")}
+          </Link>
+        </div>
       </div>
       {errorMessage ? <p className="status-message error">{errorMessage}</p> : null}
       <div className="diary-list">
@@ -327,6 +315,16 @@ export function AdminDiaryList({
             <div>
               <strong>{diary.title}</strong>
               <p>{diary.contentPreview}</p>
+              <dl>
+                <div>
+                  <dt>{tDiary("createdAt")}</dt>
+                  <dd>{formatDateTime(diary.createdAt)}</dd>
+                </div>
+                <div>
+                  <dt>{tDiary("updatedAt")}</dt>
+                  <dd>{formatDateTime(diary.updatedAt)}</dd>
+                </div>
+              </dl>
             </div>
             <div className="row-actions">
               <Link href={`/admin/edit/${diary.id}`}>
@@ -349,6 +347,62 @@ export function AdminDiaryList({
         ))}
       </div>
     </section>
+  );
+}
+
+function DateSearchForm({
+  date = "",
+  id,
+  onDateSearch,
+}: {
+  date?: string;
+  id: string;
+  onDateSearch?: (date: string) => void;
+}) {
+  const t = useTranslations("diary");
+  const [selectedDate, setSelectedDate] = useState(date);
+
+  function submitSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    onDateSearch?.(selectedDate);
+  }
+
+  return (
+    <form className="toolbar" onSubmit={submitSearch}>
+      <label htmlFor={id}>{t("searchDate")}</label>
+      <input
+        id={id}
+        type="date"
+        value={selectedDate}
+        onChange={(event) => setSelectedDate(event.currentTarget.value)}
+      />
+      <button type="submit">{t("search")}</button>
+      <button
+        type="button"
+        className="button-secondary"
+        onClick={() => {
+          setSelectedDate("");
+          onDateSearch?.("");
+        }}
+      >
+        {t("clearSearch")}
+      </button>
+    </form>
+  );
+}
+
+/**
+ * Renders the branded loading state used while diary data is being fetched.
+ */
+export function DiaryLoadingStatus() {
+  const tApp = useTranslations("app");
+  const tDiary = useTranslations("diary");
+
+  return (
+    <div className="status-message loading-status">
+      <Image src="/logo-image.png" alt={tApp("logoAlt")} width={40} height={40} />
+      <span>{tDiary("loading")}</span>
+    </div>
   );
 }
 
