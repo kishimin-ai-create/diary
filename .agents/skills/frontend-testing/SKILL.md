@@ -128,6 +128,9 @@ boundaries.
 - **Full-page loading bugs**: Test initial loading with `role="status"` and the
   branded full-page class or landmark used by the app. Separately test scoped
   refetch loading when the page should remain interactive.
+- **i18n loading bugs**: Render the loading state under a non-default locale and
+  assert both visible loading text and logo alt text. If the page has a browser
+  title or app shell title, assert it changes with the locale as well.
 
 ## Accessibility Testing
 

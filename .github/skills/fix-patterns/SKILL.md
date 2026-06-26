@@ -168,6 +168,19 @@ inside an already-rendered page, keep the loading state scoped.
 requirements. Treating them the same breaks the specification and makes loading
 look unfinished.
 
+### Pattern 12: Locale Drift in Loading and Browser Chrome
+
+```text
+Symptom: Visible page copy switches locale, but loading text, logo alt text, or
+the browser tab title remains in the default language.
+Fix direction: Remove direct imports of default-locale messages from render
+paths. Render loading states through the same i18n provider as normal content,
+and verify document.title changes with the selected service name.
+```
+
+**Why correct**: Loading and browser chrome are user-visible UI. If they bypass
+the active locale, the app appears only partially internationalized.
+
 ## 🔍 Pre-Fix Checklist
 
 Before fixing:
@@ -190,6 +203,8 @@ Before fixing:
       from UI state to the API query parameters
 - [ ] For loading UI bugs, the relevant UI specification has been checked to
       distinguish full-page initial loading from scoped refetch loading
+- [ ] For i18n UI bugs, loading text, image alt text, and browser tab title have
+      been checked in every supported locale touched by the change
 - [ ] Confirm no protected paths are involved
 - [ ] All pre-existing tests currently pass (except those directly related to the defect)
 

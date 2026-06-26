@@ -112,6 +112,13 @@ Choose patterns because they reduce duplication and clarify responsibilities, no
 - Reuse one pagination control for public and admin lists when labels and behavior are identical.
 - Do not render a list with `totalCount` from the API but no user-visible next/previous controls.
 
+## Diary i18n UI Contracts
+
+- Do not import `messages.ja` or any default-locale message object directly into render fallbacks.
+- Render loading states through components that call `useTranslations`, so text and logo alt text follow the active locale.
+- Keep the browser tab service name aligned with the selected locale when the app exposes an in-page language switcher.
+- Treat favicon-adjacent title text as visible UI, not metadata that can stay default-language only.
+
 ## Naming Conventions
 
 | Target | Convention | Example |

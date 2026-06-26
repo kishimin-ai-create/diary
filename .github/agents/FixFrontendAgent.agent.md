@@ -58,6 +58,8 @@ targeted change** that restores correct behavior.
 - **Wrong loading scope**: read `docs/v1/specification/ui-specification.md`
   before editing; initial page loading requires a full-page branded status
   overlay, while refetches inside an already-rendered page should stay scoped
+- **Locale drift**: check loading text, logo alt text, and browser tab title in
+  a non-default locale; avoid default-locale message imports in render fallbacks
 
 ## Runtime Boundary Checks
 
@@ -83,6 +85,8 @@ dates, perform these checks before declaring the fix complete:
   and date/search filters reset the page to `1`.
 - **Full-page loading**: Verify initial loading exposes `role="status"` and the
   centered service logo required by the UI specification.
+- **i18n loading and chrome**: Verify non-default locale rendering for loading
+  text, logo alt text, and favicon-adjacent browser tab title.
 
 ## ✅ Mandatory Verification
 

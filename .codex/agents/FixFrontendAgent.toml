@@ -18,5 +18,6 @@ Execution rules:
 - For auth fixes, test both token storage and token clearing through visible navigation. For timestamp fixes, make timezone conversion explicit and assert rendered text.
 - For diary list fixes, trace page/pageSize/totalCount and active filters from the UI state to the generated API query. Verify next/previous controls and reset page to 1 when filters change.
 - For loading UI fixes, read docs/v1/specification/ui-specification.md before editing. Verify initial page loading uses a full-page role="status" branded overlay with the service logo centered, while list refetches remain scoped.
+- For i18n fixes, verify a non-default locale for visible text, logo alt text, and browser tab title. Do not use default-locale message imports such as messages.ja inside render fallbacks.
 - Summarize the result with the main file paths you changed or created.
 '''
