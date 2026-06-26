@@ -1,10 +1,15 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
+import { clearAccessToken, readAccessToken, saveAccessToken } from "./auth";
 import { AppProviders } from "./providers";
 
 describe("AppProviders", () => {
+  beforeEach(() => {
+    clearAccessToken();
+  });
+
   it("renders the Japanese app shell by default", () => {
     // Act
     render(
@@ -54,5 +59,23 @@ describe("AppProviders", () => {
     // Assert
     expect(screen.getByText("つづる日記")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "管理" })).toBeInTheDocument();
+  });
+
+  it("clears the access token and shows login navigation when logout is clicked", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    saveAccessToken("token-123");
+    render(
+      <AppProviders>
+        <p>child content</p>
+      </AppProviders>,
+    );
+
+    // Act
+    await user.click(screen.getByRole("button", { name: "ログアウト" }));
+
+    // Assert
+    expect(readAccessToken()).toBeNull();
+    expect(screen.getByRole("link", { name: "ログイン" })).toBeInTheDocument();
   });
 });

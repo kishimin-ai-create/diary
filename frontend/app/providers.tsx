@@ -12,6 +12,7 @@ import {
   type ReactNode,
 } from "react";
 
+import { clearAccessToken, useAccessToken } from "./auth";
 import { messages, type Locale } from "./i18n/messages";
 
 interface LocaleContextValue {
@@ -54,8 +55,10 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
 function SiteFrame({ children }: { children: ReactNode }) {
   const tApp = useTranslations("app");
+  const tAuth = useTranslations("auth");
   const tNav = useTranslations("nav");
   const { locale, setLocale } = useLocaleState();
+  const accessToken = useAccessToken();
 
   return (
     <>
@@ -77,7 +80,13 @@ function SiteFrame({ children }: { children: ReactNode }) {
         <nav className="site-nav" aria-label={tNav("home")}>
           <Link href="/">{tNav("home")}</Link>
           <Link href="/admin">{tNav("admin")}</Link>
-          <Link href="/login">{tNav("login")}</Link>
+          {accessToken ? (
+            <button type="button" className="button-secondary" onClick={clearAccessToken}>
+              {tAuth("loggedOut")}
+            </button>
+          ) : (
+            <Link href="/login">{tNav("login")}</Link>
+          )}
           <label className="locale-switcher">
             <span>{tNav("language")}</span>
             <select
