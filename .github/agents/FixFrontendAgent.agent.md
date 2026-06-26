@@ -52,6 +52,12 @@ targeted change** that restores correct behavior.
 - **Tailwind class conflict**: check class specificity and responsive prefix order
 - **Missing loading/error state**: add Suspense boundary or ErrorBoundary wrapper
 - **Hook misuse**: verify effect cleanup, stable references, and dependency arrays
+- **Missing list pagination**: trace `page`, `pageSize`, `totalCount`, active
+  filters, and `onPageChange` from container state to the API query and visible
+  controls
+- **Wrong loading scope**: read `docs/v1/specification/ui-specification.md`
+  before editing; initial page loading requires a full-page branded status
+  overlay, while refetches inside an already-rendered page should stay scoped
 
 ## Runtime Boundary Checks
 
@@ -73,6 +79,10 @@ dates, perform these checks before declaring the fix complete:
 - **Date/time display**: When API timestamps are UTC and the UI must match the
   database/API value, set `Intl.DateTimeFormat`'s `timeZone` explicitly and test
   the rendered text.
+- **Diary list pagination**: Verify next/previous controls update query params
+  and date/search filters reset the page to `1`.
+- **Full-page loading**: Verify initial loading exposes `role="status"` and the
+  centered service logo required by the UI specification.
 
 ## ✅ Mandatory Verification
 

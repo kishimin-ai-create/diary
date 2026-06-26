@@ -16,5 +16,7 @@ Execution rules:
 - For API proxy defects, compare direct backend output, proxied /api output, and the rendered UI. Confirm JSON parses; do not rely only on status code.
 - For Next route proxies, browser requests to the frontend origin /api can be correct. Verify the server-side proxy target and reject only self-referential backend configuration.
 - For auth fixes, test both token storage and token clearing through visible navigation. For timestamp fixes, make timezone conversion explicit and assert rendered text.
+- For diary list fixes, trace page/pageSize/totalCount and active filters from the UI state to the generated API query. Verify next/previous controls and reset page to 1 when filters change.
+- For loading UI fixes, read docs/v1/specification/ui-specification.md before editing. Verify initial page loading uses a full-page role="status" branded overlay with the service logo centered, while list refetches remain scoped.
 - Summarize the result with the main file paths you changed or created.
 '''

@@ -76,6 +76,7 @@ Use component boundaries to encode UI states, not just props.
 - Place `<Suspense>` as **close to the async work as possible** — wrapping only the component that suspends, not an entire page, keeps fallback granularity high
 - Place a **root-level** `<Suspense>` as a last-resort boundary for unexpected suspensions
 - Combine with `<ErrorBoundary>` directly above `<Suspense>` to handle both loading and error states
+- For this diary app, check `docs/v1/specification/ui-specification.md` before changing loading states. Initial page loading uses a full-page branded overlay with the service logo centered; list refetches and form submissions use scoped loading.
 
 ```tsx
 <ErrorBoundary fallback={<ErrorMessage />}>
@@ -102,6 +103,14 @@ Use established patterns when they simplify reuse and extension:
 - Render props
 
 Choose patterns because they reduce duplication and clarify responsibilities, not because they are fashionable.
+
+## Diary List UI Contracts
+
+- Treat pagination as part of every diary list contract: carry `page`, `pageSize`, `totalCount`, and `onPageChange` together.
+- Keep pagination state in the page or route-level container that owns the API query.
+- Reset `page` to `1` whenever a filter such as date changes.
+- Reuse one pagination control for public and admin lists when labels and behavior are identical.
+- Do not render a list with `totalCount` from the API but no user-visible next/previous controls.
 
 ## Naming Conventions
 

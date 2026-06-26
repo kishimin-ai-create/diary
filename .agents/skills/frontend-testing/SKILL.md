@@ -123,6 +123,11 @@ boundaries.
   visible UI, not only through direct storage helpers.
 - **Timestamp bugs**: Assert rendered text for known UTC timestamps. Make the
   expected timezone explicit in the test name and implementation.
+- **Pagination bugs**: Test that clicking next/previous changes the query
+  parameters, and that changing a filter resets the page to `1`.
+- **Full-page loading bugs**: Test initial loading with `role="status"` and the
+  branded full-page class or landmark used by the app. Separately test scoped
+  refetch loading when the page should remain interactive.
 
 ## Accessibility Testing
 

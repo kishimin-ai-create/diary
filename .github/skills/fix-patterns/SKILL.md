@@ -142,6 +142,32 @@ test that storage is cleared and the visible navigation changes.
 **Why correct**: Authentication is a lifecycle. Verifying only login leaves users
 stuck in an authenticated state until they manually clear storage.
 
+### Pattern 10: Missing List Pagination State
+
+```text
+Symptom: A list renders records but the user cannot move to later pages, or the
+request always uses page=1 after interactions.
+Fix direction: Keep page state at the page/container boundary, pass page/pageSize/
+totalCount to the list component, and reset page to 1 when filters change.
+```
+
+**Why correct**: Pagination is part of the query contract. A list with totalCount
+but no page transitions silently hides records beyond the first page.
+
+### Pattern 11: Scoped Loading Used for Full-Page Loading
+
+```text
+Symptom: Initial page loading shows a small inline message or spinner even though
+the UI spec requires a full-page branded loading state.
+Fix direction: Check the UI specification first. For initial page loads, render a
+role="status" full-page overlay with the service logo centered. For refetches
+inside an already-rendered page, keep the loading state scoped.
+```
+
+**Why correct**: Initial loading and localized refetches have different UX
+requirements. Treating them the same breaks the specification and makes loading
+look unfinished.
+
 ## 🔍 Pre-Fix Checklist
 
 Before fixing:
@@ -160,6 +186,10 @@ Before fixing:
       compared with an explicit timezone expectation
 - [ ] For auth bugs, both token creation and token clearing paths have been
       checked
+- [ ] For list bugs, page/pageSize/totalCount and active filters have been traced
+      from UI state to the API query parameters
+- [ ] For loading UI bugs, the relevant UI specification has been checked to
+      distinguish full-page initial loading from scoped refetch loading
 - [ ] Confirm no protected paths are involved
 - [ ] All pre-existing tests currently pass (except those directly related to the defect)
 
