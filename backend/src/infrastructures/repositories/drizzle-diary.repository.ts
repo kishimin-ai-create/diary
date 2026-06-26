@@ -118,9 +118,21 @@ function buildDateRangeCondition(date: string | undefined) {
     return undefined;
   }
 
-  const start = new Date(`${date}T00:00:00.000Z`);
-  const end = new Date(start);
-  end.setUTCDate(end.getUTCDate() + 1);
+  const { start, end } = buildJapanDateRange(date);
 
   return and(gte(diaries.createdAt, start), lt(diaries.createdAt, end));
+}
+
+/**
+ * Converts a YYYY-MM-DD Japan calendar date into the UTC range used by the DB.
+ */
+export function buildJapanDateRange(date: string): { start: Date; end: Date } {
+  const [yearText = "", monthText = "", dayText = ""] = date.split("-");
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const start = new Date(Date.UTC(year, month - 1, day, -9, 0, 0, 0));
+  const end = new Date(start);
+  end.setUTCDate(end.getUTCDate() + 1);
+  return { start, end };
 }
