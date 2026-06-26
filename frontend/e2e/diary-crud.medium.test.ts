@@ -27,7 +27,13 @@ test.describe("diary CRUD happy path", () => {
     await page.goto("/login");
     await page.getByLabel("メールアドレス").fill(credentials.email);
     await page.getByLabel("パスワード").fill(credentials.password);
+    const loginResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        response.url().includes("/api/auth/login"),
+    );
     await page.getByRole("button", { name: "ログイン" }).click();
+    expect((await loginResponsePromise).status()).toBe(200);
 
     await expect(page).toHaveURL(/\/admin$/);
 
@@ -43,11 +49,10 @@ test.describe("diary CRUD happy path", () => {
     expect((await createResponsePromise).status()).toBe(201);
 
     await expect(page).toHaveURL(/\/admin$/);
-    await expect(
-      page.getByRole("link", { name: `編集 ${createdTitle}` }),
-    ).toBeVisible();
+    const createdRow = page.locator("article").filter({ hasText: createdTitle });
+    await expect(createdRow).toBeVisible();
 
-    await page.getByRole("link", { name: `編集 ${createdTitle}` }).click();
+    await createdRow.getByRole("link", { name: "編集" }).click();
     await page.getByLabel("タイトル").fill(updatedTitle);
     await page.getByLabel("本文").fill(updatedContent);
     const updateResponsePromise = page.waitForResponse(
@@ -59,9 +64,8 @@ test.describe("diary CRUD happy path", () => {
     expect((await updateResponsePromise).status()).toBe(204);
 
     await expect(page).toHaveURL(/\/admin$/);
-    await expect(
-      page.getByRole("link", { name: `編集 ${updatedTitle}` }),
-    ).toBeVisible();
+    const updatedRow = page.locator("article").filter({ hasText: updatedTitle });
+    await expect(updatedRow).toBeVisible();
     await expect(page.getByText(updatedContent)).toBeVisible();
 
     await page.goto("/");
@@ -76,21 +80,19 @@ test.describe("diary CRUD happy path", () => {
         response.request().method() === "DELETE" &&
         response.url().includes("/api/diaries/"),
     );
-    await page.getByRole("button", { name: `削除 ${updatedTitle}` }).click();
+    const deleteRow = page.locator("article").filter({ hasText: updatedTitle });
+    await deleteRow.getByRole("button", { name: "削除" }).click();
     expect((await deleteResponsePromise).status()).toBe(204);
 
-    await expect(
-      page.getByRole("link", { name: `編集 ${updatedTitle}` }),
-    ).toHaveCount(0);
+    await expect(page.getByText(updatedTitle)).toHaveCount(0);
   });
 });
 
 function readAdminCredentials(): AdminCredentials | null {
   const email = process.env["E2E_ADMIN_EMAIL"];
   const password = process.env["E2E_ADMIN_PASSWORD"];
-  const baseUrl = process.env["PLAYWRIGHT_BASE_URL"];
 
-  if (!email || !password || !baseUrl) {
+  if (!email || !password) {
     return null;
   }
 

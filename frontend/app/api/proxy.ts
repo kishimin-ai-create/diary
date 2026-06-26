@@ -12,6 +12,7 @@ const HOP_BY_HOP_HEADERS = [
   "content-encoding",
   "content-length",
 ];
+const NULL_BODY_STATUSES = new Set([204, 205, 304]);
 
 /**
  * Proxies an incoming Next.js route request to the backend service.
@@ -37,7 +38,9 @@ export async function proxyBackendRequest(
 
   const backendResponse = await fetch(targetUrl, requestInit);
   const responseHeaders = copyProxyHeaders(backendResponse.headers);
-  const responseBody = await backendResponse.arrayBuffer();
+  const responseBody = NULL_BODY_STATUSES.has(backendResponse.status)
+    ? null
+    : await backendResponse.arrayBuffer();
 
   return new Response(responseBody, {
     headers: responseHeaders,

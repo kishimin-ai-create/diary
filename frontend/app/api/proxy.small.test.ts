@@ -112,6 +112,32 @@ describe("proxyBackendRequest", () => {
     expect(headers.has("transfer-encoding")).toBe(false);
   });
 
+  it("returns null response bodies for backend 204 responses", async () => {
+    // Arrange
+    process.env["BACKEND_HOST"] = "backend.internal";
+    process.env["BACKEND_PORT"] = "10000";
+    globalThis.fetch = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(null, {
+        status: 204,
+        statusText: "No Content",
+      }),
+    );
+
+    // Act
+    const response = await proxyBackendRequest(
+      new Request("https://frontend.example/api/diaries/diary-1", {
+        body: JSON.stringify({ content: "Body", title: "Title" }),
+        headers: { "content-type": "application/json" },
+        method: "PUT",
+      }),
+      "/api/diaries/diary-1",
+    );
+
+    // Assert
+    expect(response.status).toBe(204);
+    await expect(response.text()).resolves.toBe("");
+  });
+
   it("buffers backend response bodies before returning JSON content", async () => {
     // Arrange
     process.env["BACKEND_HOST"] = "backend.internal";
