@@ -44,7 +44,7 @@ interface DiaryRepositoryForTest {
   create(data: { title: string; content: string }): Promise<{ id: string }>;
   update(
     id: string,
-    data: { title: string; content: string },
+    data: { title: string; content: string; updatedAt: Date },
   ): Promise<void>;
   delete(id: string): Promise<void>;
 }
@@ -289,6 +289,45 @@ describe("DiaryService", () => {
           content: "Updated content.",
         }),
       ).resolves.toBeUndefined();
+    });
+
+    test("passes an updated timestamp later than the existing updatedAt when updating an existing diary", async () => {
+      // Arrange
+      const existingUpdatedAt = new Date("2026-06-01T00:00:00.000Z");
+      let capturedData:
+        | { title: string; content: string; updatedAt: Date }
+        | undefined;
+      const diaryRepo = createMockDiaryRepo({
+        findById: mock(() =>
+          Promise.resolve({ ...SAMPLE_DIARY, updatedAt: existingUpdatedAt }),
+        ),
+        update: mock(
+          (
+            _id: string,
+            data: { title: string; content: string; updatedAt: Date },
+          ) => {
+            capturedData = data;
+            return Promise.resolve();
+          },
+        ),
+      });
+      const service = new DiaryService(diaryRepo);
+
+      // Act
+      await service.updateDiary(SAMPLE_DIARY.id, {
+        title: "Updated Title",
+        content: "Updated content.",
+      });
+
+      // Assert
+      expect(capturedData).toBeDefined();
+      if (!capturedData) {
+        throw new Error("Expected update data to be captured.");
+      }
+      expect(capturedData.updatedAt).toBeInstanceOf(Date);
+      expect(capturedData.updatedAt.getTime()).toBeGreaterThan(
+        existingUpdatedAt.getTime(),
+      );
     });
 
     test("throws 404 error when the diary to update does not exist", async () => {

@@ -18,6 +18,9 @@ export interface IDiaryRepository {
     content: string;
     userId: string;
   }): Promise<{ id: string }>;
-  update(id: string, data: { title: string; content: string }): Promise<void>;
+  update(
+    id: string,
+    data: { title: string; content: string; updatedAt: Date },
+  ): Promise<void>;
   delete(id: string): Promise<void>;
 }

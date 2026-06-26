@@ -93,14 +93,14 @@ export class DrizzleDiaryRepository implements IDiaryRepository {
    */
   async update(
     id: string,
-    data: { title: string; content: string },
+    data: { title: string; content: string; updatedAt: Date },
   ): Promise<void> {
     await this.db
       .update(diaries)
       .set({
         title: data.title,
         content: data.content,
-        updatedAt: new Date(),
+        updatedAt: data.updatedAt,
       })
       .where(eq(diaries.id, id));
   }

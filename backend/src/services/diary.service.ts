@@ -97,7 +97,10 @@ export class DiaryService {
     if (!diary) {
       throw createError(404, "Resource not found.");
     }
-    await this.diaryRepo.update(id, data);
+    await this.diaryRepo.update(id, {
+      ...data,
+      updatedAt: nextUpdatedAt(diary.updatedAt),
+    });
   }
 
   /**
@@ -113,4 +116,10 @@ export class DiaryService {
     // eslint-disable-next-line drizzle/enforce-delete-with-where -- IDiaryRepository.delete is a domain method, not a Drizzle ORM statement
     await this.diaryRepo.delete(id);
   }
+}
+
+function nextUpdatedAt(currentUpdatedAt: Date): Date {
+  const now = Date.now();
+  const next = currentUpdatedAt.getTime() + 1;
+  return new Date(Math.max(now, next));
 }
