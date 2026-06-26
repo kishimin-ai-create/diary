@@ -48,7 +48,7 @@ describe("DiaryListView", () => {
     expect(screen.getByText("静かな午後に読み返したこと")).toBeInTheDocument();
   });
 
-  it("renders created and updated timestamps in UTC to match database values", () => {
+  it("renders created and updated timestamps in Japan time for API UTC values", () => {
     renderWithMessages(
       <DiaryListView
         diaries={[sampleDiary]}
@@ -60,8 +60,8 @@ describe("DiaryListView", () => {
       />,
     );
 
-    expect(screen.getByText("2026/06/22 9:00")).toBeInTheDocument();
-    expect(screen.getByText("2026/06/22 10:00")).toBeInTheDocument();
+    expect(screen.getByText("2026/06/22 18:00")).toBeInTheDocument();
+    expect(screen.getByText("2026/06/22 19:00")).toBeInTheDocument();
   });
 
   it("calls search and pagination handlers when controls are used", async () => {
@@ -181,7 +181,7 @@ describe("AdminDiaryList", () => {
     );
 
     expect(screen.getByRole("link", { name: "新規作成" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "編集 雨の日のメモ" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "削除 雨の日のメモ" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "編集" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "削除" })).toBeInTheDocument();
   });
 });

@@ -45,8 +45,8 @@ export const messages = {
     admin: {
       title: "管理",
       create: "新規作成",
-      edit: "編集 {title}",
-      delete: "削除 {title}",
+      edit: "編集",
+      delete: "削除",
       deleteConfirm: "この日記を削除しますか？",
       protectedMessage: "管理画面を開くにはログインしてください。",
       formCreateTitle: "日記を作成",
@@ -108,8 +108,8 @@ export const messages = {
     admin: {
       title: "Admin",
       create: "Create",
-      edit: "Edit {title}",
-      delete: "Delete {title}",
+      edit: "Edit",
+      delete: "Delete",
       deleteConfirm: "Delete this diary?",
       protectedMessage: "Log in to open the admin area.",
       formCreateTitle: "Create diary",

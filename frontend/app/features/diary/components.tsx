@@ -330,7 +330,7 @@ export function AdminDiaryList({
             </div>
             <div className="row-actions">
               <Link href={`/admin/edit/${diary.id}`}>
-                {t("edit", { title: diary.title })}
+                {t("edit")}
               </Link>
               <button
                 type="button"
@@ -342,7 +342,7 @@ export function AdminDiaryList({
                   }
                 }}
               >
-                {t("delete", { title: diary.title })}
+                {t("delete")}
               </button>
             </div>
           </article>
@@ -403,7 +403,7 @@ function readRawFormString(formData: FormData, key: string): string {
 function formatDateTime(value: string): string {
   return new Intl.DateTimeFormat("ja-JP", {
     dateStyle: "medium",
-    timeZone: "UTC",
+    timeZone: "Asia/Tokyo",
     timeStyle: "short",
   }).format(new Date(value));
 }

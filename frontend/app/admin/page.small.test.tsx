@@ -102,7 +102,7 @@ describe("AdminPage", () => {
 
     // Act
     renderPage();
-    await user.click(screen.getByRole("button", { name: "削除 管理タイトル" }));
+    await user.click(screen.getByRole("button", { name: "削除" }));
 
     // Assert
     expect(deleteMutateMock).toHaveBeenCalledWith({ id: "diary-1" });
