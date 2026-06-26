@@ -34,18 +34,34 @@ test.describe("diary CRUD happy path", () => {
     await page.getByRole("link", { name: "新規作成" }).click();
     await page.getByLabel("タイトル").fill(createdTitle);
     await page.getByLabel("本文").fill(createdContent);
+    const createResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "POST" &&
+        response.url().includes("/api/diaries"),
+    );
     await page.getByRole("button", { name: "保存" }).click();
+    expect((await createResponsePromise).status()).toBe(201);
 
     await expect(page).toHaveURL(/\/admin$/);
-    await expect(page.getByText(createdTitle)).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: `編集 ${createdTitle}` }),
+    ).toBeVisible();
 
     await page.getByRole("link", { name: `編集 ${createdTitle}` }).click();
     await page.getByLabel("タイトル").fill(updatedTitle);
     await page.getByLabel("本文").fill(updatedContent);
+    const updateResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "PUT" &&
+        response.url().includes("/api/diaries/"),
+    );
     await page.getByRole("button", { name: "保存" }).click();
+    expect((await updateResponsePromise).status()).toBe(204);
 
     await expect(page).toHaveURL(/\/admin$/);
-    await expect(page.getByText(updatedTitle)).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: `編集 ${updatedTitle}` }),
+    ).toBeVisible();
     await expect(page.getByText(updatedContent)).toBeVisible();
 
     await page.goto("/");
@@ -55,9 +71,17 @@ test.describe("diary CRUD happy path", () => {
 
     page.on("dialog", (dialog) => dialog.accept());
     await page.goto("/admin");
+    const deleteResponsePromise = page.waitForResponse(
+      (response) =>
+        response.request().method() === "DELETE" &&
+        response.url().includes("/api/diaries/"),
+    );
     await page.getByRole("button", { name: `削除 ${updatedTitle}` }).click();
+    expect((await deleteResponsePromise).status()).toBe(204);
 
-    await expect(page.getByText(updatedTitle)).toHaveCount(0);
+    await expect(
+      page.getByRole("link", { name: `編集 ${updatedTitle}` }),
+    ).toHaveCount(0);
   });
 });
 
