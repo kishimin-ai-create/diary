@@ -1,5 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import {
   clearAccessToken,
@@ -9,6 +9,29 @@ import {
 } from "./auth";
 
 describe("auth token storage", () => {
+  const originalWindow = globalThis.window;
+
+  afterEach(() => {
+    Object.defineProperty(globalThis, "window", {
+      configurable: true,
+      value: originalWindow,
+    });
+  });
+
+  it("returns null when token is read during server rendering", () => {
+    // Arrange
+    Object.defineProperty(globalThis, "window", {
+      configurable: true,
+      value: undefined,
+    });
+
+    // Act
+    const accessToken = readAccessToken();
+
+    // Assert
+    expect(accessToken).toBeNull();
+  });
+
   it("returns saved token when token exists in session storage", () => {
     // Arrange
     clearAccessToken();

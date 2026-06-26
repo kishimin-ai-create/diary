@@ -58,6 +58,51 @@ describe("proxyBackendRequest", () => {
     expect(headers.get("authorization")).toBe("Bearer token");
     expect(headers.has("connection")).toBe(false);
   });
+
+  it("forwards request bodies and response status when method is not safe", async () => {
+    // Arrange
+    process.env["BACKEND_HOST"] = "backend.internal";
+    process.env["BACKEND_PORT"] = "10000";
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(null, {
+        headers: { "x-backend-result": "created" },
+        status: 201,
+        statusText: "Created",
+      }),
+    );
+    globalThis.fetch = fetchMock;
+
+    // Act
+    const response = await proxyBackendRequest(
+      new Request("https://frontend.example/api/diaries", {
+        body: JSON.stringify({ content: "Body", title: "Title" }),
+        headers: {
+          "content-type": "application/json",
+          "transfer-encoding": "chunked",
+        },
+        method: "POST",
+      }),
+      "/api/diaries",
+    );
+
+    // Assert
+    expect(response.status).toBe(201);
+    expect(response.headers.get("x-backend-result")).toBe("created");
+    const call = fetchMock.mock.calls.at(0);
+    expect(call).toBeDefined();
+    if (!call) {
+      throw new Error("Expected backend fetch to be called.");
+    }
+
+    const [, requestInit] = call;
+    expect(requestInit?.body).toBeInstanceOf(ArrayBuffer);
+    const headers = requestInit?.headers;
+    if (!(headers instanceof Headers)) {
+      throw new Error("Expected proxied headers.");
+    }
+    expect(headers.get("content-type")).toBe("application/json");
+    expect(headers.has("transfer-encoding")).toBe(false);
+  });
 });
 
 function restoreEnvValue(key: string, value: string | undefined): void {

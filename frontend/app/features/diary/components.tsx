@@ -197,7 +197,13 @@ export function LoginForm({ isPending, errorMessage, onSubmit }: LoginFormProps)
   }
 
   return (
-    <form className="form-panel" onSubmit={handleSubmit} noValidate>
+    <form
+      aria-label={t("title")}
+      className="form-panel"
+      method="post"
+      onSubmit={handleSubmit}
+      noValidate
+    >
       <h1>{t("title")}</h1>
       <FormField
         id="login-email"

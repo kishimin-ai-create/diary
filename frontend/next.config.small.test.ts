@@ -30,6 +30,19 @@ describe("createBackendUrl", () => {
     expect(backendUrl).toBe("http://diary-backend:10000");
   });
 
+  it("returns an internal HTTP URL without port when Render omits backend port", () => {
+    // Arrange
+    const env = {
+      BACKEND_HOST: "diary-backend",
+    };
+
+    // Act
+    const backendUrl = createBackendUrl(env);
+
+    // Assert
+    expect(backendUrl).toBe("http://diary-backend");
+  });
+
   it("prefers Render backend host and port over a local backend URL", () => {
     // Arrange
     const env = {
@@ -43,5 +56,18 @@ describe("createBackendUrl", () => {
 
     // Assert
     expect(backendUrl).toBe("http://diary-backend:10000");
+  });
+
+  it("throws a configuration error when no backend target is provided", () => {
+    // Arrange
+    const env = {};
+
+    // Act
+    const act = (): void => {
+      createBackendUrl(env);
+    };
+
+    // Assert
+    expect(act).toThrow("Backend URL is not configured.");
   });
 });

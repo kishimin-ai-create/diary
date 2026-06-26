@@ -77,6 +77,15 @@ describe("DiaryListView", () => {
 });
 
 describe("LoginForm", () => {
+  it("uses post method so credentials are not exposed in the URL before hydration", () => {
+    renderWithMessages(<LoginForm isPending={false} onSubmit={vi.fn()} />);
+
+    expect(screen.getByRole("form", { name: "管理ログイン" })).toHaveAttribute(
+      "method",
+      "post",
+    );
+  });
+
   it("shows field errors when submitted with empty values", async () => {
     const user = userEvent.setup();
     renderWithMessages(<LoginForm isPending={false} onSubmit={vi.fn()} />);

@@ -37,6 +37,12 @@ const sampleDiary = {
   updatedAt: "2026-06-23T09:00:00.000Z",
 };
 
+interface DeleteDiaryOptions {
+  mutation: {
+    onSuccess: () => void;
+  };
+}
+
 function renderPage() {
   return render(
     <NextIntlClientProvider locale="ja" messages={messages.ja} timeZone="Asia/Tokyo">
@@ -104,5 +110,63 @@ describe("AdminPage", () => {
       { page: 1, pageSize: 50 },
       { query: { enabled: true } },
     );
+  });
+
+  it("shows loading message when diary list is loading for an authenticated admin", () => {
+    // Arrange
+    useAccessTokenMock.mockReturnValue("token-123");
+    useListDiariesMock.mockReturnValue({
+      data: undefined,
+      isError: false,
+      isLoading: true,
+    });
+
+    // Act
+    renderPage();
+
+    // Assert
+    expect(screen.getByText("日記を読み込んでいます。")).toBeInTheDocument();
+  });
+
+  it("shows delete failure message when diary query fails for an authenticated admin", () => {
+    // Arrange
+    useAccessTokenMock.mockReturnValue("token-123");
+    useListDiariesMock.mockReturnValue({
+      data: undefined,
+      isError: true,
+      isLoading: false,
+    });
+
+    // Act
+    renderPage();
+
+    // Assert
+    expect(screen.getByText("削除できませんでした。")).toBeInTheDocument();
+  });
+
+  it("invalidates diary list query when delete mutation succeeds", () => {
+    // Arrange
+    useAccessTokenMock.mockReturnValue("token-123");
+    useListDiariesMock.mockReturnValue({
+      data: { diaries: [], page: 1, pageSize: 50, totalCount: 0 },
+      isError: false,
+      isLoading: false,
+    });
+    useDeleteDiaryMock.mockImplementation((options: DeleteDiaryOptions) => {
+      options.mutation.onSuccess();
+      return {
+        isError: false,
+        isPending: false,
+        mutate: deleteMutateMock,
+      };
+    });
+
+    // Act
+    renderPage();
+
+    // Assert
+    expect(invalidateQueriesMock).toHaveBeenCalledWith({
+      queryKey: ["/api/diaries", { page: 1, pageSize: 50 }],
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
@@ -36,5 +36,23 @@ describe("AppProviders", () => {
     expect(screen.getByText("Daybook")).toBeInTheDocument();
     expect(screen.getByAltText("Daybook logo")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Admin" })).toBeInTheDocument();
+  });
+
+  it("keeps the current locale when an unsupported locale value is selected", () => {
+    // Arrange
+    render(
+      <AppProviders>
+        <p>child content</p>
+      </AppProviders>,
+    );
+
+    // Act
+    fireEvent.change(screen.getByLabelText("表示言語"), {
+      target: { value: "invalid" },
+    });
+
+    // Assert
+    expect(screen.getByText("つづる日記")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "管理" })).toBeInTheDocument();
   });
 });

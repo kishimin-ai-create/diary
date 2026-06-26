@@ -181,6 +181,9 @@ export default defineConfig([
     languageOptions: {
       globals: globals.node,
     },
+    rules: {
+      "testing-library/prefer-screen-queries": "off",
+    },
   },
 
   // Next.js App Router pages and layouts:
