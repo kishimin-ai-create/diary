@@ -31,3 +31,20 @@ applyTo: "frontend/**"
   `getByTestId` (last resort only).
 - Snapshots must be small and focused. Large or overly detailed snapshots are
   prohibited.
+
+## Runtime API, Auth, and Time Rules
+
+- Browser-side API calls should normally use relative `/api/...` paths when the
+  app has a Next.js route proxy. Seeing the frontend origin in the browser
+  Network panel is not itself a bug.
+- Server-side proxy code must resolve backend origins from runtime configuration
+  and must reject a backend origin equal to the frontend request origin.
+- Proxy responses must not blindly preserve response framing headers such as
+  `content-length` or `content-encoding` when the runtime re-emits the body.
+- For API/proxy defects, verify direct backend JSON, proxied JSON, and rendered
+  UI state. A `200` status alone is not enough.
+- If login stores a token, the visible app shell must provide a logout action
+  that clears the same storage and updates navigation.
+- If API/database timestamps are UTC and the UI is expected to match them,
+  specify `timeZone` explicitly in `Intl.DateTimeFormat` and cover the rendered
+  value with a test.

@@ -53,6 +53,27 @@ targeted change** that restores correct behavior.
 - **Missing loading/error state**: add Suspense boundary or ErrorBoundary wrapper
 - **Hook misuse**: verify effect cleanup, stable references, and dependency arrays
 
+## Runtime Boundary Checks
+
+For frontend defects involving API calls, deployed behavior, authentication, or
+dates, perform these checks before declaring the fix complete:
+
+- **Next API proxy**: Browser requests to the frontend origin `/api/...` can be
+  correct. Verify the proxy's server-side target and compare direct backend
+  output with proxied output.
+- **Response body integrity**: Do not trust status code alone. Confirm JSON
+  parses and the UI renders the returned records. For proxy responses, avoid
+  carrying stale framing headers such as `content-length` or
+  `content-encoding`.
+- **Runtime URL config**: Ensure backend URLs come from runtime config and do
+  not point to the frontend origin. Add a regression test for self-referential
+  URL configuration when touching proxy code.
+- **Auth lifecycle**: If login stores a token, verify a visible logout path
+  clears the same storage and updates navigation.
+- **Date/time display**: When API timestamps are UTC and the UI must match the
+  database/API value, set `Intl.DateTimeFormat`'s `timeZone` explicitly and test
+  the rendered text.
+
 ## ✅ Mandatory Verification
 
 Run from the `frontend/` directory:

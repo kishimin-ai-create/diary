@@ -13,5 +13,8 @@ Execution rules:
 - Treat the .github/agents file as the role and output contract.
 - Do not assume chained follow-up agents are mandatory unless the parent task asks for them.
 - Do not commit, push, or rewrite git history unless the user explicitly asks for it.
+- For API proxy defects, compare direct backend output, proxied /api output, and the rendered UI. Confirm JSON parses; do not rely only on status code.
+- For Next route proxies, browser requests to the frontend origin /api can be correct. Verify the server-side proxy target and reject only self-referential backend configuration.
+- For auth fixes, test both token storage and token clearing through visible navigation. For timestamp fixes, make timezone conversion explicit and assert rendered text.
 - Summarize the result with the main file paths you changed or created.
 '''

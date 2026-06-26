@@ -90,6 +90,58 @@ import { AppError } from '../domain/app-error';
 
 **Why correct**: File was moved; import was not updated.
 
+### Pattern 6: Runtime Boundary Bug Hidden Behind HTTP 200
+
+```text
+Symptom: API request returns 200, but the UI shows empty data or an error.
+Check:
+1. Call the backend endpoint directly.
+2. Call the frontend proxy endpoint.
+3. Parse both response bodies as JSON.
+4. Open the browser UI and verify the user-visible state.
+```
+
+**Why correct**: A proxy, CDN, or runtime can preserve the status code while
+truncating, re-encoding, or misrouting the body. The fix is not proven until the
+body parses and the UI renders the expected state.
+
+### Pattern 7: Self-Referential Frontend Proxy Configuration
+
+```text
+Symptom: Browser network panel shows frontend-origin /api requests.
+Correct interpretation: This is normal for a Next.js route proxy.
+Actual check: Verify whether the server-side backend target also points to the
+frontend origin. That is the bug.
+```
+
+**Why correct**: Diagnosing the browser-visible origin alone confuses a normal
+BFF/proxy topology with a configuration loop.
+
+### Pattern 8: Timestamp Display Drift
+
+```typescript
+new Intl.DateTimeFormat("ja-JP", {
+  dateStyle: "medium",
+  timeStyle: "short",
+  timeZone: "UTC",
+});
+```
+
+**Why correct**: API/database timestamps are often UTC. If the UI must match
+those values, implicit browser-local timezone conversion must be removed and
+covered by a rendered-text test.
+
+### Pattern 9: Missing Auth Exit Path
+
+```text
+Symptom: Login stores a token, but there is no visible logout.
+Fix direction: Connect the existing token clearing function to navigation and
+test that storage is cleared and the visible navigation changes.
+```
+
+**Why correct**: Authentication is a lifecycle. Verifying only login leaves users
+stuck in an authenticated state until they manually clear storage.
+
 ## 🔍 Pre-Fix Checklist
 
 Before fixing:
@@ -100,6 +152,14 @@ Before fixing:
 - [ ] The failing test has been run and confirmed to fail (🔴 RED)
 - [ ] Understand which tests are failing and why
 - [ ] Identify the minimal change required
+- [ ] For proxy/deployment bugs, direct backend output, frontend proxy output,
+      JSON parsing, and visible UI state have all been compared
+- [ ] For frontend `/api` domain complaints, the server-side proxy target has
+      been checked before treating the browser-visible origin as wrong
+- [ ] For timestamp bugs, API/database values and rendered text have been
+      compared with an explicit timezone expectation
+- [ ] For auth bugs, both token creation and token clearing paths have been
+      checked
 - [ ] Confirm no protected paths are involved
 - [ ] All pre-existing tests currently pass (except those directly related to the defect)
 

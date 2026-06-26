@@ -13,6 +13,23 @@ Use this skill when you need to choose a deployment model, rendering strategy, o
 - Prefer the simplest architecture that still satisfies routing, security headers, deployment, and performance needs.
 - Treat hosting and rendering as linked decisions; do not choose them independently.
 
+## API Proxy / BFF Boundaries
+
+When a frontend uses Next.js route handlers or another BFF-style proxy, browser
+requests to the frontend origin such as `/api/diaries` can be correct. The
+server-side proxy target is the source of truth for whether traffic reaches the
+backend.
+
+- Keep browser code on relative `/api/...` paths unless a design explicitly
+  requires direct backend access.
+- Resolve backend origins from runtime environment variables on the server.
+- Reject backend origins that equal the frontend request origin to avoid proxy
+  loops.
+- Do not forward stale response framing headers such as `content-length` or
+  `content-encoding` when the proxy runtime re-emits a response body.
+- Verify production-like behavior by comparing direct backend output, proxied
+  output, and rendered UI.
+
 ## SPA Hosting Patterns
 
 | Pattern | Best for | Strengths | Trade-offs |

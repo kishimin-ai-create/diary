@@ -108,6 +108,22 @@ Use E2E only where the full stack of behavior matters.
 - covering the same behavior again when unit/component tests already give strong confidence
 - large E2E suites for low-risk UI details
 
+## Runtime Boundary Regression Tests
+
+Add targeted tests when frontend bugs cross browser, server, proxy, or deployment
+boundaries.
+
+- **API proxy bugs**: Test the proxy function with backend-like headers and
+  body content. Assert the response body parses, not just that status is 200.
+- **Deployment URL bugs**: Test that backend runtime config rejects a backend
+  URL with the same origin as the frontend request.
+- **Rendered data bugs**: Pair API/proxy tests with a component or browser check
+  that proves returned records are visible and empty states are not shown.
+- **Auth lifecycle bugs**: Test login storage and logout clearing through the
+  visible UI, not only through direct storage helpers.
+- **Timestamp bugs**: Assert rendered text for known UTC timestamps. Make the
+  expected timezone explicit in the test name and implementation.
+
 ## Accessibility Testing
 
 - Combine automated checks with manual validation.

@@ -181,6 +181,30 @@ When fixing a defect:
     breaking external contracts, or is outside the stated scope, report it
     clearly instead of attempting it.
 
+## Production-Like Verification Rules
+
+When a defect only appears after deployment, in a browser, through a proxy, or
+with runtime environment variables, do not stop at unit tests or HTTP status
+codes. Reproduce the smallest production-like path that exercises the failing
+boundary.
+
+- For frontend API proxy defects, compare the backend endpoint response
+  directly, the frontend `/api/...` proxy response, and the browser-visible UI
+  state that consumes that response.
+- Treat `200 OK` as insufficient until the response body parses and the UI shows
+  the expected data.
+- If the browser calls the frontend origin for `/api/...`, remember this can be
+  correct for a Next.js route proxy. Verify the server-side proxy target before
+  calling it a wrong domain.
+- For deployment configuration defects, inspect the effective runtime
+  environment variable names and reject self-referential frontend/backend URL
+  configuration in tests.
+- For date/time defects, compare API values, database values, and rendered text;
+  make timezone conversion explicit in code and tests.
+- For authentication defects, check both entry and exit paths. If a token can be
+  stored, the UI must provide a user-visible way to clear it unless the feature
+  explicitly forbids logout.
+
 ## 圻 Decision Framework: When to Stop and Report
 
 If any of these are true, **笶・DO NOT FIX 窶・report to the user instead**:

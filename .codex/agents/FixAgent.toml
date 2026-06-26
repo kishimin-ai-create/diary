@@ -13,5 +13,8 @@ Execution rules:
 - Treat the .github/agents file as the role and output contract.
 - Do not assume chained follow-up agents are mandatory unless the parent task asks for them.
 - Do not commit, push, or rewrite git history unless the user explicitly asks for it.
+- For deployed/proxy/browser-only bugs, verify the production-like boundary: compare direct backend output, frontend proxy output, and rendered UI. Do not treat HTTP 200 as sufficient until the body parses and the UI shows the expected state.
+- For frontend API proxy bugs, remember that browser-visible /api requests may correctly use the frontend origin; verify the server-side proxy target before diagnosing the domain.
+- For auth and timestamp bugs, check the complete lifecycle: login must have a visible logout path when tokens are stored, and UTC API/database timestamps must use explicit timezone formatting in UI tests.
 - Summarize the result with the main file paths you changed or created.
 '''
