@@ -35,6 +35,27 @@ describe("DiaryDetailPage", () => {
     expect(screen.getByText("日記を読み込んでいます。")).toBeInTheDocument();
   });
 
+  it("renders loading message and logo with the current English locale", () => {
+    // Arrange
+    useGetDiaryMock.mockReturnValue({
+      data: undefined,
+      isError: false,
+      isLoading: true,
+    });
+
+    // Act
+    render(
+      <NextIntlClientProvider locale="en" messages={messages.en} timeZone="Asia/Tokyo">
+        <DiaryDetailPage />
+      </NextIntlClientProvider>,
+    );
+
+    // Assert
+    expect(screen.getByRole("status")).toHaveClass("full-page-loading");
+    expect(screen.getByAltText("Daybook logo")).toBeInTheDocument();
+    expect(screen.getByText("Loading diaries.")).toBeInTheDocument();
+  });
+
   it("renders diary detail when generated query returns data", () => {
     // Arrange
     useGetDiaryMock.mockReturnValue({

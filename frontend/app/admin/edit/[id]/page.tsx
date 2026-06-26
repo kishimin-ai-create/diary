@@ -9,14 +9,16 @@ import {
   useUpdateDiary,
 } from "@/app/api/generated/diaries/diaries";
 import { useAccessToken } from "@/app/auth";
-import { DiaryEditorForm } from "@/app/features/diary/components";
+import {
+  DiaryEditorForm,
+  DiaryLoadingStatus,
+} from "@/app/features/diary/components";
 
 export default function EditDiaryPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const t = useTranslations("admin");
   const tAuth = useTranslations("auth");
-  const tDiary = useTranslations("diary");
   const hasToken = Boolean(useAccessToken());
   const diaryQuery = useGetDiary(params.id, { query: { enabled: hasToken } });
   const updateMutation = useUpdateDiary({
@@ -38,7 +40,7 @@ export default function EditDiaryPage() {
   }
 
   if (diaryQuery.isLoading) {
-    return <p className="status-message">{tDiary("loading")}</p>;
+    return <DiaryLoadingStatus />;
   }
 
   if (diaryQuery.isError || !diaryQuery.data) {

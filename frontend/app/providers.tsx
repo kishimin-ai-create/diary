@@ -7,6 +7,7 @@ import { NextIntlClientProvider, useTranslations } from "next-intl";
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -37,6 +38,10 @@ export function AppProviders({ children }: { children: ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
   const [locale, setLocale] = useState<Locale>("ja");
   const localeValue = useMemo(() => ({ locale, setLocale }), [locale]);
+
+  useEffect(() => {
+    document.title = messages[locale].app.name;
+  }, [locale]);
 
   return (
     <QueryClientProvider client={queryClient}>

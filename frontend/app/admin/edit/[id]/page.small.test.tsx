@@ -179,6 +179,32 @@ describe("EditDiaryPage", () => {
     expect(screen.getByText("日記を読み込んでいます。")).toBeInTheDocument();
   });
 
+  it("shows loading state with the current English locale", () => {
+    // Arrange
+    useGetDiaryMock.mockReturnValue({
+      data: undefined,
+      isError: false,
+      isLoading: true,
+    });
+    useUpdateDiaryMock.mockReturnValue({
+      isError: false,
+      isPending: false,
+      mutate: mutateMock,
+    });
+
+    // Act
+    render(
+      <NextIntlClientProvider locale="en" messages={messages.en} timeZone="Asia/Tokyo">
+        <EditDiaryPage />
+      </NextIntlClientProvider>,
+    );
+
+    // Assert
+    expect(screen.getByRole("status")).toHaveClass("full-page-loading");
+    expect(screen.getByAltText("Daybook logo")).toBeInTheDocument();
+    expect(screen.getByText("Loading diaries.")).toBeInTheDocument();
+  });
+
   it("shows save error when diary detail cannot be loaded", () => {
     // Arrange
     useGetDiaryMock.mockReturnValue({

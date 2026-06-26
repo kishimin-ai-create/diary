@@ -5,7 +5,10 @@ import { useParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 
 import { useGetDiary } from "@/app/api/generated/diaries/diaries";
-import { DiaryDetailView } from "@/app/features/diary/components";
+import {
+  DiaryDetailView,
+  DiaryLoadingStatus,
+} from "@/app/features/diary/components";
 
 export default function DiaryDetailPage() {
   const params = useParams<{ id: string }>();
@@ -13,7 +16,7 @@ export default function DiaryDetailPage() {
   const diaryQuery = useGetDiary(params.id);
 
   if (diaryQuery.isLoading) {
-    return <p className="status-message">{t("loading")}</p>;
+    return <DiaryLoadingStatus />;
   }
 
   if (diaryQuery.isError || !diaryQuery.data) {

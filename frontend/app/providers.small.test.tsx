@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 
@@ -41,6 +41,23 @@ describe("AppProviders", () => {
     expect(screen.getByText("Daybook")).toBeInTheDocument();
     expect(screen.getByAltText("Daybook logo")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Admin" })).toBeInTheDocument();
+  });
+
+  it("updates the browser tab service name when English is selected", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    document.title = "つづる日記";
+    render(
+      <AppProviders>
+        <p>child content</p>
+      </AppProviders>,
+    );
+
+    // Act
+    await user.selectOptions(screen.getByLabelText("表示言語"), "en");
+
+    // Assert
+    await waitFor(() => expect(document.title).toBe("Daybook"));
   });
 
   it("keeps the current locale when an unsupported locale value is selected", () => {
