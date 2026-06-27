@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { expect, test } from "@playwright/test";
 
 interface AdminCredentials {
@@ -18,11 +20,11 @@ test.describe("diary CRUD happy path", () => {
       return;
     }
 
-    const timestamp = Date.now();
-    const createdTitle = `E2E diary ${timestamp}`;
-    const updatedTitle = `E2E diary updated ${timestamp}`;
-    const createdContent = `Created content ${timestamp}`;
-    const updatedContent = `Updated content ${timestamp}`;
+    const testRunId = randomUUID();
+    const createdTitle = `E2E diary ${testRunId}`;
+    const updatedTitle = `E2E diary updated ${testRunId}`;
+    const createdContent = `Created content ${testRunId}`;
+    const updatedContent = `Updated content ${testRunId}`;
 
     await page.goto("/login");
     await page.getByLabel("メールアドレス").fill(credentials.email);
