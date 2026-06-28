@@ -1,13 +1,13 @@
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
-import { JSX, lazy } from "react";
+import { lazy, type ComponentType } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { messages } from "./i18n/messages";
 import HomePage from "./page";
 
 const shouldSuspendMock = vi.hoisted(() => ({ value: false }));
-const pendingModulePromise = vi.hoisted<Promise<{ default: () => JSX.Element }>>(
+const pendingModulePromise = vi.hoisted<Promise<{ default: ComponentType }>>(
   () => new Promise(() => undefined),
 );
 const SuspendedHomePageClient = lazy(() => pendingModulePromise);
