@@ -58,4 +58,44 @@ describe("customInstance", () => {
       expect.objectContaining({ headers, url: "/api/test" }),
     );
   });
+
+  it("retries temporary service unavailable responses until the backend wakes up", async () => {
+    // Arrange
+    requestSpy
+      .mockRejectedValueOnce(
+        Object.assign(new Error("Service unavailable"), {
+          response: { status: 503 },
+        }),
+      )
+      .mockResolvedValueOnce({ data: { ok: true } });
+
+    // Act
+    const result = await customInstance<{ ok: boolean }>(
+      { url: "/api/test" },
+      { delayMs: 0, maxAttempts: 2 },
+    );
+
+    // Assert
+    expect(result).toEqual({ ok: true });
+    expect(requestSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not retry validation errors", async () => {
+    // Arrange
+    const validationError = Object.assign(new Error("Bad request"), {
+      response: { status: 400 },
+    });
+    requestSpy.mockRejectedValueOnce(validationError);
+
+    // Act
+    const act = async (): Promise<{ ok: boolean }> =>
+      customInstance<{ ok: boolean }>(
+        { url: "/api/test" },
+        { delayMs: 0, maxAttempts: 2 },
+      );
+
+    // Assert
+    await expect(act()).rejects.toThrow("Bad request");
+    expect(requestSpy).toHaveBeenCalledOnce();
+  });
 });
