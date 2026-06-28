@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
-import { lazy } from "react";
+import { JSX, lazy } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { messages } from "./i18n/messages";

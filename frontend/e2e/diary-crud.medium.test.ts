@@ -1,4 +1,7 @@
+import { randomUUID } from "node:crypto";
+
 import { expect, test } from "@playwright/test";
+import type { APIRequestContext } from "@playwright/test";
 
 interface AdminCredentials {
   email: string;
@@ -11,6 +14,7 @@ const REQUIRED_ENVIRONMENT_MESSAGE =
 test.describe("diary CRUD happy path", () => {
   test("admin user / creates reads updates and deletes a diary / succeeds", async ({
     page,
+    request,
   }) => {
     const credentials = readAdminCredentials();
     test.skip(credentials === null, REQUIRED_ENVIRONMENT_MESSAGE);
@@ -18,11 +22,13 @@ test.describe("diary CRUD happy path", () => {
       return;
     }
 
-    const timestamp = Date.now();
-    const createdTitle = `E2E diary ${timestamp}`;
-    const updatedTitle = `E2E diary updated ${timestamp}`;
-    const createdContent = `Created content ${timestamp}`;
-    const updatedContent = `Updated content ${timestamp}`;
+    await waitForAuthProxyReady(request, credentials);
+
+    const testRunId = randomUUID();
+    const createdTitle = `E2E diary ${testRunId}`;
+    const updatedTitle = `E2E diary updated ${testRunId}`;
+    const createdContent = `Created content ${testRunId}`;
+    const updatedContent = `Updated content ${testRunId}`;
 
     await page.goto("/login");
     await page.getByLabel("メールアドレス").fill(credentials.email);
@@ -97,4 +103,36 @@ function readAdminCredentials(): AdminCredentials | null {
   }
 
   return { email, password };
+}
+
+async function waitForAuthProxyReady(
+  request: APIRequestContext,
+  credentials: AdminCredentials,
+): Promise<void> {
+  const transientStatuses = new Set([502, 503, 504]);
+  let lastStatus: number | undefined;
+
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
+    const response = await request.post("/api/auth/login", {
+      data: credentials,
+      failOnStatusCode: false,
+    });
+    lastStatus = response.status();
+    if (lastStatus === 200) {
+      return;
+    }
+    if (!transientStatuses.has(lastStatus)) {
+      expect(lastStatus).toBe(200);
+      return;
+    }
+    await delay(attempt * 1_000);
+  }
+
+  expect(lastStatus).toBe(200);
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 }
