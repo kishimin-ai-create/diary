@@ -12,4 +12,14 @@ describe("Render backend blueprint", () => {
     expect(blueprint).toContain("key: DB_MIGRATE_ON_START");
     expect(blueprint).toContain('value: "true"');
   });
+
+  test("uses the public backend URL for the free frontend service", () => {
+    // Arrange
+    const blueprint = readFileSync("../render.yaml", "utf8");
+
+    // Act & Assert
+    expect(blueprint).toContain("key: BACKEND_URL");
+    expect(blueprint).not.toContain("key: BACKEND_HOST");
+    expect(blueprint).not.toContain("key: BACKEND_PORT");
+  });
 });

@@ -29,16 +29,8 @@ services:
         value: production
       - key: PORT
         value: 3000
-      - key: BACKEND_HOST
-        fromService:
-          name: diary-backend
-          type: web
-          property: host
-      - key: BACKEND_PORT
-        fromService:
-          name: diary-backend
-          type: web
-          property: port
+      - key: BACKEND_URL
+        value: https://diary-lt6c.onrender.com
 
 databases:
   - name: diary-db
