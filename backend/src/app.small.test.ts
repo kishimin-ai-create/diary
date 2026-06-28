@@ -11,6 +11,26 @@ interface CapturedLog {
 }
 
 describe("createApp logging", () => {
+  test("returns health status without touching repositories", async () => {
+    // Arrange
+    const app = createApp({
+      diaryRepo: createDiaryRepo({
+        findMany: () => Promise.reject(new Error("should not touch diary repo")),
+      }),
+      jwtSecret: "test-secret",
+      userRepo: createUserRepo({
+        findAdmin: () => Promise.reject(new Error("should not touch user repo")),
+      }),
+    });
+
+    // Act
+    const response = await app.request("/health");
+
+    // Assert
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ status: "ok" });
+  });
+
   test("logs completed requests with method path status and duration", async () => {
     // Arrange
     const infoLogs: CapturedLog[] = [];
@@ -83,11 +103,14 @@ function createCapturingLogger(logs: {
   };
 }
 
-function createUserRepo(): IUserRepository {
+function createUserRepo(
+  overrides: Partial<IUserRepository> = {},
+): IUserRepository {
   return {
     create: () => Promise.resolve({ id: "user-id" }),
     findAdmin: () => Promise.resolve(null),
     findByEmail: () => Promise.resolve(null),
+    ...overrides,
   };
 }
 

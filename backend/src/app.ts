@@ -58,6 +58,7 @@ export function createApp(deps: AppDeps): Hono {
     return c.json({ message: "An unexpected error occurred." }, 500);
   });
 
+  app.get("/health", (c) => c.json({ status: "ok" }));
   app.route("/api/auth", createAuthController(deps.userRepo, deps.jwtSecret));
   app.route("/api/diaries", createDiaryController(deps.diaryRepo, deps.jwtSecret));
   app.get("/openapi.json", openAPIRouteHandler(app, openApiOptions));

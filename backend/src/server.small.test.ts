@@ -191,6 +191,33 @@ describe("createProductionServer", () => {
     resolveMigration?.();
   });
 
+  test("returns health status while database migrations are pending", async () => {
+    // Arrange
+    const env = {
+      DATABASE_URL: "postgresql://diary_user:password@localhost:5432/diary_db",
+      DB_MIGRATE_ON_START: "true",
+      JWT_SECRET: "test-secret",
+      PORT: "10000",
+    };
+    let resolveMigration: (() => void) | undefined;
+    const server = createProductionServer(env, {
+      runDatabaseMigrations: () =>
+        new Promise<void>((resolve) => {
+          resolveMigration = resolve;
+        }),
+    });
+
+    // Act
+    const response = await server.defaultExport.fetch(
+      new Request("http://localhost/health"),
+    );
+    resolveMigration?.();
+
+    // Assert
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ status: "ok" });
+  });
+
   test("runs startup migrations even when legacy Render env disables them", async () => {
     // Arrange
     const calls: string[] = [];
