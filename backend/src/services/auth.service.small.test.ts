@@ -3,8 +3,11 @@
  *
  * Covers:
  * - register: success path, password hashing, 409 when admin already exists
- * - login: success path (JWT returned), 401 with generic message for bad email,
- *          401 with identical message for bad password (prevents user enumeration)
+ * - login: success path (JWT access token + refresh token returned), 401 with
+ *          generic message for bad email, 401 with identical message for bad
+ *          password (prevents user enumeration)
+ * - refresh: success path, 401 for invalid token, 401 for access token presented
+ *            as refresh token
  *
  * Dependencies are injected via constructor; UserRepository is mocked so no real
  * database is needed. JWT signing uses a test-only secret.
@@ -177,7 +180,7 @@ describe("AuthService", () => {
   });
 
   describe("login", () => {
-    test("returns { accessToken } as a 3-part JWT string when credentials are valid", async () => {
+    test("returns { accessToken, refreshToken } as 3-part JWT strings when credentials are valid", async () => {
       // Arrange — user exists with a known password hash
       const plainPassword = "ValidPassword1";
       const testUser: UserForTest = {
@@ -200,9 +203,11 @@ describe("AuthService", () => {
         password: plainPassword,
       });
 
-      // Assert — JWT has the canonical header.payload.signature format
+      // Assert — both tokens have the canonical header.payload.signature format
       expect(result.accessToken).toBeTruthy();
       expect(result.accessToken.split(".").length).toBe(3);
+      expect(result.refreshToken).toBeTruthy();
+      expect(result.refreshToken.split(".").length).toBe(3);
     });
 
     test("throws 401 with 'Invalid email or password.' when the email does not exist", async () => {
@@ -317,6 +322,115 @@ describe("AuthService", () => {
 
       if (hasStatusCode(wrongEmailError) && hasStatusCode(wrongPasswordError)) {
         expect(wrongEmailError.message).toBe(wrongPasswordError.message);
+      }
+    });
+  });
+
+  describe("refresh", () => {
+    test("returns { accessToken, refreshToken } as 3-part JWT strings when refresh token is valid", async () => {
+      // Arrange — obtain a real refresh token from login
+      const plainPassword = "ValidPassword1";
+      const testUser: UserForTest = {
+        id: "user-uuid",
+        name: "Admin",
+        email: "admin@example.com",
+        passwordHash: createTestPasswordHash(plainPassword),
+        role: "admin",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      const userRepo = createMockUserRepo({
+        findByEmail: mock(() => Promise.resolve(testUser)),
+      });
+      const service = new AuthService(userRepo, { jwtSecret: TEST_JWT_SECRET });
+      const { refreshToken } = await service.login({
+        email: "admin@example.com",
+        password: plainPassword,
+      });
+
+      // Act
+      const result = await service.refresh({ refreshToken });
+
+      // Assert
+      expect(result.accessToken).toBeTruthy();
+      expect(result.accessToken.split(".").length).toBe(3);
+      expect(result.refreshToken).toBeTruthy();
+      expect(result.refreshToken.split(".").length).toBe(3);
+    });
+
+    test("throws 401 when the refresh token is signed with a different secret", async () => {
+      // Arrange
+      const service = new AuthService(createMockUserRepo(), { jwtSecret: TEST_JWT_SECRET });
+      const otherService = new AuthService(createMockUserRepo(), { jwtSecret: "different-secret" });
+      const plainPassword = "ValidPassword1";
+      const testUser: UserForTest = {
+        id: "user-uuid",
+        name: "Admin",
+        email: "admin@example.com",
+        passwordHash: createTestPasswordHash(plainPassword),
+        role: "admin",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      const otherUserServiceWithUser = new AuthService(
+        createMockUserRepo({ findByEmail: mock(() => Promise.resolve(testUser)) }),
+        { jwtSecret: "different-secret" },
+      );
+      const { refreshToken } = await otherUserServiceWithUser.login({
+        email: "admin@example.com",
+        password: plainPassword,
+      });
+
+      // Act
+      let thrownError: unknown;
+      try {
+        await service.refresh({ refreshToken });
+      } catch (e) {
+        thrownError = e;
+      }
+
+      // Assert
+      expect(hasStatusCode(thrownError)).toBe(true);
+      if (hasStatusCode(thrownError)) {
+        expect(thrownError.statusCode).toBe(401);
+      }
+
+      void otherService;
+    });
+
+    test("throws 401 when an access token is presented to the refresh endpoint", async () => {
+      // Arrange — obtain an access token from login
+      const plainPassword = "ValidPassword1";
+      const testUser: UserForTest = {
+        id: "user-uuid",
+        name: "Admin",
+        email: "admin@example.com",
+        passwordHash: createTestPasswordHash(plainPassword),
+        role: "admin",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      const userRepo = createMockUserRepo({
+        findByEmail: mock(() => Promise.resolve(testUser)),
+      });
+      const service = new AuthService(userRepo, { jwtSecret: TEST_JWT_SECRET });
+      const { accessToken } = await service.login({
+        email: "admin@example.com",
+        password: plainPassword,
+      });
+
+      // Act — present the access token to the refresh endpoint
+      let thrownError: unknown;
+      try {
+        await service.refresh({ refreshToken: accessToken });
+      } catch (e) {
+        thrownError = e;
+      }
+
+      // Assert — must reject with 401
+      expect(hasStatusCode(thrownError)).toBe(true);
+      if (hasStatusCode(thrownError)) {
+        expect(thrownError.statusCode).toBe(401);
       }
     });
   });

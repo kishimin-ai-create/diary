@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 
 const ACCESS_TOKEN_KEY = "daybook.accessToken";
+const REFRESH_TOKEN_KEY = "daybook.refreshToken";
 
 /**
  * Reads the admin access token from tab-scoped browser storage.
@@ -28,6 +29,38 @@ export function saveAccessToken(accessToken: string): void {
 export function clearAccessToken(): void {
   window.sessionStorage.removeItem(ACCESS_TOKEN_KEY);
   window.dispatchEvent(new StorageEvent("storage", { key: ACCESS_TOKEN_KEY }));
+}
+
+/**
+ * Reads the admin refresh token from tab-scoped browser storage.
+ */
+export function readRefreshToken(): string | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  return window.sessionStorage.getItem(REFRESH_TOKEN_KEY);
+}
+
+/**
+ * Persists the admin refresh token for the current browser tab.
+ */
+export function saveRefreshToken(refreshToken: string): void {
+  window.sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+}
+
+/**
+ * Clears the admin refresh token for the current browser tab.
+ */
+export function clearRefreshToken(): void {
+  window.sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+}
+
+/**
+ * Clears both the access token and refresh token, effectively ending the session.
+ */
+export function clearSession(): void {
+  clearRefreshToken();
+  clearAccessToken();
 }
 
 /**

@@ -6,7 +6,6 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type LoginAdmin200 = {
-  accessToken: string;
+export type RefreshAdminBody = {
   refreshToken: string;
 };

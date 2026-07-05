@@ -20,6 +20,8 @@ import type {
   InvalidJsonOrInputResponse,
   LoginAdmin200,
   LoginAdminBody,
+  RefreshAdmin200,
+  RefreshAdminBody,
   RegisterAdmin201,
   RegisterAdminBody,
 } from "../model";
@@ -190,4 +192,86 @@ export const useLoginAdmin = <
   TContext
 > => {
   return useMutation(getLoginAdminMutationOptions(options), queryClient);
+};
+/**
+ * @summary Rotate tokens using a valid refresh token
+ */
+export const refreshAdmin = (refreshAdminBody: RefreshAdminBody, signal?: AbortSignal) => {
+  return customInstance<RefreshAdmin200>({
+    url: `/api/auth/refresh`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    data: refreshAdminBody,
+    signal,
+  });
+};
+
+export const getRefreshAdminMutationOptions = <
+  TError = ErrorType<
+    InvalidJsonOrInputResponse | InvalidCredentialsResponse | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof refreshAdmin>>,
+    TError,
+    { data: RefreshAdminBody },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof refreshAdmin>>,
+  TError,
+  { data: RefreshAdminBody },
+  TContext
+> => {
+  const mutationKey = ["refreshAdmin"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof refreshAdmin>>,
+    { data: RefreshAdminBody }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return refreshAdmin(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type RefreshAdminMutationResult = NonNullable<Awaited<ReturnType<typeof refreshAdmin>>>;
+export type RefreshAdminMutationBody = RefreshAdminBody;
+export type RefreshAdminMutationError = ErrorType<
+  InvalidJsonOrInputResponse | InvalidCredentialsResponse | InternalServerErrorResponse
+>;
+
+/**
+ * @summary Rotate tokens using a valid refresh token
+ */
+export const useRefreshAdmin = <
+  TError = ErrorType<
+    InvalidJsonOrInputResponse | InvalidCredentialsResponse | InternalServerErrorResponse
+  >,
+  TContext = unknown,
+>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof refreshAdmin>>,
+      TError,
+      { data: RefreshAdminBody },
+      TContext
+    >;
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof refreshAdmin>>,
+  TError,
+  { data: RefreshAdminBody },
+  TContext
+> => {
+  return useMutation(getRefreshAdminMutationOptions(options), queryClient);
 };

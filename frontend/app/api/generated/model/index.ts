@@ -22,6 +22,8 @@ export * from "./listDiaries200DiariesItem";
 export * from "./listDiariesParams";
 export * from "./loginAdmin200";
 export * from "./loginAdminBody";
+export * from "./refreshAdmin200";
+export * from "./refreshAdminBody";
 export * from "./registerAdmin201";
 export * from "./registerAdminBody";
 export * from "./resourceNotFoundResponse";

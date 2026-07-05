@@ -13,7 +13,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { clearAccessToken, useAccessToken } from "./auth";
+import { clearSession, useAccessToken } from "./auth";
 import { messages, type Locale } from "./i18n/messages";
 
 interface LocaleContextValue {
@@ -86,7 +86,7 @@ function SiteFrame({ children }: { children: ReactNode }) {
           <Link href="/">{tNav("home")}</Link>
           <Link href="/admin">{tNav("admin")}</Link>
           {accessToken ? (
-            <button type="button" className="button-secondary" onClick={clearAccessToken}>
+            <button type="button" className="button-secondary" onClick={clearSession}>
               {tAuth("loggedOut")}
             </button>
           ) : (
