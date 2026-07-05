@@ -1,7 +1,7 @@
 import { create } from "axios";
-import type { AxiosRequestConfig } from "axios";
+import type { AxiosError, AxiosRequestConfig } from "axios";
 
-import { readAccessToken } from "@/app/auth";
+import { clearSession, readAccessToken, readRefreshToken, saveAccessToken, saveRefreshToken } from "@/app/auth";
 
 const axiosInstance = create({ baseURL: "" });
 const RETRYABLE_STATUSES = new Set([502, 503, 504]);
@@ -22,6 +22,47 @@ axiosInstance.interceptors.request.use((config) => {
   }
   return config;
 });
+
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const status = readHttpStatus(error);
+
+    if (status !== 401) {
+      throw error;
+    }
+
+    // Avoid an infinite loop when the refresh request itself returns 401
+    if (error.config?.url === "/api/auth/refresh") {
+      clearSession();
+      throw error;
+    }
+
+    const refreshToken = readRefreshToken();
+    if (!refreshToken) {
+      clearSession();
+      throw error;
+    }
+
+    try {
+      const refreshResponse = await axiosInstance.post<{ accessToken: string; refreshToken: string }>(
+        "/api/auth/refresh",
+        { refreshToken },
+      );
+      saveAccessToken(refreshResponse.data.accessToken);
+      saveRefreshToken(refreshResponse.data.refreshToken);
+
+      // Retry original request; the request interceptor injects the updated token
+      if (error.config) {
+        return axiosInstance(error.config);
+      }
+    } catch {
+      clearSession();
+    }
+
+    throw error;
+  },
+);
 
 /**
  * Custom Axios instance used by Orval-generated API clients.

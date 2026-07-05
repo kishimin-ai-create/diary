@@ -23,12 +23,17 @@ const loginSchema = z.object({
   password: z.string().min(1).max(255),
 });
 
+const refreshSchema = z.object({
+  refreshToken: z.string().min(1),
+});
+
 const idResponseSchema = z.object({
   id: z.string(),
 });
 
-const accessTokenResponseSchema = z.object({
+const tokenPairResponseSchema = z.object({
   accessToken: z.string(),
+  refreshToken: z.string(),
 });
 
 const registerRequestBodySchema = {
@@ -54,6 +59,15 @@ const loginRequestBodySchema = {
   properties: {
     email: { type: "string", format: "email" },
     password: { type: "string", minLength: 1, maxLength: 255 },
+  },
+} satisfies OpenApiV31.SchemaObject;
+
+const refreshRequestBodySchema = {
+  type: "object",
+  required: ["refreshToken"],
+  additionalProperties: false,
+  properties: {
+    refreshToken: { type: "string", minLength: 1 },
   },
 } satisfies OpenApiV31.SchemaObject;
 
@@ -132,7 +146,7 @@ export function createAuthController(
     describeRoute({
       operationId: "loginAdmin",
       tags: ["Auth"],
-      summary: "Issue an admin access token",
+      summary: "Issue an admin access token and refresh token",
       requestBody: {
         required: true,
         content: {
@@ -144,7 +158,7 @@ export function createAuthController(
           description: "Credentials were accepted.",
           content: {
             "application/json": {
-              schema: resolver(accessTokenResponseSchema),
+              schema: resolver(tokenPairResponseSchema),
             },
           },
         },
@@ -173,12 +187,72 @@ export function createAuthController(
       }
 
       try {
-        const { accessToken } = await authService.login(result.data);
-        return c.json({ accessToken }, 200);
+        const { accessToken, refreshToken } = await authService.login(result.data);
+        return c.json({ accessToken, refreshToken }, 200);
       } catch (e) {
         if (isServiceError(e)) {
           // Hono's c.json() requires a specific StatusCode union type;
           // ServiceError.statusCode is typed as number so we must narrow it here
+          return c.json(
+            { message: e.message },
+            e.statusCode as 400 | 401 | 500,
+          );
+        }
+        throw e;
+      }
+    },
+  );
+
+  app.post(
+    "/refresh",
+    describeRoute({
+      operationId: "refreshAdmin",
+      tags: ["Auth"],
+      summary: "Rotate tokens using a valid refresh token",
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": { schema: refreshRequestBodySchema },
+        },
+      },
+      responses: {
+        200: {
+          description: "Refresh token was accepted; new token pair issued.",
+          content: {
+            "application/json": {
+              schema: resolver(tokenPairResponseSchema),
+            },
+          },
+        },
+        400: {
+          $ref: "#/components/responses/InvalidJsonOrInput",
+        },
+        401: {
+          $ref: "#/components/responses/InvalidCredentials",
+        },
+        500: {
+          $ref: "#/components/responses/InternalServerError",
+        },
+      },
+    }),
+    async (c) => {
+      let body: unknown;
+      try {
+        body = await c.req.json();
+      } catch {
+        return c.json({ message: "Invalid JSON." }, 400);
+      }
+
+      const result = refreshSchema.safeParse(body);
+      if (!result.success) {
+        return c.json({ message: "Invalid input." }, 400);
+      }
+
+      try {
+        const { accessToken, refreshToken } = await authService.refresh(result.data);
+        return c.json({ accessToken, refreshToken }, 200);
+      } catch (e) {
+        if (isServiceError(e)) {
           return c.json(
             { message: e.message },
             e.statusCode as 400 | 401 | 500,

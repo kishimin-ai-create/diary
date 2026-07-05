@@ -6,7 +6,8 @@
  *
  * Endpoints covered:
  *   POST /api/auth/register  — public, creates the single admin account
- *   POST /api/auth/login     — public, returns JWT access token
+ *   POST /api/auth/login     — public, returns JWT access token + refresh token
+ *   POST /api/auth/refresh   — public, rotates tokens using a valid refresh token
  *
  * All tests FAIL until `backend/src/app.ts` and its route handlers are implemented.
  */
@@ -228,7 +229,7 @@ describe("POST /api/auth/register", () => {
 
 describe("POST /api/auth/login", () => {
   describe("Happy Path", () => {
-    test("returns 200 with { accessToken } when credentials are valid", async () => {
+    test("returns 200 with { accessToken, refreshToken } when credentials are valid", async () => {
       // Arrange — user repo returns a user; password verification passes
       // The passwordHash must be a real scrypt hash of 'Password123'
       // We supply a specially crafted user where the service can verify the password.
@@ -266,6 +267,8 @@ describe("POST /api/auth/login", () => {
       expect(response.status).toBe(200);
       expect(typeof body.accessToken).toBe("string");
       expect(body.accessToken.split(".").length).toBe(3);
+      expect(typeof body.refreshToken).toBe("string");
+      expect(body.refreshToken.split(".").length).toBe(3);
     });
   });
 
@@ -366,6 +369,98 @@ describe("POST /api/auth/login", () => {
       // Assert — same message as wrong-email to prevent user enumeration
       expect(response.status).toBe(401);
       expect(body.message).toBe("Invalid email or password.");
+    });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/auth/refresh
+// ---------------------------------------------------------------------------
+
+describe("POST /api/auth/refresh", () => {
+  describe("Happy Path", () => {
+    test("returns 200 with { accessToken, refreshToken } when refresh token is valid", async () => {
+      // Arrange — login first to obtain a real refresh token
+      const userRepo = {
+        ...createMockUserRepo(),
+        findByEmail: mock(() =>
+          Promise.resolve({
+            ...TEST_USER,
+            passwordHash: "798c0534f33660b2a73fc6f65f03e943:00b3916a7ed18d96313abbb1d1b20f11197a51ed74a039b39d0c6ea7cfe31c411112ce7ac382a97259ee61fb2fb4d5e9b64312a14321587b4909925589b0a6d7",
+          }),
+        ),
+      };
+      const app = createApp({
+        userRepo,
+        diaryRepo: createMockDiaryRepo(),
+        jwtSecret: TEST_JWT_SECRET,
+      });
+
+      const loginResponse = await app.request("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: "admin@example.com", password: "Password123" }),
+      });
+      const { refreshToken } = await loginResponse.json();
+
+      // Act
+      const response = await app.request("/api/auth/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
+      });
+      const body = await response.json();
+
+      // Assert
+      expect(response.status).toBe(200);
+      expect(typeof body.accessToken).toBe("string");
+      expect(body.accessToken.split(".").length).toBe(3);
+      expect(typeof body.refreshToken).toBe("string");
+      expect(body.refreshToken.split(".").length).toBe(3);
+    });
+  });
+
+  describe("Validation Failures — 400", () => {
+    test("returns 400 when refreshToken field is missing", async () => {
+      // Arrange
+      const app = createApp({
+        userRepo: createMockUserRepo(),
+        diaryRepo: createMockDiaryRepo(),
+        jwtSecret: TEST_JWT_SECRET,
+      });
+
+      // Act
+      const response = await app.request("/api/auth/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+
+      // Assert
+      expect(response.status).toBe(400);
+    });
+  });
+
+  describe("Authentication Failures — 401", () => {
+    test("returns 401 when the refresh token is invalid", async () => {
+      // Arrange
+      const app = createApp({
+        userRepo: createMockUserRepo(),
+        diaryRepo: createMockDiaryRepo(),
+        jwtSecret: TEST_JWT_SECRET,
+      });
+
+      // Act
+      const response = await app.request("/api/auth/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken: "not.a.valid.token" }),
+      });
+      const body = await response.json();
+
+      // Assert
+      expect(response.status).toBe(401);
+      expect(typeof body.message).toBe("string");
     });
   });
 });

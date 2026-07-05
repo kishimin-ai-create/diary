@@ -4,19 +4,19 @@ import { NextIntlClientProvider } from "next-intl";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import LoginPage from "./page";
-import { readAccessToken } from "@/app/auth";
+import { readAccessToken, readRefreshToken } from "@/app/auth";
 import { messages } from "@/app/i18n/messages";
 
 const mutateMock = vi.hoisted(() => vi.fn());
 const pushMock = vi.hoisted(() => vi.fn());
-type LoginOptions = { mutation: { onSuccess: (data: { accessToken: string }) => void } };
+type LoginOptions = { mutation: { onSuccess: (data: { accessToken: string; refreshToken: string }) => void } };
 type LoginResult = {
   isError: boolean;
   isPending: boolean;
   mutate: typeof mutateMock;
 };
 const loginOptions = vi.hoisted<
-  Array<{ mutation: { onSuccess: (data: { accessToken: string }) => void } }>
+  Array<{ mutation: { onSuccess: (data: { accessToken: string; refreshToken: string }) => void } }>
 >(() => []);
 const useLoginAdminMock = vi.hoisted(() =>
   vi.fn<(options: LoginOptions) => LoginResult>(),
@@ -57,10 +57,11 @@ describe("LoginPage", () => {
         <LoginPage />
       </NextIntlClientProvider>,
     );
-    loginOptions[0]?.mutation.onSuccess({ accessToken: "token-789" });
+    loginOptions[0]?.mutation.onSuccess({ accessToken: "token-789", refreshToken: "refresh-789" });
 
     // Assert
     expect(readAccessToken()).toBe("token-789");
+    expect(readRefreshToken()).toBe("refresh-789");
     expect(pushMock).toHaveBeenCalledWith("/admin");
   });
 

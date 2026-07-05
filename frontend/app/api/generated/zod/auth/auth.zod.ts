@@ -28,7 +28,7 @@ export const RegisterAdminBody = zod.object({
 });
 
 /**
- * @summary Issue an admin access token
+ * @summary Issue an admin access token and refresh token
  */
 export const loginAdminBodyPasswordMax = 255;
 
@@ -39,4 +39,17 @@ export const LoginAdminBody = zod.object({
 
 export const LoginAdminResponse = zod.object({
   accessToken: zod.string(),
+  refreshToken: zod.string(),
+});
+
+/**
+ * @summary Rotate tokens using a valid refresh token
+ */
+export const RefreshAdminBody = zod.object({
+  refreshToken: zod.string().min(1),
+});
+
+export const RefreshAdminResponse = zod.object({
+  accessToken: zod.string(),
+  refreshToken: zod.string(),
 });
