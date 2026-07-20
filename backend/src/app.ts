@@ -25,6 +25,18 @@ interface ProductionAppDeps {
   logger?: AppLogger;
 }
 
+let vercelApp: Hono | undefined;
+
+/**
+ * Provides a Web Server export for runtimes that discover this module directly.
+ */
+export default {
+  async fetch(request: Request): Promise<Response> {
+    vercelApp ??= createProductionApp();
+    return vercelApp.fetch(request);
+  },
+};
+
 /**
  * Creates and configures the Hono application with all routes and a global
  * error handler that maps ServiceError instances to JSON HTTP responses.
