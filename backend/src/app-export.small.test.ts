@@ -9,6 +9,6 @@ describe("application module export", () => {
     const server = app;
 
     // Assert
-    expect(server.fetch).toEqual(expect.any(Function));
+    expect(server).toMatchObject({ fetch: expect.any(Function) });
   });
 });
