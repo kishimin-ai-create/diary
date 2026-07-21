@@ -10,7 +10,7 @@ services:
         value: production
       - key: PORT
         value: 3000
-      - key: DB_MIGRATE_ON_START
+      - key: DB_SKIP_STARTUP_MIGRATIONS
         value: "true"
       - key: DATABASE_URL
         fromDatabase:
