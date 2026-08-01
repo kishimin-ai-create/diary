@@ -321,6 +321,9 @@ export function AdminDiaryList({
               </dl>
             </div>
             <div className="row-actions">
+              <Link href={`/diaries/${diary.id}`}>
+                {t("detail")}
+              </Link>
               <Link href={`/admin/edit/${diary.id}`}>
                 {t("edit")}
               </Link>
