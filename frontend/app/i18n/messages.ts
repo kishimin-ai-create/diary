@@ -45,6 +45,7 @@ export const messages = {
     admin: {
       title: "管理",
       create: "新規作成",
+      detail: "詳細",
       edit: "編集",
       delete: "削除",
       deleteConfirm: "この日記を削除しますか？",
@@ -108,6 +109,7 @@ export const messages = {
     admin: {
       title: "Admin",
       create: "Create",
+      detail: "View",
       edit: "Edit",
       delete: "Delete",
       deleteConfirm: "Delete this diary?",

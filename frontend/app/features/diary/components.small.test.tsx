@@ -204,6 +204,10 @@ describe("AdminDiaryList", () => {
     expect(screen.getByLabelText("日付で絞り込む")).toHaveValue("2026-06-22");
     expect(screen.getByText("2026/06/22 18:00")).toBeInTheDocument();
     expect(screen.getByText("2026/06/22 19:00")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "詳細" })).toHaveAttribute(
+      "href",
+      "/diaries/diary-1",
+    );
     expect(screen.getByRole("link", { name: "編集" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "削除" })).toBeInTheDocument();
   });
