@@ -2,13 +2,17 @@
   "name": "backend",
   "scripts": {
     "dev": "bun run --hot src/index.ts",
+    "dev:worker": "wrangler dev",
+    "deploy:worker": "wrangler deploy",
+    "cf:typegen": "wrangler types --include-runtime false",
+    "cf:typecheck": "wrangler types --include-runtime false --check",
     "start": "bun run src/index.ts",
     "test": "bun test",
     "test:small": "bun test small.test",
     "test:medium": "bun test medium.test",
     "test:large": "bun test large.test",
     "test:coverage": "bun test --coverage",
-    "typecheck": "bun run --bun tsgo --noEmit",
+    "typecheck": "bun run --bun tsgo --noEmit && bun run --bun tsgo --noEmit --project tsconfig.worker.json",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "format": "prettier --write .",
@@ -32,6 +36,7 @@
     "pg": "^8.22.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260906.1",
     "@eslint-community/eslint-plugin-eslint-comments": "^4.7.2",
     "@eslint/js": "^10.0.1",
     "@hono/zod-openapi": "^1.4.0",
@@ -53,6 +58,7 @@
     "jiti": "^2.7.0",
     "prettier": "^3.8.3",
     "typescript-eslint": "^8.60.0",
+    "wrangler": "^4.129.0",
     "zod": "^4.4.3"
   }
 }

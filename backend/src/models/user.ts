@@ -1,3 +1,4 @@
+import { Buffer } from "node:buffer";
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 
 /**
@@ -6,8 +7,8 @@ import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
  * Returns a `salt:hash` string where both parts are hex-encoded.
  */
 export function hashPassword(plain: string): string {
-  const salt = randomBytes(16).toString("hex");
-  const hash = scryptSync(plain, salt, 64).toString("hex");
+  const salt = Buffer.from(randomBytes(16)).toString("hex");
+  const hash = Buffer.from(scryptSync(plain, salt, 64)).toString("hex");
   return `${salt}:${hash}`;
 }
 

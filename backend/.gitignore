@@ -11,3 +11,11 @@ coverage/
 
 # build output
 dist/
+
+# Cloudflare local state and startup profiles
+.wrangler/
+*.cpuprofile
+
+# Cloudflare local secrets
+.dev.vars
+.dev.vars.*
