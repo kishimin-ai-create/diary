@@ -10,6 +10,7 @@
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",
+      // Replace this placeholder with the ID created for the Supabase Direct connection.
       "id": "00000000000000000000000000000000",
     },
   ],
