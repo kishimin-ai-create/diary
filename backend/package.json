@@ -4,7 +4,8 @@
     "dev": "bun run --hot src/index.ts",
     "dev:worker": "wrangler dev",
     "deploy:worker": "wrangler deploy",
-    "cf:typegen": "wrangler types",
+    "cf:typegen": "wrangler types --include-runtime false",
+    "cf:typecheck": "wrangler types --include-runtime false --check",
     "start": "bun run src/index.ts",
     "test": "bun test",
     "test:small": "bun test small.test",
@@ -35,6 +36,7 @@
     "pg": "^8.22.0"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260906.1",
     "@eslint-community/eslint-plugin-eslint-comments": "^4.7.2",
     "@eslint/js": "^10.0.1",
     "@hono/zod-openapi": "^1.4.0",

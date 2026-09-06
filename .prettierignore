@@ -15,6 +15,7 @@ frontend/app/api/generated/
 # Backend
 backend/dist/
 backend/coverage/
+backend/worker-configuration.d.ts
 
 # Lockfiles
 bun.lock
