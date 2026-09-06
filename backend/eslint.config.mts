@@ -13,7 +13,7 @@ import tseslint from "typescript-eslint";
 
 export default defineConfig([
   {
-    ignores: ["coverage/**", "dist/**", "ecosystem.config.cjs"],
+    ignores: ["coverage/**", "dist/**", "ecosystem.config.cjs", "worker-configuration.d.ts"],
   },
   {
     plugins: {
@@ -76,6 +76,15 @@ export default defineConfig([
     languageOptions: {
       parserOptions: {
         projectService: true,
+      },
+    },
+  },
+  {
+    files: ["src/worker.ts", "src/worker.small.test.ts"],
+    languageOptions: {
+      parserOptions: {
+        project: "./tsconfig.worker.json",
+        projectService: false,
       },
     },
   },
